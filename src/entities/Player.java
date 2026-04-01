@@ -56,7 +56,7 @@ public class Player {
 
         // --- LÓGICA DE PULO E GRAVIDADE ---
         if(keyH.up && !jumping) {
-            velocityY = -12; // Força do pulo
+            velocityY = -10; // Força do pulo
             jumping = true;
         }
 
@@ -65,11 +65,13 @@ public class Player {
 
         // Checagem de colisão Vertical (Chão e Teto)
         if (checkWallCollision(x, nextY)) {
-            if (velocityY > 0) { // Caindo
-                // Ajusta o player exatamente no topo do tile
-                y = ((y + 40) / gp.tileSize) * gp.tileSize - 40;
-                jumping = false;
-            }
+        	if (velocityY > 0) { // Caindo
+        	    int tileFilaBase = (y + 40 + (int)velocityY) / gp.tileSize;
+        	    y = (tileFilaBase * gp.tileSize) - 40; 
+        	    
+        	    jumping = false;
+        	    velocityY = 0;
+        	}
             velocityY = 0;
         } else {
             y = nextY;
