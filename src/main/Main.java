@@ -6,31 +6,27 @@ import engine.GamePanel;
 public class Main {
 
     public static void main(String[] args) {
-
-        // Criação da janela do jogo
+        
+        // 1. Criar a janela principal
         JFrame window = new JFrame();
-
-        // Configurações da janela
-        window.setTitle("EcoHero");
+        
+        // 2. Configurações básicas da janela
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
+        window.setTitle("Meu Jogo 2D"); // Nome do seu projeto
 
-        // Criação do painel onde o jogo será executado
+        // 3. Instanciar o GamePanel (onde a mágica acontece)
         GamePanel gamePanel = new GamePanel();
-
-        // Adiciona o painel do jogo dentro da janela
         window.add(gamePanel);
 
-        // Ajusta o tamanho da janela ao tamanho do GamePanel
+        // 4. Ajustar o tamanho da janela ao tamanho do GamePanel
         window.pack();
 
-        // Centraliza a janela na tela
+        // 5. Centralizar e exibir
         window.setLocationRelativeTo(null);
-
-        // Torna a janela visível
         window.setVisible(true);
 
-        // Inicia o loop principal do jogo (thread do jogo)
-        gamePanel.startGameThrend();
+        // 6. Iniciar o Loop do Jogo
+        gamePanel.startGameThread();
     }
 }
