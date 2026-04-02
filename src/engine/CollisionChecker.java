@@ -1,7 +1,6 @@
 package engine;
 
-import engine.GamePanel;
-import entities.Player; // Ou uma classe Entity genérica depois
+import entities.Player;
 
 public class CollisionChecker {
     GamePanel gp;
@@ -11,27 +10,42 @@ public class CollisionChecker {
     }
 
     public void checkTile(Player p) {
-        // Calcula as coordenadas em pixels dos limites do Player
-        int pLeftX = p.x;
-        int pRightX = p.x + 40; // largura do player
-        int pTopY = p.y;
-        int pBottomY = p.y + 40; // altura do player
+        
+        // 1. Definimos as bordas do Player no Mundo
+        int pLeftWorldX = p.worldX;
+        int pRightWorldX = p.worldX + 40; // largura do player
+        int pTopWorldY = p.worldY;
+        int pBottomWorldY = p.worldY + 40; // altura do player
 
-        // Converte para coordenadas de matriz (índices)
-        int pLeftCol = pLeftX / gp.tileSize;
-        int pRightCol = pRightX / gp.tileSize;
-        int pTopRow = pTopY / gp.tileSize;
-        int pBottomRow = pBottomY / gp.tileSize;
+        // 2. Traduzimos pixels para "índices" da matriz do mapa
+        int pLeftCol = pLeftWorldX / gp.tileSize;
+        int pRightCol = pRightWorldX / gp.tileSize;
+        int pTopRow = pTopWorldY / gp.tileSize;
+        int pBottomRow = pBottomWorldY / gp.tileSize;
 
         int tileNum1, tileNum2;
 
-        // Exemplo simplificado para colisão vertical (Gravidade/Pulo)
-        // Checa os dois cantos de baixo do player
-        tileNum1 = gp.tileM.mapTileNum[pLeftCol][pBottomRow];
-        tileNum2 = gp.tileM.mapTileNum[pRightCol][pBottomRow];
+        // 3. Checagem de Colisão para BAIXO (Gravidade)
+        // Prevemos onde o pé do player estará no próximo frame
+        int nextBottomWorldY = (int) (pBottomWorldY + p.velocityY);
+        int nextBottomRow = nextBottomWorldY / gp.tileSize;
 
-        if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
-            p.collisionOn = true;
+        // Evita erro de ArrayIndexOutOfBounds (sair do mapa por baixo)
+        if (nextBottomRow < gp.maxWorldRow && nextBottomRow >= 0) {
+            
+            // Checamos os dois cantos de baixo (esquerda e direita)
+            tileNum1 = gp.tileM.mapTileNum[pLeftCol][nextBottomRow];
+            tileNum2 = gp.tileM.mapTileNum[pRightCol][nextBottomRow];
+
+            if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
+                p.collisionOn = true;
+                
+                // Ajuste de "Snap": coloca o player exatamente no topo do bloco
+                // Isso evita que ele fique "tremendo" ou entre um pouco no chão
+                p.worldY = (nextBottomRow * gp.tileSize) - 40;
+                p.velocityY = 0;
+                p.jumping = false;
+            }
         }
     }
 }

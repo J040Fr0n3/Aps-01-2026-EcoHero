@@ -3,74 +3,56 @@ package engine;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-
 public class KeyHandler implements KeyListener {
 
-    public boolean up;
-    public boolean left;
-    public boolean right;
-    public boolean ctrl;
+    public boolean up, left, right, ctrl;
 
     @Override
     public void keyTyped(KeyEvent e) {}
 
-    // Detecta quando uma tecla é pressionada e ativa os controles do jogador
     @Override
     public void keyPressed(KeyEvent e) {
-
         int code = e.getKeyCode();
 
-        if(code == KeyEvent.VK_A) {
+        // Esquerda (A ou Seta Esquerda)
+        if(code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
             left = true;
         }
-        
-        if(code == KeyEvent.VK_LEFT) {
-        	left = true;
+
+        // Direita (D ou Seta Direita)
+        if(code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+            right = true;
         }
 
-        if(code == KeyEvent.VK_D) {
-            right = true;
-        }
-        
-        if(code == KeyEvent.VK_RIGHT) {
-            right = true;
-        }
-        
-        if(code == KeyEvent.VK_SPACE) {
+        // Pulo (Espaço, W ou Seta Cima)
+        if(code == KeyEvent.VK_SPACE || code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             up = true;
         }
+
+        // Sprint (CTRL)
         if(code == KeyEvent.VK_CONTROL) {
-        	ctrl = true;
+            ctrl = true;
         }
     }
 
-    // Detecta quando a tecla é solta e desativa o movimento correspondente
     @Override
     public void keyReleased(KeyEvent e) {
-
         int code = e.getKeyCode();
 
-        if(code == KeyEvent.VK_A) {
-            left = false;
-        }
-        
-        if(code == KeyEvent.VK_LEFT) {
+        if(code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
             left = false;
         }
 
-        if(code == KeyEvent.VK_D) {
-            right = false;
-        }
-        
-        if(code == KeyEvent.VK_RIGHT) {
+        if(code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
             right = false;
         }
 
-        if(code == KeyEvent.VK_SPACE) {
+        if(code == KeyEvent.VK_SPACE || code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             up = false;
         }
+
         if(code == KeyEvent.VK_CONTROL) {
-        	ctrl = false;
+            ctrl = false;
         }
     }
 }

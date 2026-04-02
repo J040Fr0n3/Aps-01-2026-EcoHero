@@ -1,6 +1,7 @@
 package engine;
 
 import javax.swing.JPanel;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import entities.Player;
@@ -9,40 +10,51 @@ import tile.TileManager;
 public class GamePanel extends JPanel implements Runnable {
 
     // Configurações de Tela
-    public final int tileSize = 48; // Cada tile terá 48x48 pixels
+    public final int tileSize = 48;
     public final int maxScreenCol = 16;
     public final int maxScreenRow = 12;
-    public final int screenWidth = tileSize * maxScreenCol; // 768px
-    public final int screenHeight = tileSize * maxScreenRow; // 576px
+    public final int screenWidth = tileSize * maxScreenCol;
+    public final int screenHeight = tileSize * maxScreenRow;
+    
+    public final int maxWorldCol = 50; 
+    public final int maxWorldRow = 12; 
+    public final int worldWidth = tileSize * maxWorldCol;
+    public final int worldHeight = tileSize * maxWorldRow;
 
     // FPS
     int FPS = 60;
 
-    // Sistema
-    public TileManager tileM = new TileManager(this);
+    // Sistema - APENAS DECLARE AQUI (Sem o "new")
+    public TileManager tileM;
     public KeyHandler keyH = new KeyHandler();
-    Thread gameThread; // A variável da Thread aqui!
+    public CollisionChecker cChecker;
+    Thread gameThread;
 
-    // Entidades
-    public Player player = new Player(this, keyH);
+    // Entidades - APENAS DECLARE AQUI
+    public Player player;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-        this.setBackground(java.awt.Color.black);
+        this.setBackground(Color.black);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+
+        // AGORA SIM, INSTANCIE NA ORDEM CORRETA:
+        this.tileM = new TileManager(this);         // 1º Carrega o mapa
+        this.cChecker = new CollisionChecker(this);     // 2º Prepara o checador
+        this.player = new Player(this, keyH);       // 3º Cria o player (agora o gp não será nulo)
     }
 
-    // O método que a sua classe MAIN vai chamar
+    // ... restante do código (startGameThread, run, update, paintComponent) permanecem iguais
+    
     public void startGameThread() {
-        gameThread = new Thread(this); // Cria a thread passando este painel (Runnable)
-        gameThread.start(); // Isso chama automaticamente o método run() abaixo
+        gameThread = new Thread(this);
+        gameThread.start();
     }
 
     @Override
     public void run() {
-        // Intervalo de tempo entre cada frame (em nanosegundos)
         double drawInterval = 1000000000 / FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
@@ -54,8 +66,8 @@ public class GamePanel extends JPanel implements Runnable {
             lastTime = currentTime;
 
             if(delta >= 1) {
-                update(); // 1: Atualiza informações (posição do player, colisão)
-                repaint(); // 2: Desenha na tela (chama o paintComponent)
+                update();
+                repaint();
                 delta--;
             }
         }
@@ -69,8 +81,9 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        tileM.draw(g);   // Desenha o mapa primeiro
-        player.draw(g);  // Desenha o player por cima
+        // Importante: Verifique se o mapa e player não são nulos antes de desenhar
+        if(tileM != null) tileM.draw(g);
+        if(player != null) player.draw(g);
         
         g.dispose();
     }

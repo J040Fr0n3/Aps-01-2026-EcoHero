@@ -16,19 +16,18 @@ public class TileManager {
     public TileManager(GamePanel gp) {
         this.gp = gp;
 
-        tile = new Tile[10]; // Suporta até 10 tipos de blocos
-        mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
+        tile = new Tile[10]; 
+        // A matriz precisa do tamanho do MUNDO (50x12)
+        mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 
         getTileImage();
         loadMap("/maps/map01.txt");
     }
 
     public void getTileImage() {
-        // Bloco 0: Espaço vazio
         tile[0] = new Tile();
         tile[0].collision = false;
 
-        // Bloco 1: Chão sólido
         tile[1] = new Tile();
         tile[1].collision = true;
     }
@@ -38,53 +37,62 @@ public class TileManager {
             InputStream is = getClass().getResourceAsStream(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            int col = 0;
             int row = 0;
 
-            while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
-                String line = br.readLine(); // Lê uma linha do txt
+            while (row < gp.maxWorldRow) {
+                String line = br.readLine();
+                if (line == null) break;
 
-                while (col < gp.maxScreenCol) {
-                    String numbers[] = line.split(" "); // Divide pelos espaços
-                    int num = Integer.parseInt(numbers[col]);
+                // O "\\s+" limpa QUALQUER quantidade de espaços (1, 2 ou 10 espaços)
+                String numbers[] = line.trim().split("\\s+"); 
 
-                    mapTileNum[col][row] = num;
-                    col++;
+                // Usamos Math.min para não estourar se a linha do TXT for maior que 50
+                for (int col = 0; col < gp.maxWorldCol; col++) {
+                    if (col < numbers.length) {
+                        int num = Integer.parseInt(numbers[col]);
+                        mapTileNum[col][row] = num;
+                    }
                 }
-                if (col == gp.maxScreenCol) {
-                    col = 0;
-                    row++;
-                }
+                row++;
             }
             br.close();
+            System.out.println("Mapa carregado com sucesso!"); // Se aparecer isso no console, o arquivo foi lido
         } catch (Exception e) {
+            System.out.println("ERRO AO LER O ARQUIVO TXT!");
             e.printStackTrace();
         }
     }
 
     public void draw(Graphics g) {
-        int col = 0;
-        int row = 0;
-        int x = 0;
-        int y = 0;
+        int worldCol = 0;
+        int worldRow = 0;
 
-        while (col < gp.maxScreenCol && row < gp.maxScreenRow) {
-            int tileNum = mapTileNum[col][row];
+        // O loop precisa percorrer as 50 colunas e as 12 linhas do seu mundo
+        while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
+            
+            int tileNum = mapTileNum[worldCol][worldRow];
 
-            // Se for o tile 1, desenhamos um quadrado cinza (chão)
+            // 1. Posição real do bloco no seu mapa gigante
+            int worldX = worldCol * gp.tileSize;
+            int worldY = worldRow * gp.tileSize;
+
+            // 2. A "Câmera": calcula onde o bloco deve aparecer na janela
+            // Se o player anda para a direita (worldX aumenta), o bloco deve ir para a esquerda (screenX diminui)
+            int screenX = worldX - gp.player.worldX + gp.player.screenX;
+            int screenY = worldY - gp.player.worldY + gp.player.screenY;
+
+            // 3. Desenha apenas o que é visível (Otimização opcional, mas recomendada)
             if (tileNum == 1) {
                 g.setColor(Color.GRAY);
-                g.fillRect(x, y, gp.tileSize, gp.tileSize);
+                // IMPORTANTE: use screenX e screenY, NÃO worldX e worldY
+                g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
             }
 
-            col++;
-            x += gp.tileSize;
+            worldCol++;
 
-            if (col == gp.maxScreenCol) {
-                col = 0;
-                x = 0;
-                row++;
-                y += gp.tileSize;
+            if (worldCol == gp.maxWorldCol) {
+                worldCol = 0;
+                worldRow++; // Certifique-se de que esta variável é a que está no WHILE
             }
         }
     }

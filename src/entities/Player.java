@@ -10,9 +10,9 @@ public class Player {
     GamePanel gp;
     KeyHandler keyH;
 
-    // Posição na tela
-    public int x;
-    public int y;
+    // Posição e Atributos
+    public int worldX; // 
+    public int worldY;
     public int speed = 5;
 
     // Física
@@ -20,78 +20,80 @@ public class Player {
     public double gravity = 0.5;
     public boolean jumping = false;
     
-    // Nova variável para controlar a colisão
+    // Câmera
+    public final int screenX;
+    public final int screenY;
+    
     public boolean collisionOn = false;
 
     public Player(GamePanel gp, KeyHandler keyH) {
-        this.gp = gp;
+        this.gp = gp; 
         this.keyH = keyH;
 
-        // Posição inicial
-        x = 100;
-        y = 100;
+        // Agora que o gp existe, calculamos o centro da tela
+        this.screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+        this.screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
+
+        // Define a posição inicial no mundo (ex: coluna 10, linha 10)
+        this.worldX = gp.tileSize * 5; 
+        this.worldY = gp.tileSize * 10;
     }
 
     public void update() {
         
-        // Ajuste de velocidade (Sprint)
-        if(keyH.ctrl) {
-            speed = 10;
-        } else {
-            speed = 5;
-        }
+        // 1. Velocidade (Sprint com CTRL)
+        if(keyH.ctrl) { speed = 10; } 
+        else { speed = 5; }
 
-        // --- MOVIMENTAÇÃO LATERAL COM CHECAGEM ---
+        // 2. Movimento Horizontal
         if(keyH.left) {
-            // Verifica colisão antes de mover
-            if(!checkWallCollision(x - speed, y)) {
-                x -= speed;
+            if(!checkWallCollision(worldX - speed, worldY)) {
+                worldX -= speed;
             }
         }
         if(keyH.right) {
-            if(!checkWallCollision(x + speed, y)) {
-                x += speed;
+            if(!checkWallCollision(worldX + speed, worldY)) {
+                worldX += speed;
             }
         }
 
-        // --- LÓGICA DE PULO E GRAVIDADE ---
+        // 3. Pulo
         if(keyH.up && !jumping) {
-            velocityY = -10; // Força do pulo
+            velocityY = -12;
             jumping = true;
         }
 
+        // 4. Gravidade e Predição de Movimento
         velocityY += gravity;
-        int nextY = (int) (y + velocityY);
+        int nextWorldY = (int) (worldY + velocityY);
 
-        // Checagem de colisão Vertical (Chão e Teto)
-        if (checkWallCollision(x, nextY)) {
-        	if (velocityY > 0) { // Caindo
-        	    int tileFilaBase = (y + 40 + (int)velocityY) / gp.tileSize;
-        	    y = (tileFilaBase * gp.tileSize) - 40; 
-        	    
-        	    jumping = false;
-        	    velocityY = 0;
-        	}
-            velocityY = 0;
+        // 5. Colisão Vertical ÚNICA (Resolve o treme-treme)
+        if (checkWallCollision(worldX, nextWorldY)) {
+            if (velocityY > 0) { // Caindo
+                // SNAP: Alinha o pé do player exatamente no topo do tile
+                // Usamos o nextWorldY para saber em qual linha ele bateria
+                worldY = (nextWorldY / gp.tileSize) * gp.tileSize;
+                jumping = false;
+            } else if (velocityY < 0) { // Batendo a cabeça (opcional)
+                worldY = ((nextWorldY / gp.tileSize) + 1) * gp.tileSize;
+            }
+            velocityY = 0; // Para a força ao colidir
         } else {
-            y = nextY;
+            worldY = nextWorldY; // Só move se o caminho estiver livre
         }
     }
 
-    // Método auxiliar para facilitar a lógica (pode ser movido para o CollisionChecker depois)
     private boolean checkWallCollision(int targetX, int targetY) {
-        // Define os 4 cantos do Player para checagem
         int left = targetX / gp.tileSize;
-        int right = (targetX + 39) / gp.tileSize; // 39 pois o player tem 40px
+        int right = (targetX + 39) / gp.tileSize;
         int top = targetY / gp.tileSize;
         int bottom = (targetY + 39) / gp.tileSize;
 
-        // Evita erro de índice fora da matriz
-        if (left < 0 || right >= gp.maxScreenCol || top < 0 || bottom >= gp.maxScreenRow) {
+        // IMPORTANTE: Agora checamos contra o tamanho do MUNDO, não da tela
+        if (left < 0 || right >= gp.maxWorldCol || top < 0 || bottom >= gp.maxWorldRow) {
             return true; 
         }
 
-        // Se qualquer um dos cantos tocar em um tile tipo 1 (chão)
         return gp.tileM.mapTileNum[left][top] == 1 ||
                gp.tileM.mapTileNum[right][top] == 1 ||
                gp.tileM.mapTileNum[left][bottom] == 1 ||
@@ -99,11 +101,8 @@ public class Player {
     }
 
     public void draw(Graphics g) {
-        // Desenha o jogador
+        // IMPORTANTE: Desenhar no screenX/Y para ele ficar fixo no centro enquanto o mundo corre
         g.setColor(Color.blue);
-        g.fillRect(x, y, 40, 40);
-        
-        // O chão fixo (cinza) foi removido daqui, 
-        // pois agora o TileManager desenha o mapa.
+        g.fillRect(screenX, screenY, 40, 40);
     }
 }
