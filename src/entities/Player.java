@@ -65,21 +65,10 @@ public class Player {
 
         // 4. Gravidade e Predição de Movimento
         velocityY += gravity;
-        int nextWorldY = (int) (worldY + velocityY);
-
-        // 5. Colisão Vertical ÚNICA (Resolve o treme-treme)
-        if (checkWallCollision(worldX, nextWorldY)) {
-            if (velocityY > 0) { // Caindo
-                // SNAP: Alinha o pé do player exatamente no topo do tile
-                // Usamos o nextWorldY para saber em qual linha ele bateria
-                worldY = (nextWorldY / gp.tileSize) * gp.tileSize;
-                jumping = false;
-            } else if (velocityY < 0) { // Batendo a cabeça (opcional)
-                worldY = ((nextWorldY / gp.tileSize) + 1) * gp.tileSize;
-            }
-            velocityY = 0; // Para a força ao colidir
-        } else {
-            worldY = nextWorldY; // Só move se o caminho estiver livre
+        gp.cChecker.checkTile(this);
+        
+        if(!collisionOn) {
+        	worldY += velocityY;
         }
     }
 
