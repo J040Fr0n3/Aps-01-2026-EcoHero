@@ -13,7 +13,7 @@ public class Main {
         // 2. Configurações básicas da janela
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
-        window.setTitle("Meu Jogo 2D"); // Nome do seu projeto
+        window.setTitle("EcoHero"); // Nome do seu projeto
 
         // 3. Instanciar o GamePanel (onde a mágica acontece)
         GamePanel gamePanel = new GamePanel();

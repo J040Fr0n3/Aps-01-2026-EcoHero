@@ -46,38 +46,20 @@ public class Player {
     }
 
     public void update() {
-        
+        // 1. lógica de agachar (apenas muda a variavel de altura)
     	if (keyH.down) { // Supondo que você mapeou 'S' ou 'Seta Baixo' no KeyHandler
-            if (!isCrouching) {
-                worldY += (defaultHeight - crouchHeight); // Ajusta a posição para não "voar" ao encolher
-                isCrouching = true;
-                currentHeight = crouchHeight;
-            }
+            isCrouching = true;
+            currentHeight = crouchHeight;
+            speed = 2;
         } else {
-            if (isCrouching) {
-                // Opcional: checar se tem teto antes de levantar
-                worldY -= (defaultHeight - crouchHeight); // Ajusta a posição para cima ao levantar
-                isCrouching = false;
-                currentHeight = defaultHeight;
-            }
-        }
-
-        // 1. Velocidade (Sprint com CTRL) - O player agachado anda mais devagar
-        if (isCrouching) {
-            speed = 2; 
-        } else if (keyH.ctrl) {
-            speed = 10;
-        } else {
-            speed = 5;
+            isCrouching = false;
+            currentHeight = defaultHeight;
+            speed = keyH.ctrl ? 10: 5;
         }
 
         // 2. Movimento Horizontal
-        if (keyH.left) {
-            if (!checkWallCollision(worldX - speed, worldY)) worldX -= speed;
-        }
-        if (keyH.right) {
-            if (!checkWallCollision(worldX + speed, worldY)) worldX += speed;
-        }
+        if (keyH.left && !checkWallCollision(worldX - speed, worldY)) worldX -= speed;
+        if (keyH.right && !checkWallCollision(worldX + speed, worldY)) worldX += speed;
 
         // 3. Pulo (Impedido se estiver agachado)
         if (keyH.up && !jumping && !isCrouching) {
@@ -98,7 +80,7 @@ public class Player {
         int left = targetX / gp.tileSize;
         int right = (targetX + 39) / gp.tileSize;
         int top = targetY / gp.tileSize;
-        int bottom = (targetY + 39) / gp.tileSize;
+        int bottom = (targetY + currentHeight - 1) / gp.tileSize;
 
         // IMPORTANTE: Agora checamos contra o tamanho do MUNDO, não da tela
         if (left < 0 || right >= gp.maxWorldCol || top < 0 || bottom >= gp.maxWorldRow) {
@@ -114,6 +96,6 @@ public class Player {
     public void draw(Graphics g) {
         // IMPORTANTE: Desenhar no screenX/Y para ele ficar fixo no centro enquanto o mundo corre
         g.setColor(Color.blue);
-        g.fillRect(screenX, screenY + (defaultHeight - currentHeight), 40, currentHeight);
+        g.fillRect(screenX, screenY, 40, currentHeight);
     }
 }

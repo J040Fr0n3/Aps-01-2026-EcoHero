@@ -17,7 +17,7 @@ public class CollisionChecker {
         int pRightCol = (p.worldX + 39) / gp.tileSize;
         
         // Onde o "pé" do player estaria no próximo frame
-        int nextBottomWorldY = (int) (p.worldY + p.crouchHeight + p.velocityY);
+        int nextBottomWorldY = (int) (p.worldY + p.currentHeight + p.velocityY);
         int nextBottomRow = nextBottomWorldY / gp.tileSize;
 
         if (nextBottomRow < gp.maxWorldRow && nextBottomRow >= 0) {
