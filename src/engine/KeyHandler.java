@@ -5,7 +5,7 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
 
-    public boolean up, left, right, ctrl;
+    public boolean up, left, right, ctrl, down;
 
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -28,6 +28,11 @@ public class KeyHandler implements KeyListener {
         if(code == KeyEvent.VK_SPACE || code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             up = true;
         }
+        
+        // Agachar (S ou Seta Baixo)
+        if(code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) {
+        	down = true;
+        }
 
         // Sprint (CTRL)
         if(code == KeyEvent.VK_CONTROL) {
@@ -49,6 +54,10 @@ public class KeyHandler implements KeyListener {
 
         if(code == KeyEvent.VK_SPACE || code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
             up = false;
+        }
+
+        if(code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) {
+        	down = false;
         }
 
         if(code == KeyEvent.VK_CONTROL) {

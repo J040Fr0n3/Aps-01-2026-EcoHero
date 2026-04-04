@@ -17,7 +17,7 @@ public class CollisionChecker {
         int pRightCol = (p.worldX + 39) / gp.tileSize;
         
         // Onde o "pé" do player estaria no próximo frame
-        int nextBottomWorldY = (int) (p.worldY + 40 + p.velocityY);
+        int nextBottomWorldY = (int) (p.worldY + p.crouchHeight + p.velocityY);
         int nextBottomRow = nextBottomWorldY / gp.tileSize;
 
         if (nextBottomRow < gp.maxWorldRow && nextBottomRow >= 0) {
@@ -31,7 +31,7 @@ public class CollisionChecker {
 
                 // SNAP: Coloca o player exatamente no topo do tile colidido
                 // Isso mata o tremor
-                p.worldY = (nextBottomRow * gp.tileSize) - 40;
+                p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
             }
         }
     }
