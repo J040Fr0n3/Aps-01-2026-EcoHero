@@ -62,9 +62,13 @@ public class Player {
         if (keyH.right && !checkWallCollision(worldX + speed, worldY)) worldX += speed;
 
         // 3. Pulo (Impedido se estiver agachado)
-        if (keyH.up && !jumping && !isCrouching) {
-            velocityY = -10;
-            jumping = true;
+        if (keyH.up && !jumping) {
+        	if(isCrouching) {
+            velocityY = -5;
+        	}   else {
+        		velocityY = -10;
+        	}
+        	jumping = true;
         }
 
         // 4. Gravidade e Colisão
