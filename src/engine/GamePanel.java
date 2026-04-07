@@ -46,7 +46,6 @@ public class GamePanel extends JPanel implements Runnable {
         this.player = new Player(this, keyH);       // 3º Cria o player (agora o gp não será nulo)
     }
 
-    // ... restante do código (startGameThread, run, update, paintComponent) permanecem iguais
     
     public void startGameThread() {
         gameThread = new Thread(this);

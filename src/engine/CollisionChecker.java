@@ -1,6 +1,7 @@
 package engine;
 
 import entities.Player;
+import tile.Tile;
 
 public class CollisionChecker {
     GamePanel gp;
@@ -21,17 +22,28 @@ public class CollisionChecker {
         int nextBottomRow = nextBottomWorldY / gp.tileSize;
 
         if (nextBottomRow < gp.maxWorldRow && nextBottomRow >= 0) {
-            int tileNum1 = gp.tileM.mapTileNum[pLeftCol][nextBottomRow];
-            int tileNum2 = gp.tileM.mapTileNum[pRightCol][nextBottomRow];
+        	int t1 = gp.tileM.mapTileNum[pLeftCol][nextBottomRow];
+            int t2 = gp.tileM.mapTileNum[pRightCol][nextBottomRow];
 
-            if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
+            // 1. Prioridade: Elevador (ID 16)
+            if (t1 == 16 || t2 == 16) { 
+                p.worldY -= 2; 
+                p.velocityY = 0;
+                p.jumping = false; 
+                p.collisionOn = true; 
+                return; 
+            }
+
+            // 2. Sólidos (Paredes, Chão, Lixeiras)
+            if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
                 p.collisionOn = true;
                 p.velocityY = 0;
                 p.jumping = false;
-
-                // SNAP: Coloca o player exatamente no topo do tile colidido
-                // Isso mata o tremor
                 p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
+            } 
+            else {
+                // 3. Vazio ou Tiles atravessáveis
+                p.jumping = true; 
             }
         }
     }

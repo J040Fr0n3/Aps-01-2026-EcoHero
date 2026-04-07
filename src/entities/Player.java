@@ -61,7 +61,7 @@ public class Player {
         if (keyH.left && !checkWallCollision(worldX - speed, worldY)) worldX -= speed;
         if (keyH.right && !checkWallCollision(worldX + speed, worldY)) worldX += speed;
 
-        // 3. Pulo (Impedido se estiver agachado)
+        // 3. Pulo 
         if (keyH.up && !jumping) {
         	if(isCrouching) {
             velocityY = -5;
@@ -73,10 +73,13 @@ public class Player {
 
         // 4. Gravidade e Colisão
         velocityY += gravity;
+        
         gp.cChecker.checkTile(this);
         
         if (!collisionOn) {
             worldY += velocityY;
+        } else {
+        	velocityY = 0;
         }
     }
 
@@ -91,15 +94,18 @@ public class Player {
             return true; 
         }
 
-        return gp.tileM.mapTileNum[left][top] == 1 ||
-               gp.tileM.mapTileNum[right][top] == 1 ||
-               gp.tileM.mapTileNum[left][bottom] == 1 ||
-               gp.tileM.mapTileNum[right][bottom] == 1;
+        return isSolid(left, top) || isSolid(right, top) || 
+                isSolid(left, bottom) || isSolid(right, bottom);
+    }
+    private boolean isSolid(int col, int row) {
+    	int tileID = gp.tileM.mapTileNum[col][row];
+    	return gp.tileM.tile[tileID].collision;
     }
 
     public void draw(Graphics g) {
         // IMPORTANTE: Desenhar no screenX/Y para ele ficar fixo no centro enquanto o mundo corre
         g.setColor(Color.blue);
-        g.fillRect(screenX, screenY, 40, currentHeight);
+        int yOffset = defaultHeight - currentHeight;
+        g.fillRect(screenX, screenY + yOffset, 40, currentHeight);
     }
 }
