@@ -43,13 +43,13 @@ public class TileManager {
         setup(5, "agua", false, new Color(0, 100, 255)); // Azul Claro
         
         // 6 - Trampulim
-        setup(6, "trampolim", false, Color.PINK);
+        setup(6, "trampolim", true, Color.PINK);
         
         // 7 - Bueiro
         setup(7, "bueiro", false, new Color(30, 30, 30)); // Cinza bem escuro
         
         // 8 - Nuvem
-        setup(8, "nuvem", false, Color.WHITE);
+        setup(8, "nuvem", true, Color.WHITE);
         
         // 9 - Gerador Lixo
         setup(9, "gerador_lixo", false, Color.MAGENTA);

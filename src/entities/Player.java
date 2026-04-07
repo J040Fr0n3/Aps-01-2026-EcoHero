@@ -47,14 +47,20 @@ public class Player {
 
     public void update() {
         // 1. lógica de agachar (apenas muda a variavel de altura)
-    	if (keyH.down) { // Supondo que você mapeou 'S' ou 'Seta Baixo' no KeyHandler
-            isCrouching = true;
+    	if (keyH.down) {
+            if (!isCrouching) { // Se acabou de apertar o botão
+                worldY += (defaultHeight - crouchHeight); // Empurra o worldY para baixo
+                isCrouching = true;
+            }
             currentHeight = crouchHeight;
             speed = 2;
         } else {
-            isCrouching = false;
+            if (isCrouching) { // Se acabou de soltar o botão
+                worldY -= (defaultHeight - crouchHeight); // Puxa o worldY para cima
+                isCrouching = false;
+            }
             currentHeight = defaultHeight;
-            speed = keyH.ctrl ? 10: 5;
+            speed = keyH.ctrl ? 10 : 5;
         }
 
         // 2. Movimento Horizontal

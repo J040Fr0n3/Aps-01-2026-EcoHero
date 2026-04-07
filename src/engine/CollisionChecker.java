@@ -17,15 +17,30 @@ public class CollisionChecker {
         int pLeftCol = p.worldX / gp.tileSize;
         int pRightCol = (p.worldX + 39) / gp.tileSize;
         
-        // Onde o "pé" do player estaria no próximo frame
+        // -- Checagem de Teto
+        if(p.velocityY < 0) {
+        	int nextTopWordY = (int) (p.worldY + p.velocityY);
+        	int nextTopRow = nextTopWordY / gp.tileSize;
+        	if (nextTopRow >= 0) {
+        		int t1 = gp.tileM.mapTileNum[pLeftCol][nextTopRow];
+                int t2 = gp.tileM.mapTileNum[pRightCol][nextTopRow];
+
+                // Se o bloco de cima for sólido e NÃO for um elevador (G/16)
+                if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) && t1 != 16 && t2 != 16) {
+                    p.velocityY = 0; // Para o pulo imediatamente
+                    p.worldY = (nextTopRow + 1) * gp.tileSize; // Empurra o player para baixo do bloco
+                }
+        	}
+        }
+        // -- Checagem de chão
         int nextBottomWorldY = (int) (p.worldY + p.currentHeight + p.velocityY);
         int nextBottomRow = nextBottomWorldY / gp.tileSize;
-
-        if (nextBottomRow < gp.maxWorldRow && nextBottomRow >= 0) {
-        	int t1 = gp.tileM.mapTileNum[pLeftCol][nextBottomRow];
+        
+        if (nextBottomRow >= 0 && nextBottomRow < gp.maxWorldRow) {
+            int t1 = gp.tileM.mapTileNum[pLeftCol][nextBottomRow];
             int t2 = gp.tileM.mapTileNum[pRightCol][nextBottomRow];
 
-            // 1. Prioridade: Elevador (ID 16)
+            // 1. Elevador
             if (t1 == 16 || t2 == 16) { 
                 p.worldY -= 2; 
                 p.velocityY = 0;
@@ -34,15 +49,15 @@ public class CollisionChecker {
                 return; 
             }
 
-            // 2. Sólidos (Paredes, Chão, Lixeiras)
+            // 2. Sólidos
             if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
                 p.collisionOn = true;
                 p.velocityY = 0;
                 p.jumping = false;
+                // SNAP: Garante que o player fique exatamente no topo do bloco
                 p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
             } 
             else {
-                // 3. Vazio ou Tiles atravessáveis
                 p.jumping = true; 
             }
         }
