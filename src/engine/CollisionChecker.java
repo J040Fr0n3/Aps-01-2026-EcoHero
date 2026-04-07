@@ -42,12 +42,12 @@ public class CollisionChecker {
             
             if(gp.tileM.tile[t1] == null || gp.tileM.tile[t2] == null) return;
             
-            if(t1 == 6 || t2 ==2) {
+            if(t1 == 6 || t2 == 6) {
             	if (p.velocityY > 0) {
             		if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
             			p.trampoLineJumpCount++;
             		}
-            		double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
+            		double boost = 1.0 + (p.trampoLineJumpCount -1) * 1;
             		p.velocityY = -10 * boost;
             		
             		p.jumping = true;
@@ -76,6 +76,15 @@ public class CollisionChecker {
             else {
                 p.jumping = true; 
             }
+        }
+        int centerX = (p.worldX + 20) / gp.tileSize; // Checa pelo centro do player
+        int centerY = (p.worldY + p.currentHeight / 2) / gp.tileSize;
+        int tileIdCenter = gp.tileM.mapTileNum[centerX][centerY];
+
+        if (tileIdCenter == 4) {
+            p.onLadder = true;
+        } else {
+            p.onLadder = false;
         }
     }
 }

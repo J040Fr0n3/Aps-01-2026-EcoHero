@@ -33,6 +33,8 @@ public class Player {
     
     public int trampoLineJumpCount = 0;
     public final int maxTrampoLineJumps = 3;
+    
+    public boolean onLadder = false;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
@@ -49,47 +51,65 @@ public class Player {
     }
 
     public void update() {
-        // 1. lógica de agachar (apenas muda a variavel de altura)
-    	if (keyH.down) {
-            if (!isCrouching) { // Se acabou de apertar o botão
-                worldY += (defaultHeight - crouchHeight); // Empurra o worldY para baixo
+    	// 1. LÓGICA DE AGACHAR
+        if (keyH.down && !onLadder) {
+            if (!isCrouching) {
+                worldY += (defaultHeight - crouchHeight);
                 isCrouching = true;
             }
             currentHeight = crouchHeight;
             speed = 2;
         } else {
-            if (isCrouching) { // Se acabou de soltar o botão
-                worldY -= (defaultHeight - crouchHeight); // Puxa o worldY para cima
+            if (isCrouching) {
+                worldY -= (defaultHeight - crouchHeight);
                 isCrouching = false;
             }
             currentHeight = defaultHeight;
             speed = keyH.ctrl ? 10 : 5;
         }
 
-        // 2. Movimento Horizontal
+        // 2. MOVIMENTO HORIZONTAL
         if (keyH.left && !checkWallCollision(worldX - speed, worldY)) worldX -= speed;
         if (keyH.right && !checkWallCollision(worldX + speed, worldY)) worldX += speed;
 
-        // 3. Pulo 
-        if (keyH.up && !jumping) {
-        	trampoLineJumpCount =0;
-        	if(isCrouching) {
-            velocityY = -5;
-        	}   else {
-        		velocityY = -10;
-        	}
-        	jumping = true;
+        // 3. VERIFICAÇÃO DE COLISÃO E ESCADA
+        gp.cChecker.checkTile(this); // Isso define p.collisionOn e p.onLadder
+
+        // 4. LÓGICA DE MOVIMENTAÇÃO VERTICAL (ESCADA VS GRAVIDADE)
+        if (onLadder) {
+            velocityY = 0; // Anula gravidade na escada
+            jumping = false; 
+            
+            if (keyH.up) worldY -= speed;
+            if (keyH.down) worldY += speed;
+            
+            // Opcional: Permitir pular para FORA da escada
+            /*if (keyH.up) { // Use uma tecla diferente ou verifique Shift
+                 velocityY = -4;
+                 onLadder = false;
+            }*/
+        } else {
+            // GRAVIDADE NORMAL
+            velocityY += gravity;
+
+            // PULO (Só funciona se NÃO estiver no ar/jumping)
+            if (keyH.up && !jumping) {
+                trampoLineJumpCount = 0;
+                if (isCrouching) {
+                    velocityY = -5;
+                } else {
+                    velocityY = -10;
+                }
+                jumping = true;
+                collisionOn = false; // Força a saída do chão
+            }
         }
 
-        // 4. Gravidade e Colisão
-        velocityY += gravity;
-        
-        gp.cChecker.checkTile(this);
-        
-        if (!collisionOn) {
+        // 5. APLICAÇÃO FINAL DO MOVIMENTO Y
+        if (!collisionOn || velocityY < 0) { // Se não há colisão embaixo OU se está subindo (pulo)
             worldY += velocityY;
         } else {
-        	velocityY = 0;
+            velocityY = 0;
         }
     }
 
@@ -115,7 +135,6 @@ public class Player {
     public void draw(Graphics g) {
         // IMPORTANTE: Desenhar no screenX/Y para ele ficar fixo no centro enquanto o mundo corre
         g.setColor(Color.blue);
-        int yOffset = defaultHeight - currentHeight;
-        g.fillRect(screenX, screenY + yOffset, 40, currentHeight);
+        g.fillRect(screenX, screenY, 40, currentHeight);
     }
 }

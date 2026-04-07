@@ -42,7 +42,7 @@ public class TileManager {
         // 5 - Àgua
         setup(5, "agua", false, new Color(0, 100, 255)); // Azul Claro
         
-        // 6 - Trampulim
+        // 6 - Trampolim
         setup(6, "trampolim", true, Color.PINK);
         
         // 7 - Bueiro
