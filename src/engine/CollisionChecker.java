@@ -39,10 +39,26 @@ public class CollisionChecker {
         if (nextBottomRow >= 0 && nextBottomRow < gp.maxWorldRow) {
             int t1 = gp.tileM.mapTileNum[pLeftCol][nextBottomRow];
             int t2 = gp.tileM.mapTileNum[pRightCol][nextBottomRow];
+            
+            if(gp.tileM.tile[t1] == null || gp.tileM.tile[t2] == null) return;
+            
+            if(t1 == 6 || t2 ==2) {
+            	if (p.velocityY > 0) {
+            		if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
+            			p.trampoLineJumpCount++;
+            		}
+            		double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
+            		p.velocityY = -10 * boost;
+            		
+            		p.jumping = true;
+            		p.collisionOn = false;
+            		return;
+            	}
+            }
 
             // 1. Elevador
             if (t1 == 16 || t2 == 16) { 
-                p.worldY -= 2; 
+                p.worldY -= 4; 
                 p.velocityY = 0;
                 p.jumping = false; 
                 p.collisionOn = true; 

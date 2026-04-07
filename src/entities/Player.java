@@ -30,6 +30,9 @@ public class Player {
     public final int screenY;
     
     public boolean collisionOn = false;
+    
+    public int trampoLineJumpCount = 0;
+    public final int maxTrampoLineJumps = 3;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
@@ -69,6 +72,7 @@ public class Player {
 
         // 3. Pulo 
         if (keyH.up && !jumping) {
+        	trampoLineJumpCount =0;
         	if(isCrouching) {
             velocityY = -5;
         	}   else {
