@@ -143,8 +143,32 @@ public class Player {
     }
 
     public void draw(Graphics g) {
-        // IMPORTANTE: Desenhar no screenX/Y para ele ficar fixo no centro enquanto o mundo corre
+        int x = screenX;
+        int y = screenY;
+
+        // Ajusta a posição visual do player se a câmera estiver travada na borda
+        
+        // Eixo X
+        if (screenX > worldX) {
+            x = worldX;
+        } else {
+            int rightOffset = gp.screenWidth - screenX;
+            if (rightOffset > gp.worldWidth - worldX) {
+                x = gp.screenWidth - (gp.worldWidth - worldX);
+            }
+        }
+
+        // Eixo Y
+        if (screenY > worldY) {
+            y = worldY;
+        } else {
+            int bottomOffset = gp.screenHeight - screenY;
+            if (bottomOffset > gp.worldHeight - worldY) {
+                y = gp.screenHeight - (gp.worldHeight - worldY);
+            }
+        }
+
         g.setColor(Color.blue);
-        g.fillRect(screenX, screenY, 40, currentHeight);
+        g.fillRect(x, y, 40, currentHeight);
     }
 }

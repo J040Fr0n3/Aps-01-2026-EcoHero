@@ -39,7 +39,7 @@ public class TileManager {
         setup(4, "escada", false, new Color(200, 150, 50)); // com fisica
         
         // 5 - Àgua
-        setup(5, "agua", false, new Color(0, 100, 255)); // sem fisica
+        setup(5, "agua", false, new Color(0, 100, 255)); // com fisica
         
         // 6 - Trampolim
         setup(6, "trampolim", true, Color.PINK); // com fisica
@@ -119,41 +119,48 @@ public class TileManager {
     }
 
     public void draw(Graphics g) {
-    	int worldCol = 0;
+        int worldCol = 0;
         int worldRow = 0;
 
         while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            
             int tileNum = mapTileNum[worldCol][worldRow];
 
-            // Proteção contra IDs inválidos no mapa
-            if (tileNum < 0 || tileNum >= tile.length || tile[tileNum] == null) {
-                tileNum = 0; // Trata como vazio se o ID não existir
-            }
-
-            // 1. Posição real do bloco no mundo
             int worldX = worldCol * gp.tileSize;
             int worldY = worldRow * gp.tileSize;
 
-            // 2. Cálculo da Câmera
+            // --- LÓGICA DE TRAVAMENTO DA CÂMERA ---
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY = worldY - gp.player.worldY + gp.player.screenY;
 
-            // 3. Otimização: Desenha apenas se estiver na tela
-            if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
-                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
-                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
-                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
-                
-                // Define a cor sólida correspondente ao tileNum
-                g.setColor(tile[tileNum].color);
-                
-                // Desenha o quadrado preenchido
-                g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+            // Trava no eixo X (Esquerda e Direita)
+            if (gp.player.screenX > gp.player.worldX) {
+                screenX = worldX;
+            }
+            int rightOffset = gp.screenWidth - gp.player.screenX;
+            if (rightOffset > gp.worldWidth - gp.player.worldX) {
+                screenX = worldX - (gp.worldWidth - gp.screenWidth);
             }
 
-            worldCol++;
+            // Trava no eixo Y (Topo e Fundo)
+            if (gp.player.screenY > gp.player.worldY) {
+                screenY = worldY;
+            }
+            int bottomOffset = gp.screenHeight - gp.player.screenY;
+            if (bottomOffset > gp.worldHeight - gp.player.worldY) {
+                screenY = worldY - (gp.worldHeight - gp.screenHeight);
+            }
+            // ---------------------------------------
 
+            if (screenX + gp.tileSize > 0 && 
+                    screenX < gp.screenWidth && 
+                    screenY + gp.tileSize > 0 && 
+                    screenY < gp.screenHeight) {
+                    
+                    g.setColor(tile[tileNum].color);
+                    g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+                }
+
+            worldCol++;
             if (worldCol == gp.maxWorldCol) {
                 worldCol = 0;
                 worldRow++;
