@@ -35,6 +35,10 @@ public class Player {
     public final int maxTrampoLineJumps = 3;
     
     public boolean onLadder = false;
+    
+    public boolean inWater = false;
+    public int airTimer = 0; // Contador para o sistema de dano futuro
+    public final int maxAir = 300; // Exemplo: 5 segundos a 60 FPS
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
@@ -51,8 +55,8 @@ public class Player {
     }
 
     public void update() {
-    	// 1. LÓGICA DE AGACHAR
-        if (keyH.down && !onLadder) {
+        // 1. LÓGICA DE AGACHAR
+        if (keyH.down && !onLadder && !inWater) { // Não agacha na escada/água
             if (!isCrouching) {
                 worldY += (defaultHeight - crouchHeight);
                 isCrouching = true;
@@ -69,47 +73,53 @@ public class Player {
         }
 
         // 2. MOVIMENTO HORIZONTAL
-        if (keyH.left && !checkWallCollision(worldX - speed, worldY)) worldX -= speed;
-        if (keyH.right && !checkWallCollision(worldX + speed, worldY)) worldX += speed;
+        int horizontalSpeed = inWater ? speed / 2 : speed; // Reduz velocidade na água
+        if (keyH.left && !checkWallCollision(worldX - horizontalSpeed, worldY)) worldX -= horizontalSpeed;
+        if (keyH.right && !checkWallCollision(worldX + horizontalSpeed, worldY)) worldX += horizontalSpeed;
 
-        // 3. VERIFICAÇÃO DE COLISÃO E ESCADA
-        gp.cChecker.checkTile(this); // Isso define p.collisionOn e p.onLadder
+        // 3. VERIFICAÇÃO DE COLISÃO
+        gp.cChecker.checkTile(this); 
 
-        // 4. LÓGICA DE MOVIMENTAÇÃO VERTICAL (ESCADA VS GRAVIDADE)
+        // 4. LÓGICA VERTICAL
         if (onLadder) {
-            velocityY = 0; // Anula gravidade na escada
+            airTimer = 0;
+            velocityY = 0; 
             jumping = false; 
             
             if (keyH.up) worldY -= speed;
             if (keyH.down) worldY += speed;
-            
-            // Opcional: Permitir pular para FORA da escada
-            /*if (keyH.up) { // Use uma tecla diferente ou verifique Shift
-                 velocityY = -4;
-                 onLadder = false;
-            }*/
-        } else {
-            // GRAVIDADE NORMAL
-            velocityY += gravity;
+            // Na escada o movimento é direto no worldY, não precisa de velocityY
+        } 
+        else if (inWater) {
+        	airTimer++;
+            velocityY = 1.2; // Gravidade da água
+            jumping = false; 
 
-            // PULO (Só funciona se NÃO estiver no ar/jumping)
-            if (keyH.up && !jumping) {
-                trampoLineJumpCount = 0;
-                if (isCrouching) {
-                    velocityY = -5;
-                } else {
-                    velocityY = -10;
-                }
-                jumping = true;
-                collisionOn = false; // Força a saída do chão
+            if (keyH.up) {
+            	velocityY = -7;
+            } else if(keyH.down) {
+            	velocityY = 7;
+            }else {
+            	velocityY = 1.2;
             }
-        }
-
-        // 5. APLICAÇÃO FINAL DO MOVIMENTO Y
-        if (!collisionOn || velocityY < 0) { // Se não há colisão embaixo OU se está subindo (pulo)
             worldY += velocityY;
         } else {
-            velocityY = 0;
+            // FÍSICA NORMAL
+            airTimer = 0;
+            velocityY += gravity;
+
+            if (keyH.up && !jumping) {
+                velocityY = isCrouching ? -5 : -10;
+                jumping = true;
+            }
+
+            // Permite subir se estiver pulando (vel < 0) ou cair se não houver colisão
+            if (!collisionOn || velocityY < 0) {
+                worldY += velocityY;
+            } else {
+                velocityY = 0;
+                trampoLineJumpCount = 0;
+            }
         }
     }
 

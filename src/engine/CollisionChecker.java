@@ -64,14 +64,17 @@ public class CollisionChecker {
                 p.collisionOn = true; 
                 return; 
             }
-
             // 2. Sólidos
             if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
-                p.collisionOn = true;
-                p.velocityY = 0;
-                p.jumping = false;
-                // SNAP: Garante que o player fique exatamente no topo do bloco
-                p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
+            	if (t1 == 5 || t2 == 5 || t1 == 4 || t2 == 4) {
+            		p.collisionOn = false;
+            	} else {
+	                p.collisionOn = true;
+	                p.velocityY = 0;
+	                p.jumping = false;
+	                // SNAP: Garante que o player fique exatamente no topo do bloco
+	                p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
+            	}
             } 
             else {
                 p.jumping = true; 
@@ -79,12 +82,10 @@ public class CollisionChecker {
         }
         int centerX = (p.worldX + 20) / gp.tileSize; // Checa pelo centro do player
         int centerY = (p.worldY + p.currentHeight / 2) / gp.tileSize;
-        int tileIdCenter = gp.tileM.mapTileNum[centerX][centerY];
-
-        if (tileIdCenter == 4) {
-            p.onLadder = true;
-        } else {
-            p.onLadder = false;
+        if (centerX >= 0 && centerX < gp.maxWorldCol && centerY >= 0 && centerY < gp.maxWorldRow) {
+        	int tileIdCenter = gp.tileM.mapTileNum[centerX][centerY];
+        	p.onLadder = (tileIdCenter == 4);// Escada
+        	p.inWater = (tileIdCenter == 5); //água
         }
     }
 }
