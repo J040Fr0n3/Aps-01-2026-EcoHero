@@ -69,7 +69,7 @@ public class Player {
                 isCrouching = false;
             }
             currentHeight = defaultHeight;
-            speed = keyH.ctrl ? 10 : 5;
+            speed = keyH.ctrl ? 7 : 5;
         }
 
         // 2. MOVIMENTO HORIZONTAL

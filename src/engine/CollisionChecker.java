@@ -47,7 +47,7 @@ public class CollisionChecker {
             		if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
             			p.trampoLineJumpCount++;
             		}
-            		double boost = 1.0 + (p.trampoLineJumpCount -1) * 1;
+            		double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
             		p.velocityY = -10 * boost;
             		
             		p.jumping = true;

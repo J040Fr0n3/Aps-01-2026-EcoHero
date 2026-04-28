@@ -20,7 +20,6 @@ public class TileManager {
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 
         getTileImage();
-        loadMap("/maps/map01.txt");
     }
 
     public void getTileImage() {
@@ -31,7 +30,7 @@ public class TileManager {
         setup(1, "chao", true, new Color(100, 100, 100)); // com fisica
         
         // 2 - Parede
-        setup(2, "parede", true, new Color(50, 50, 50)); // com fisica
+        setup(2, "parede", true, Color.BLACK); // com fisica
         // 3 - Plataforma
         setup(3, "plataforma", true, new Color(150, 75, 0)); // com fisica; sem configutação
         
