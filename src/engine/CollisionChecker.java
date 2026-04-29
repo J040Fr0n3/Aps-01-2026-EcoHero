@@ -1,5 +1,6 @@
 package engine;
 
+import entities.Item;
 import entities.Player;
 import tile.Tile;
 
@@ -62,7 +63,10 @@ public class CollisionChecker {
                 p.velocityY = 0;
                 p.jumping = false; 
                 p.collisionOn = true; 
+                p.onElevator = true;
                 return; 
+            } else {
+            	p.onElevator = false;
             }
             // 2. Sólidos
             if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
@@ -87,5 +91,26 @@ public class CollisionChecker {
         	p.onLadder = (tileIdCenter == 4);// Escada
         	p.inWater = (tileIdCenter == 5); //água
         }
+    }
+    public int checkItem(Player p) {
+        int index = -1;
+
+        for (int i = 0; i < gp.itemM.activeItems.size(); i++) {
+            Item item = gp.itemM.activeItems.get(i);
+
+            // Define a área de colisão do player e do item
+            // Player: worldX, worldY até tileSize
+            // Item: worldX, worldY até tileSize
+            
+            if (p.worldX < item.worldX + gp.tileSize &&
+                p.worldX + gp.tileSize > item.worldX &&
+                p.worldY < item.worldY + gp.tileSize &&
+                p.worldY + gp.tileSize > item.worldY) {
+                
+                index = i; // Retorna o índice do item que encostamos
+                break;
+            }
+        }
+        return index;
     }
 }

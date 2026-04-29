@@ -24,7 +24,7 @@ public class LevelManager {
             Arrays.asList("papel", "vidro"), 15, 7));
         
         levels.add(new LevelConfig(3, "/maps/map03.txt",
-        		Arrays.asList("papel", "vidro", "meral"), 15, 7));
+        		Arrays.asList("papel", "vidro", "metal"), 15, 7));
 
     }
 
@@ -43,8 +43,10 @@ public class LevelManager {
         LevelConfig config = getCurrentLevel();
         
         // Limpa dados da fase anterior no GamePanel
-        gp.spawnerLocations.clear();
-        // gp.itemM.clearItems(); 
+        gp.spawnerData.clear();
+        gp.itemM.clearItems(); 
+        
+        gp.itemM.preSpawnItems();
 
         // Comanda o TileManager a carregar o mapa da configuração
         gp.tileM.loadMap(config.mapPath);

@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import engine.GamePanel;
+import entities.Item;
 
 public class TileManager {
 
@@ -99,6 +100,11 @@ public class TileManager {
                                 num = Integer.parseInt(val, 16);
                             }
                             mapTileNum[col][row] = num;
+                            
+                            if (num ==9) {
+                            	java.awt.Point p = new java.awt.Point(col, row);
+                            	gp.spawnerData.put(p, 0);
+                            }
                         } catch (NumberFormatException e) {
                             // 3. Se encontrar um 'G' ou algo que falhe, tratamos manualmente
                             // ou apenas definimos como 0 para o mapa não quebrar

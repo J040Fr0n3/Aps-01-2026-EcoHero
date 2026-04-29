@@ -36,9 +36,14 @@ public class Player {
     
     public boolean onLadder = false;
     
+    public boolean onElevator = false;
+    
     public boolean inWater = false;
     public int airTimer = 0; // Contador para o sistema de dano futuro
     public final int maxAir = 300; // Exemplo: 5 segundos a 60 FPS
+    
+    public java.util.ArrayList<String> inventory = new java.util.ArrayList<>();
+    public int maxInventorySize = 3;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
@@ -108,7 +113,7 @@ public class Player {
             airTimer = 0;
             velocityY += gravity;
 
-            if (keyH.up && !jumping) {
+            if (keyH.up && !jumping && !onElevator) {
                 velocityY = isCrouching ? -5 : -10;
                 jumping = true;
             }
@@ -121,6 +126,20 @@ public class Player {
                 trampoLineJumpCount = 0;
             }
         }
+        
+        int itemIndex = gp.cChecker.checkItem(this);
+        if (itemIndex != -1) {
+        	if (inventory.size() < maxInventorySize) {
+	            String type = gp.itemM.activeItems.get(itemIndex).type;
+	            inventory.add(type);
+	            System.out.println("Coletou: " + type + "(Espaço: " + inventory.size() + "/" + maxInventorySize + ")");
+	            
+	            gp.itemM.activeItems.remove(itemIndex);
+	        } else {
+	        	System.out.println("Inventário cheio!");
+	        }
+        }
+        
     }
 
     private boolean checkWallCollision(int targetX, int targetY) {

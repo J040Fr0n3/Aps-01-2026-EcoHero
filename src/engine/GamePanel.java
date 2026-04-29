@@ -6,6 +6,8 @@ import java.awt.Point;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+
+import entities.Item;
 import entities.Player;
 import tile.TileManager;
 
@@ -22,6 +24,8 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxWorldRow = 14; 
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
+    
+    public ItemManager itemM = new ItemManager(this);
     
     // teste mapas
     public int currentLevelIndex = 1;
@@ -40,7 +44,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player;
     
     public LevelManager levelM;
-    public ArrayList<Point> spawnerLocations = new ArrayList<>();
+    public java.util.HashMap<java.awt.Point, Integer> spawnerData = new java.util.HashMap<>();
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -85,9 +89,13 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         player.update();
         
+        if(itemM != null) {
+        	itemM.update();
+        }
+        
         if (keyH.nextLevelRequested) {
             levelM.nextLevel();
-            keyH.nextLevelRequested = false; // Reseta para não pular todas as fases de uma vez
+            keyH.nextLevelRequested = false;
         }
         
     }
@@ -98,6 +106,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         // Importante: Verifique se o mapa e player não são nulos antes de desenhar
         if(tileM != null) tileM.draw(g);
+        if(itemM != null) itemM.draw(g);
         if(player != null) player.draw(g);
         
         g.dispose();

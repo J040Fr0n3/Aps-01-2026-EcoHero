@@ -40,7 +40,6 @@ public class KeyHandler implements KeyListener {
         if(code == KeyEvent.VK_CONTROL) {
             ctrl = true;
         }
-        
         if (code == KeyEvent.VK_N) {
             nextLevelRequested = true;
         }
