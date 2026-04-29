@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import engine.GamePanel;
+import entities.Item;
 
 public class TileManager {
 
@@ -20,7 +21,6 @@ public class TileManager {
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 
         getTileImage();
-        loadMap("/maps/map01.txt");
     }
 
     public void getTileImage() {
@@ -32,7 +32,7 @@ public class TileManager {
         
         // 2 - Parede
         setup(2, "parede", true, new Color(50, 50, 50)); // com fisica
-        
+      
         // 3 - Plataforma
         setup(3, "plataforma", true, new Color(150, 75, 0)); // com fisica; sem configutação
         
@@ -101,6 +101,11 @@ public class TileManager {
                                 num = Integer.parseInt(val, 16);
                             }
                             mapTileNum[col][row] = num;
+                            
+                            if (num ==9) {
+                            	java.awt.Point p = new java.awt.Point(col, row);
+                            	gp.spawnerData.put(p, 0);
+                            }
                         } catch (NumberFormatException e) {
                             // 3. Se encontrar um 'G' ou algo que falhe, tratamos manualmente
                             // ou apenas definimos como 0 para o mapa não quebrar

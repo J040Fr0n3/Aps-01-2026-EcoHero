@@ -1,9 +1,13 @@
 package engine;
 
 import javax.swing.JPanel;
+import java.util.ArrayList;
+import java.awt.Point;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+
+import entities.Item;
 import entities.Player;
 import tile.TileManager;
 
@@ -21,12 +25,16 @@ public class GamePanel extends JPanel implements Runnable {
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
     
- // No GamePanel.java
+    public ItemManager itemM = new ItemManager(this);
+    
+    // teste mapas
+    public int currentLevelIndex = 1;
+    
 
-    // FPS
+
     int FPS = 60;
 
-    // Sistema - APENAS DECLARE AQUI (Sem o "new")
+
     public TileManager tileM;
     public KeyHandler keyH = new KeyHandler();
     public CollisionChecker cChecker;
@@ -34,6 +42,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     // Entidades - APENAS DECLARE AQUI
     public Player player;
+    
+    public LevelManager levelM;
+    public java.util.HashMap<java.awt.Point, Integer> spawnerData = new java.util.HashMap<>();
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -41,11 +52,12 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
-
-        // AGORA SIM, INSTANCIE NA ORDEM CORRETA:
-        this.tileM = new TileManager(this);         // 1º Carrega o mapa
-        this.cChecker = new CollisionChecker(this);     // 2º Prepara o checador
-        this.player = new Player(this, keyH);       // 3º Cria o player (agora o gp não será nulo)
+        
+        this.levelM = new LevelManager(this);
+        this.tileM = new TileManager(this);
+        this.cChecker = new CollisionChecker(this);
+        this.player = new Player(this, keyH);
+        this.levelM.loadCurrentLevel();
     }
 
     
@@ -76,6 +88,16 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         player.update();
+        
+        if(itemM != null) {
+        	itemM.update();
+        }
+        
+        if (keyH.nextLevelRequested) {
+            levelM.nextLevel();
+            keyH.nextLevelRequested = false;
+        }
+        
     }
 
     @Override
@@ -84,6 +106,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         // Importante: Verifique se o mapa e player não são nulos antes de desenhar
         if(tileM != null) tileM.draw(g);
+        if(itemM != null) itemM.draw(g);
         if(player != null) player.draw(g);
         
         g.dispose();

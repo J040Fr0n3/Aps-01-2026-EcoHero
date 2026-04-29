@@ -6,6 +6,8 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
 
     public boolean up, left, right, ctrl, down;
+    
+    public boolean nextLevelRequested = false;
 
     @Override
     public void keyTyped(KeyEvent e) {}
@@ -37,6 +39,9 @@ public class KeyHandler implements KeyListener {
         // Sprint (CTRL)
         if(code == KeyEvent.VK_CONTROL) {
             ctrl = true;
+        }
+        if (code == KeyEvent.VK_N) {
+            nextLevelRequested = true;
         }
     }
 
