@@ -32,6 +32,7 @@ public class TileManager {
         
         // 2 - Parede
         setup(2, "parede", true, new Color(50, 50, 50)); // com fisica
+        
         // 3 - Plataforma
         setup(3, "plataforma", true, new Color(150, 75, 0)); // com fisica; sem configutação
         

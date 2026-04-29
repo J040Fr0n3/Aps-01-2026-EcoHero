@@ -25,10 +25,14 @@ public class CollisionChecker {
         		int t1 = gp.tileM.mapTileNum[pLeftCol][nextTopRow];
                 int t2 = gp.tileM.mapTileNum[pRightCol][nextTopRow];
 
-                // Se o bloco de cima for sólido e NÃO for um elevador (G/16)
-                if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) && t1 != 16 && t2 != 16) {
-                    p.velocityY = 0; // Para o pulo imediatamente
-                    p.worldY = (nextTopRow + 1) * gp.tileSize; // Empurra o player para baixo do bloco
+             // SE FOR NUVEM E JÁ QUEBROU
+                if ((t1 == 8 || t2 == 8) && (p.cloudBroken || p.standOnCloudCounter > p.maxCloudTime)) {
+                     // Deixa passar direto: não fazemos nada e não entramos no próximo if
+                } 
+                // CASO CONTRÁRIO, CHECA COLISÃO NORMAL
+                else if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) && t1 != 16 && t2 != 16) {
+                    p.velocityY = 0; 
+                    p.worldY = (nextTopRow + 1) * gp.tileSize;
                 }
         	}
         }
@@ -64,21 +68,39 @@ public class CollisionChecker {
                 p.collisionOn = true; 
                 return; 
             }
-            // 2. Sólidos
+         // 2. Sólidos
             if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
-            	if (t1 == 5 || t2 == 5 || t1 == 4 || t2 == 4) {
-            		p.collisionOn = false;
-            	} else {
-	                p.collisionOn = true;
-	                p.velocityY = 0;
-	                p.jumping = false;
-	                // SNAP: Garante que o player fique exatamente no topo do bloco
-	                p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
-            	}
-            } 
-            else {
-                p.jumping = true; 
+                
+                // VERIFICAÇÃO ESPECIAL: Se for nuvem e o tempo acabou, NÃO colide
+                if ((t1 == 8 || t2 == 8) && (p.cloudBroken || p.standOnCloudCounter > p.maxCloudTime)) {
+                    p.collisionOn = false;
+                    p.onCloud = false; // Se quebrou, ele não está mais "em cima" de algo sólido
+                    p.jumping = true; // Garante que continue caindo
+                } 
+                // Outras exceções (água/escada) que você já tinha
+                else if (t1 == 5 || t2 == 5 || t1 == 4 || t2 == 4) {
+                    p.collisionOn = false;
+                } 
+                // Se não for nenhum desses casos, é um sólido de verdade (chão)
+                else {
+                    p.collisionOn = true;
+                    p.velocityY = 0;
+                    p.jumping = false;
+                    p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
+                }
             }
+        
+            // CODIGO NOVO !!!
+            // 3. Nuvens
+            if (t1 == 8 || t2 == 8) {
+                p.onCloud = true;
+            } else {
+                p.onCloud = false;	
+            }	
+        }
+        else {
+        	p.jumping = true;
+        	p.onCloud = false; // Se cair no vazio, não está mais na nuvem
         }
         int centerX = (p.worldX + 20) / gp.tileSize; // Checa pelo centro do player
         int centerY = (p.worldY + p.currentHeight / 2) / gp.tileSize;

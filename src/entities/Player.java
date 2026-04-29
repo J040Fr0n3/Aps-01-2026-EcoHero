@@ -39,6 +39,12 @@ public class Player {
     public boolean inWater = false;
     public int airTimer = 0; // Contador para o sistema de dano futuro
     public final int maxAir = 300; // Exemplo: 5 segundos a 60 FPS
+    
+    // CODIGO NOVO !!!
+    public boolean onCloud = false;
+    public int standOnCloudCounter = 0; // Variavel para a nuvem
+    public final int maxCloudTime = 30; // 30 frames = 0.5 segundos	
+    public boolean cloudBroken = false; // <-- AQUI! A "chave" que trava a nuvem
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
@@ -52,6 +58,10 @@ public class Player {
         // Define a posição inicial no mundo (ex: coluna 10, linha 10)
         this.worldX = gp.tileSize * 5; 
         this.worldY = gp.tileSize * 10;
+        
+        // Define o "reset", a nuvem não terá mais colisão após primeiro contato
+        this.cloudBroken = false;
+        this.standOnCloudCounter = 0;
     }
 
     public void update() {
@@ -113,13 +123,27 @@ public class Player {
                 jumping = true;
             }
 
-            // Permite subir se estiver pulando (vel < 0) ou cair se não houver colisão
-            if (!collisionOn || velocityY < 0) {
-                worldY += velocityY;
-            } else {
-                velocityY = 0;
-                trampoLineJumpCount = 0;
+            // Só contamos se a nuvem ainda NÃO estiver quebrada
+            if (onCloud == true && cloudBroken == false) {
+                standOnCloudCounter++;
+            } else if (onCloud == false && cloudBroken == false) {
+                standOnCloudCounter = 0;
             }
+            
+         // REGRA DE QUEDA (Vira fumaça para sempre)
+         if (standOnCloudCounter > maxCloudTime && cloudBroken == false) { 
+             cloudBroken = true; // agora será permanente 
+             collisionOn = false;
+             worldY += 10;
+         } 
+         
+        // APLICAÇÃO DO MOVIMENTO (Usa o collisionOn atualizado pela nuvem)
+         if (!collisionOn || velocityY < 0) {
+            worldY += velocityY; 
+         } else {
+        	 velocityY = 0;
+        	 trampoLineJumpCount = 0;
+         }
         }
     }
 
@@ -139,6 +163,10 @@ public class Player {
     }
     private boolean isSolid(int col, int row) {
     	int tileID = gp.tileM.mapTileNum[col][row];
+    	
+    	if (tileID == 8 && (cloudBroken || standOnCloudCounter > maxCloudTime)) {
+    		return false;
+    	}
     	return gp.tileM.tile[tileID].collision;
     }
 
