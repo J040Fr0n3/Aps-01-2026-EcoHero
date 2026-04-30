@@ -54,11 +54,11 @@ public class TileManager {
         setup(9, "gerador_lixo", false, Color.MAGENTA); //sem configuração
 
         // A-E Lixeiras (Cores da coleta seletiva)
-        setup(10, "lixeira_papel", true, Color.BLUE);      // sem fisica e sem configuração
-        setup(11, "lixeira_vidro", true, Color.GREEN);     // sem fisica e sem configuração
-        setup(12, "lixeira_metal", true, Color.YELLOW);    // sem fisica e sem configuração
-        setup(13, "lixeira_plastico", true, Color.RED);     // sem fisica e sem configuração
-        setup(14, "lixeira_organico", true, new Color(139, 69, 19)); // sem fisica e sem configuração
+        setup(10, "lixeira_papel", false, Color.BLUE);      // sem fisica e sem configuração
+        setup(11, "lixeira_vidro", false, Color.GREEN);     // sem fisica e sem configuração
+        setup(12, "lixeira_metal", false, Color.YELLOW);    // sem fisica e sem configuração
+        setup(13, "lixeira_plastico", false, Color.RED);     // sem fisica e sem configuração
+        setup(14, "lixeira_organico", false, new Color(139, 69, 19)); // sem fisica e sem configuração
 
         // F - Água Tóxica
         setup(15, "agua_toxica", false, new Color(50, 200, 50)); // sem fisica e sem configuração

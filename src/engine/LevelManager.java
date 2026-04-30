@@ -43,19 +43,22 @@ public class LevelManager {
     public void loadCurrentLevel() {
         LevelConfig config = getCurrentLevel();
         
-        // Limpa dados da fase anterior no GamePanel
+        // 1. Limpa dados da fase anterior
         gp.spawnerData.clear();
         gp.itemM.clearItems(); 
+
+        // 2. Define o objetivo da barra para a nova fase
+        gp.totalItemsNoNivel = config.maxTotalItems; // O 100% da barra
+        gp.itensColetadosTotal = 0;                  // Reseta o preenchimento
         
+        // 3. Carrega o mapa e spawns
+        gp.tileM.loadMap(config.mapPath);
         gp.itemM.preSpawnItems();
 
-        // Comanda o TileManager a carregar o mapa da configuração
-        gp.tileM.loadMap(config.mapPath);
-
-        // Reposiciona o Player
+        // 4. Reposiciona o Player
         gp.player.worldX = gp.tileSize * 5;
         gp.player.worldY = gp.tileSize * 10;
         
-        System.out.println("Nível carregado: " + config.levelNumber);
+        System.out.println("Nível carregado: " + config.levelNumber + " | Objetivo: " + config.maxTotalItems);
     }
 }

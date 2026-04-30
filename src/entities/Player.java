@@ -126,19 +126,73 @@ public class Player {
             }
         }
         
+        if (keyH.descarte) {
+        	discardItem();
+        	keyH.descarte = false;
+        }
+        
         int itemIndex = gp.cChecker.checkItem(this);
         if (itemIndex != -1) {
         	if (inventory.size() < maxInventorySize) {
-	            String type = gp.itemM.activeItems.get(itemIndex).type;
-	            inventory.add(type);
-	            System.out.println("Coletou: " + type + "(Espaço: " + inventory.size() + "/" + maxInventorySize + ")");
-	            
-	            gp.itemM.activeItems.remove(itemIndex);
-	        } else {
+        	    String type = gp.itemM.activeItems.get(itemIndex).type;
+        	    inventory.add(type);
+        	    
+        	    // Incrementa a barra, mas trava no 100% para não quebrar o desenho
+        	    if (gp.itensColetadosTotal < gp.totalItemsNoNivel) {
+        	    }
+        	    
+        	    gp.itemM.activeItems.remove(itemIndex);
+        	} else {
 	        	System.out.println("Inventário cheio!");
 	        }
         }
         
+    }
+    
+    public void discardItem() {
+        if (inventory.isEmpty()) return;
+
+        // 1. Identifica em qual tile o player está tentando interagir
+        // Vamos checar o tile à frente ou no centro do player
+        int col = worldX / gp.tileSize;
+        int row = (worldY + currentHeight / 2) / gp.tileSize;
+        int tileID = gp.tileM.mapTileNum[col][row];
+
+        // 2. Verifica se o tile é uma lixeira (IDs 10 a 14)
+        if (tileID >= 10 && tileID <= 14) {
+            String itemParaDescartar = inventory.get(0);
+            boolean acerto = false;
+
+            // Lógica de Validação: Item vs Lixeira
+            if (itemParaDescartar.equals("papel") && tileID == 10) acerto = true;
+            else if (itemParaDescartar.equals("vidro") && tileID == 11) acerto = true;
+            else if (itemParaDescartar.equals("metal") && tileID == 12) acerto = true;
+            else if (itemParaDescartar.equals("plastico") && tileID == 13) acerto = true;
+            else if (itemParaDescartar.equals("organico") && tileID == 14) acerto = true;
+
+            if (acerto) {
+                // Regra de Acerto: Soma 10 * Multiplicador
+                gp.score += (10 * gp.comboMultiplier);
+                gp.itensColetadosTotal++;
+                gp.correctSequence++;
+                
+                // Sobe o multiplicador a cada acerto (limite x5)
+                if (gp.comboMultiplier < 5) {
+                    gp.comboMultiplier++;
+                }
+                System.out.println("Acertou! Score: " + gp.score + " Combo: x" + gp.comboMultiplier);
+            } else {
+                // Regra de Erro: Subtrai 10 e reseta combo
+                gp.score -= 10;
+                if (gp.score < 0) gp.score = 0; // Evita score negativo se preferir
+                gp.comboMultiplier = 1;
+                gp.correctSequence = 0;
+                System.out.println("Errou a lixeira! Combo resetado.");
+            }
+
+            // Remove o item do inventário após a tentativa
+            inventory.remove(0);
+        }
     }
 
     private boolean checkWallCollision(int targetX, int targetY) {

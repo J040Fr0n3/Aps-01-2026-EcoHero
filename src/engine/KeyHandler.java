@@ -5,7 +5,7 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
 
-    public boolean up, left, right, ctrl, down;
+    public boolean up, left, right, ctrl, down, descarte;
     
     public boolean nextLevelRequested = false;
 
@@ -43,6 +43,9 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_N) {
             nextLevelRequested = true;
         }
+        if(code == KeyEvent.VK_E) {
+        	descarte = true;
+        }
     }
 
     @Override
@@ -67,6 +70,9 @@ public class KeyHandler implements KeyListener {
 
         if(code == KeyEvent.VK_CONTROL) {
             ctrl = false;
+        }
+        if(code == KeyEvent.VK_E) {
+        	descarte = false;
         }
     }
 }
