@@ -115,7 +115,40 @@ public class GamePanel extends JPanel implements Runnable {
         if(tileM != null) tileM.draw(g);
         if(itemM != null) itemM.draw(g);
         if(player != null) player.draw(g);
+        desenharSlotDeItem(g);
         
         g.dispose();
     }
+    
+    private void desenharSlotDeItem(Graphics g) {
+        // 1. Configurações do Quadrado (Centro do Topo)
+        int boxSize = 60;
+        int x = (screenWidth / 2) - (boxSize / 2);
+        int y = 20;
+
+        // 2. Desenha o fundo do quadrado (Borda e Fundo)
+        g.setColor(new Color(0, 0, 0, 150)); // Preto semi-transparente
+        g.fillRect(x, y, boxSize, boxSize);
+        g.setColor(Color.WHITE);
+        g.drawRect(x, y, boxSize, boxSize); // Borda branca
+
+        // 3. Verifica se tem item para mostrar
+        if (player.inventory.size() > 0) {
+            String proximoItem = player.inventory.get(0); // Pega o primeiro da fila
+            
+            // Define a cor baseada no tipo (Ajuste conforme seus itens)
+            if (proximoItem.equals("Plastico")) g.setColor(Color.RED);
+            else if (proximoItem.equals("Papel")) g.setColor(Color.BLUE);
+            else if (proximoItem.equals("Vidro")) g.setColor(Color.GREEN);
+            else g.setColor(Color.YELLOW);
+
+            // Desenha um pequeno quadrado/ícone representando o item
+            g.fillRect(x + 10, y + 10, boxSize - 20, boxSize - 20);
+            
+            // Opcional: Escreve o nome embaixo
+            g.setColor(Color.WHITE);
+            g.drawString(proximoItem, x, y + boxSize + 15);
+        }
+    }
+    
 }

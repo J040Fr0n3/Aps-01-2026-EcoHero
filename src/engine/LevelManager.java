@@ -35,6 +35,7 @@ public class LevelManager {
     public void nextLevel() {
         if (currentLevelIndex + 1 < levels.size()) {
             currentLevelIndex++;
+            
             loadCurrentLevel();
         }
     }
