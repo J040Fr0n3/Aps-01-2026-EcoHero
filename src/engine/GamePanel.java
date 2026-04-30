@@ -1,5 +1,7 @@
 package engine;
 
+
+
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.awt.Point;
@@ -12,6 +14,9 @@ import entities.Item;
 import entities.Player;
 import tile.CloudManager;
 import tile.TileManager;
+
+import java.awt.Graphics2D;
+import java.awt.BasicStroke;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -145,7 +150,7 @@ public class GamePanel extends JPanel implements Runnable {
         g.setColor(Color.WHITE);
         g.drawRoundRect(barX, barY, barMaxWidth, barHeight, 10, 10);
 
-        // Preenchimento da barra baseado nos itens coletados
+
         if (totalItemsNoNivel > 0) {
             double progresso = (double) itensColetadosTotal / totalItemsNoNivel;
             int barFillWidth = (int) (barMaxWidth * progresso);
@@ -154,44 +159,50 @@ public class GamePanel extends JPanel implements Runnable {
             g.fillRoundRect(barX + 2, barY + 2, Math.max(0, barFillWidth - 4), barHeight - 4, 8, 8);
         }
 
-        // Texto do Score no meio da barra
+
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.setColor(Color.WHITE);
         String scoreText = "SCORE: " + score;
         int scoreTextX = barX + (barMaxWidth / 2) - (g.getFontMetrics().stringWidth(scoreText) / 2);
         g.drawString(scoreText, scoreTextX, barY + 25);
 
-        // --- 2. DESENHO DO SLOT DO INVENTÁRIO ---
-        // Fundo do slot
-        g.setColor(new Color(0, 0, 0, 180));
-        g.fillRect(inventoryX, inventoryY, boxSize, boxSize);
-        g.setColor(Color.WHITE);
-        g.drawRect(inventoryX, inventoryY, boxSize, boxSize);
+        Graphics2D g2 = (Graphics2D) g;
 
-        // Item no slot
+        // Lógica de Cor da Borda: Vermelho se cheio, Verde se houver espaço
+        boolean estaCheio = player.inventory.size() >= player.maxInventorySize;
+        Color corBorda = estaCheio ? new Color(255, 0, 0) : new Color(0, 255, 0);
+
+
+        g2.setColor(new Color(0, 0, 0, 180));
+        g2.fillRect(inventoryX, inventoryY, boxSize, boxSize);
+
+
+        g2.setStroke(new BasicStroke(10)); 
+        g2.setColor(corBorda);
+        g2.drawRect(inventoryX, inventoryY, boxSize, boxSize);
+        g2.setStroke(new BasicStroke(1)); 
+
         if (player.inventory.size() > 0) {
             String proximoItem = player.inventory.get(0);
-            g.setColor(getCorDoItem(proximoItem)); 
-            g.fillRect(inventoryX + 10, inventoryY + 10, boxSize - 20, boxSize - 20);
+            
+            g2.setColor(getCorDoItem(proximoItem)); 
+            g2.fillRect(inventoryX + 10, inventoryY + 10, boxSize - 20, boxSize - 20);
 
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.PLAIN, 12));
-            g.drawString(proximoItem, inventoryX + (boxSize/2) - (g.getFontMetrics().stringWidth(proximoItem)/2), inventoryY + boxSize + 15);
+
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Arial", Font.BOLD, 12));
+            String nomeItem = proximoItem.toUpperCase();
+            int nomeX = inventoryX + (boxSize/2) - (g2.getFontMetrics().stringWidth(nomeItem)/2);
+            g2.drawString(nomeItem, nomeX, inventoryY + boxSize + 22);
         }
-
-        // --- 3. STATUS E COMBO ---
-        String status = player.inventory.size() >= player.maxInventorySize ? "INVENTÁRIO CHEIO!" : "Espaço: " + player.inventory.size() + "/" + player.maxInventorySize;
-        g.setColor(player.inventory.size() >= player.maxInventorySize ? Color.RED : Color.YELLOW);
-        g.drawString(status, inventoryX + (boxSize/2) - (g.getFontMetrics().stringWidth(status)/2), inventoryY + boxSize + 30);
 
         if (comboMultiplier > 1) {
             g.setColor(Color.ORANGE);
             g.setFont(new Font("Arial", Font.BOLD, 14));
-            g.drawString("COMBO X" + comboMultiplier, barX, barY + barHeight + 20);
+            g.drawString("X" + comboMultiplier, barX, barY + barHeight + 20);
         }
     }
 
-    // Método auxiliar para organizar as cores
     private Color getCorDoItem(String tipo) {
         switch (tipo.toLowerCase()) {
             case "Plastico": return Color.RED;
