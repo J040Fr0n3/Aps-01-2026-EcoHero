@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
     public TileManager tileM;
     public KeyHandler keyH = new KeyHandler();
     public CollisionChecker cChecker;
-    Thread gameThread;
+    public Thread gameThread;
 
     // Entidades - APENAS DECLARE AQUI
     public Player player;
@@ -128,6 +128,8 @@ public class GamePanel extends JPanel implements Runnable {
         if(itemM != null) itemM.draw(g);
         if(player != null) player.draw(g);
         desenharSlotDeItem(g);
+        desenharVida(g);
+        desenharAr(g);
         
         g.dispose();
     }
@@ -210,6 +212,75 @@ public class GamePanel extends JPanel implements Runnable {
             case "Vidro": return Color.GREEN;
             case "Metal": return Color.YELLOW;
             default: return Color.GRAY;
+        }
+    }
+    
+    private void desenharVida(Graphics g) {
+        int x = screenWidth - 160; // Posição inicial X (canto direito)
+        int y = 25;                // Posição inicial Y
+        int size = 30;             // Tamanho do quadrado do coração
+        int spacing = 10;          // Espaço entre os corações
+
+        for (int i = 0; i < 3; i++) {
+            // Determinamos quanto de vida este coração específico representa
+            // Coração 0: vida 1 e 2 | Coração 1: vida 3 e 4 | Coração 2: vida 5 e 6
+            int limiteVidaCoração = (i + 1) * 2;
+
+            // Desenha o fundo (Preto translúcido para o espaço vazio)
+            g.setColor(new Color(0, 0, 0, 150));
+            g.fillRect(x + (i * (size + spacing)), y, size, size);
+
+            // Lógica de preenchimento
+            if (player.life >= limiteVidaCoração) {
+                // CORAÇÃO CHEIO (Tem os 2 pontos de vida)
+                g.setColor(Color.RED);
+                g.fillRect(x + (i * (size + spacing)) + 2, y + 2, size - 4, size - 4);
+            } 
+            else if (player.life == limiteVidaCoração - 1) {
+                // MEIO CORAÇÃO (Tem apenas 1 ponto de vida)
+                g.setColor(Color.RED);
+                // Desenha apenas a metade esquerda do quadrado
+                g.fillRect(x + (i * (size + spacing)) + 2, y + 2, (size - 4) / 2, size - 4);
+            }
+
+            // Borda do quadrado (Sempre branca)
+            g.setColor(Color.WHITE);
+            g.drawRect(x + (i * (size + spacing)), y, size, size);
+        }
+    }
+    
+    private void desenharAr(Graphics g) {
+        // A condição chave é esta: player.airTimer > 0
+        // Isso garante que mesmo fora da água, se houver ar para recuperar, a HUD desenha.
+        if (player.inWater || player.airTimer > 0) {
+            
+            int x = screenWidth - 160; 
+            int y = 65;               
+            int bubbleSize = 10;
+            int spacing = 5;
+
+            // Calcula quantas bolhas estão "cheias"
+            int bolhasCheias = 10 - (player.airTimer / 60);
+            
+            // Limita entre 0 e 10 para não bugar o desenho
+            if (bolhasCheias < 0) bolhasCheias = 0;
+            if (bolhasCheias > 10) bolhasCheias = 10;
+
+            for (int i = 0; i < 10; i++) {
+                int bx = x + (i * (bubbleSize + spacing));
+                
+                if (i < bolhasCheias) {
+                    // Bolha recuperada (Azul)
+                    g.setColor(new Color(0, 200, 255, 200));
+                    g.fillOval(bx, y, bubbleSize, bubbleSize);
+                    g.setColor(Color.WHITE);
+                    g.fillOval(bx + 2, y + 2, 3, 3);
+                } else {
+                    // Bolha gasta (Contorno cinza)
+                    g.setColor(new Color(255, 255, 255, 50));
+                    g.drawOval(bx, y, bubbleSize, bubbleSize);
+                }
+            }
         }
     }
     

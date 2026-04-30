@@ -10,6 +10,12 @@ public class Player {
     GamePanel gp;
     KeyHandler keyH;
     //agachamento player
+    
+    public int maxLife = 6;
+    public int life = 6;
+    
+    public int airRecoveryCounter = 0;
+    
     public boolean isCrouching = false;
     public int currentHeight;
     public final int defaultHeight = 40;
@@ -59,8 +65,8 @@ public class Player {
     }
 
     public void update() {
-        // 1. LÓGICA DE AGACHAR
-        if (keyH.down && !onLadder && !inWater) { // Não agacha na escada/água
+        // 1. LÓGICA DE AGACHAR 
+        if (keyH.down && !onLadder && !inWater) {
             if (!isCrouching) {
                 worldY += (defaultHeight - crouchHeight);
                 isCrouching = true;
@@ -76,40 +82,41 @@ public class Player {
             speed = keyH.ctrl ? 7 : 5;
         }
 
-        // 2. MOVIMENTO HORIZONTAL
-        int horizontalSpeed = inWater ? speed / 2 : speed; // Reduz velocidade na água
+        // 2. MOVIMENTO HORIZONTAL 
+        int horizontalSpeed = inWater ? speed / 2 : speed;
         if (keyH.left && !checkWallCollision(worldX - horizontalSpeed, worldY)) worldX -= horizontalSpeed;
         if (keyH.right && !checkWallCollision(worldX + horizontalSpeed, worldY)) worldX += horizontalSpeed;
 
         // 3. VERIFICAÇÃO DE COLISÃO
         gp.cChecker.checkTile(this); 
 
-        // 4. LÓGICA VERTICAL
+        // 4. LÓGICA VERTICAL E SISTEMA DE AR
         if (onLadder) {
-            airTimer = 0;
             velocityY = 0; 
             jumping = false; 
-            
             if (keyH.up) worldY -= speed;
             if (keyH.down) worldY += speed;
-            // Na escada o movimento é direto no worldY, não precisa de velocityY
         } 
         else if (inWater) {
-        	airTimer++;
-            velocityY = 1.2; // Gravidade da água
+            airTimer++;
+            velocityY = 1.2; 
             jumping = false; 
 
-            if (keyH.up) {
-            	velocityY = -7;
-            } else if(keyH.down) {
-            	velocityY = 7;
-            }else {
-            	velocityY = 1.2;
-            }
+            if (keyH.up) velocityY = -7;
+            else if(keyH.down) velocityY = 7;
+            else velocityY = 1.2;
+            
             worldY += velocityY;
+            
+            // Dano por sufocamento (após 10 segundos)
+            if (airTimer > 600) { 
+                if (airTimer % 90 == 0 && life > 0) {
+                    life--;
+                    System.out.println("Sufocando! Vida: " + life);
+                }
+            }
         } else {
-            // FÍSICA NORMAL
-            airTimer = 0;
+            // FÍSICA NORMAL (FORA DA ÁGUA)
             velocityY += gravity;
 
             if (keyH.up && !jumping && !onElevator) {
@@ -117,7 +124,6 @@ public class Player {
                 jumping = true;
             }
 
-            // Permite subir se estiver pulando (vel < 0) ou cair se não houver colisão
             if (!collisionOn || velocityY < 0) {
                 worldY += velocityY;
             } else {
@@ -125,28 +131,41 @@ public class Player {
                 trampoLineJumpCount = 0;
             }
         }
-        
+
+
+        if (!inWater || onLadder) {
+            if (airTimer > 0) {
+                airRecoveryCounter++; 
+                if (airRecoveryCounter >= 150) { // 2.5 segundos
+                    airTimer -= 60; // Recupera 1 bolinha
+                    if (airTimer < 0) airTimer = 0;
+                    airRecoveryCounter = 0;
+                    System.out.println("Recuperando ar... Bolhas gastas: " + (airTimer/60));
+                }
+            } else {
+                airRecoveryCounter = 0;
+            }
+        } else {
+            // Se estiver na água, reseta o contador de recuperação
+            airRecoveryCounter = 0;
+        }
+
+        // 5. ITENS E DESCARTE
         if (keyH.descarte) {
-        	discardItem();
-        	keyH.descarte = false;
+            discardItem();
+            keyH.descarte = false;
         }
         
         int itemIndex = gp.cChecker.checkItem(this);
         if (itemIndex != -1) {
-        	if (inventory.size() < maxInventorySize) {
-        	    String type = gp.itemM.activeItems.get(itemIndex).type;
-        	    inventory.add(type);
-        	    
-        	    // Incrementa a barra, mas trava no 100% para não quebrar o desenho
-        	    if (gp.itensColetadosTotal < gp.totalItemsNoNivel) {
-        	    }
-        	    
-        	    gp.itemM.activeItems.remove(itemIndex);
-        	} else {
-	        	System.out.println("Inventário cheio!");
-	        }
+            if (inventory.size() < maxInventorySize) {
+                String type = gp.itemM.activeItems.get(itemIndex).type;
+                inventory.add(type);
+                gp.itemM.activeItems.remove(itemIndex);
+            } else {
+                System.out.println("Inventário cheio!");
+            }
         }
-        
     }
     
     public void discardItem() {
