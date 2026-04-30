@@ -40,7 +40,6 @@ public class Player {
     
     public boolean inWater = false;
     public int airTimer = 0; // Contador para o sistema de dano futuro
-    public final int maxAir = 300; // Exemplo: 5 segundos a 60 FPS
     
     public java.util.ArrayList<String> inventory = new java.util.ArrayList<>();
     public int maxInventorySize = 3;
@@ -158,6 +157,11 @@ public class Player {
     }
     private boolean isSolid(int col, int row) {
     	int tileID = gp.tileM.mapTileNum[col][row];
+    	
+    	if (tileID == 8) {
+    		return false;
+    	}
+    	
     	return gp.tileM.tile[tileID].collision;
     }
 

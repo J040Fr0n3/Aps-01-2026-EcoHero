@@ -3,6 +3,7 @@ package engine;
 import entities.Item;
 import entities.Player;
 import tile.Tile;
+import java.awt.Point;
 
 public class CollisionChecker {
     GamePanel gp;
@@ -27,7 +28,8 @@ public class CollisionChecker {
                 int t2 = gp.tileM.mapTileNum[pRightCol][nextTopRow];
 
                 // Se o bloco de cima for sólido e NÃO for um elevador (G/16)
-                if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) && t1 != 16 && t2 != 16) {
+                if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision)
+                	&& t1 != 16 && t2 != 16 && t1 != 8 && t2 != 8) {
                     p.velocityY = 0; // Para o pulo imediatamente
                     p.worldY = (nextTopRow + 1) * gp.tileSize; // Empurra o player para baixo do bloco
                 }
@@ -70,13 +72,30 @@ public class CollisionChecker {
             }
             // 2. Sólidos
             if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
-            	if (t1 == 5 || t2 == 5 || t1 == 4 || t2 == 4) {
+            	// LÓGICA ESPECIAL PARA NUVEM (ID 8)
+            	// CASO SEJA NUVEM (ID 8)
+                if (t1 == 8 || t2 == 8) {
+                    boolean acimaDaNuvem = (p.worldY + p.currentHeight) <= (nextBottomRow * gp.tileSize) + 10;
+
+                    if (p.velocityY > 0 && acimaDaNuvem) {
+                        p.collisionOn = true;
+                        p.velocityY = 0;
+                        p.jumping = false;
+                        p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
+                        
+                        startCloudDisappear(pLeftCol, nextBottomRow);
+                        startCloudDisappear(pRightCol, nextBottomRow);
+                    } else {
+                        p.collisionOn = false; 
+                    }
+                }
+            	
+                else if (t1 == 5 || t2 == 5 || t1 == 4 || t2 == 4) {
             		p.collisionOn = false;
             	} else {
 	                p.collisionOn = true;
 	                p.velocityY = 0;
 	                p.jumping = false;
-	                // SNAP: Garante que o player fique exatamente no topo do bloco
 	                p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
             	}
             } 
@@ -113,4 +132,15 @@ public class CollisionChecker {
         }
         return index;
     }
+    
+    private void startCloudDisappear(int col, int row) {
+        if (gp.tileM.mapTileNum[col][row] == 8) {
+            Point p = new Point(col, row);
+            
+            if (!gp.cloudM.lifeTimer.containsKey(p)) {
+                gp.cloudM.lifeTimer.put(p, 30); 
+            }
+        }
+    }
+    
 }

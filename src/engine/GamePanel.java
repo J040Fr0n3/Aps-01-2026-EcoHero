@@ -9,6 +9,7 @@ import java.awt.Graphics;
 
 import entities.Item;
 import entities.Player;
+import tile.CloudManager;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -44,7 +45,11 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player;
     
     public LevelManager levelM;
+    
+    public CloudManager cloudM;
     public java.util.HashMap<java.awt.Point, Integer> spawnerData = new java.util.HashMap<>();
+    
+
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -58,6 +63,8 @@ public class GamePanel extends JPanel implements Runnable {
         this.cChecker = new CollisionChecker(this);
         this.player = new Player(this, keyH);
         this.levelM.loadCurrentLevel();
+        this.cloudM = new CloudManager(this);
+        
     }
 
     
@@ -97,7 +104,7 @@ public class GamePanel extends JPanel implements Runnable {
             levelM.nextLevel();
             keyH.nextLevelRequested = false;
         }
-        
+        cloudM.update();
     }
 
     @Override
