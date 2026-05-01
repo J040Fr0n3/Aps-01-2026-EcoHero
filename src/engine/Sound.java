@@ -21,6 +21,7 @@ public class Sound {
 		soundURL[5] = getClass().getResource("/sounds/walking_normal_sound.wav");
 		soundURL[6] = getClass().getResource("/sounds/walking_plataform_sound.wav");
 		soundURL[7] = getClass().getResource("/sounds/walking_sky_sound.wav");
+		soundURL[8] = getClass().getResource("/sounds/jump_sound.wav");
 		//soundURL[] = getClass().getResource("/sounds/.wav");
 	}
 	

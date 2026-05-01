@@ -176,6 +176,7 @@ public class Player {
             velocityY += gravity;
 
             if (keyH.up && !jumping && !onElevator) {
+                gp.playSE(8);
                 velocityY = isCrouching ? -5 : -10;
                 jumping = true;
             }
