@@ -151,6 +151,10 @@ public class GamePanel extends JPanel implements Runnable {
         se.play();
     }
     
+    public void stopSE(int i) {
+    	se.stop();
+    }
+    
     private void desenharSlotDeItem(Graphics g) {
         int boxSize = 60;
         int inventoryX = (screenWidth / 2) - (boxSize / 2);

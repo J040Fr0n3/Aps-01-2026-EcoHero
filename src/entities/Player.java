@@ -15,6 +15,8 @@ public class Player {
     public int life = 6;
     public int lifeRecoveryCounter = 0;
     
+    boolean waterSoundPlaying = false;
+    
     public int airRecoveryCounter = 0;
     
     public boolean isCrouching = false;
@@ -99,8 +101,12 @@ public class Player {
             if (keyH.down) worldY += speed;
         } 
         else if (inWater) {
+        	if(!waterSoundPlaying) {
+        		gp.playMusic(2);
+        		waterSoundPlaying = true;
+        	}
+        	
             airTimer++;
-            
             if (airTimer > 600) {
             	airTimer = 600;
             }
@@ -121,6 +127,7 @@ public class Player {
                 if (airRecoveryCounter >= 90) {
                     if(life > 0) {
                     	life -= 1;
+                    	gp.playSE(1);
                     	System.out.println("Sufocando! Vida: " + life);
                     }
                     airRecoveryCounter = 0;
@@ -129,6 +136,11 @@ public class Player {
             	airRecoveryCounter = 0;
             }
         } else {
+        	
+        	if (waterSoundPlaying) {
+        		gp.stopMusic();
+        		waterSoundPlaying = false;
+        	}
             // FÍSICA NORMAL (FORA DA ÁGUA)
             velocityY += gravity;
 

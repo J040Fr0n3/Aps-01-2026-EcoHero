@@ -14,6 +14,8 @@ public class Sound {
 	
 	public Sound() {
 		soundURL[0] = getClass().getResource("/sounds/trampolim_sound.wav");
+		soundURL[1] = getClass().getResource("/sounds/damage_sound.wav");
+		soundURL[2] = getClass().getResource("/sounds/inwater_sound.wav");
 	}
 	
 	public void setFile(int i) {
