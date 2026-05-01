@@ -15,7 +15,11 @@ public class Player {
     public int life = 6;
     public int lifeRecoveryCounter = 0;
     
+    int currentFootstepSound = -1;
+    boolean isWalking = false;
+    
     boolean waterSoundPlaying = false;
+    public boolean elevatorSoundPlaying = false;
     
     public int airRecoveryCounter = 0;
     
@@ -89,7 +93,34 @@ public class Player {
         int horizontalSpeed = inWater ? speed / 2 : speed;
         if (keyH.left && !checkWallCollision(worldX - horizontalSpeed, worldY)) worldX -= horizontalSpeed;
         if (keyH.right && !checkWallCollision(worldX + horizontalSpeed, worldY)) worldX += horizontalSpeed;
-
+        
+        
+        isWalking = (keyH.left || keyH.right) && !jumping && !onLadder && !inWater && !onElevator;
+        //Bug de ficar tocando o som repetidamente sem parar
+        if (isWalking) {
+        	int col = worldX / gp.tileSize;
+        	int row = (worldY + currentHeight + 1) / (gp.tileSize);
+        	
+        	int tileAbaixo = gp.tileM.mapTileNum[col][row];
+        	int novoSom;
+        	
+        	// ADICIONAR AQUI NOVOS ID's
+        	if(tileAbaixo == 3) novoSom = 6;
+        	else if (tileAbaixo == 8) novoSom = 7;
+        	else novoSom = 5;
+        	
+        	if (novoSom != currentFootstepSound) {
+        		gp.stopMusic();
+        		gp.playMusic(novoSom);
+        		currentFootstepSound = novoSom;
+        	}
+        } else {
+        	if (currentFootstepSound != -1) {
+        		gp.stopMusic();
+        		currentFootstepSound = -1;
+        	}
+        }
+        
         // 3. VERIFICAÇÃO DE COLISÃO
         gp.cChecker.checkTile(this); 
 
@@ -170,6 +201,9 @@ public class Player {
         if (itemIndex != -1) {
             if (inventory.size() < maxInventorySize) {
                 String type = gp.itemM.activeItems.get(itemIndex).type;
+                
+                gp.playSE(4);
+                
                 inventory.add(type);
                 gp.itemM.activeItems.remove(itemIndex);
             } else {

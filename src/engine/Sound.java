@@ -16,6 +16,12 @@ public class Sound {
 		soundURL[0] = getClass().getResource("/sounds/trampolim_sound.wav");
 		soundURL[1] = getClass().getResource("/sounds/damage_sound.wav");
 		soundURL[2] = getClass().getResource("/sounds/inwater_sound.wav");
+		soundURL[3] = getClass().getResource("/sounds/elevator_sound.wav");
+		soundURL[4] = getClass().getResource("/sounds/pickedUp_sound.wav");
+		soundURL[5] = getClass().getResource("/sounds/walking_normal_sound.wav");
+		soundURL[6] = getClass().getResource("/sounds/walking_plataform_sound.wav");
+		soundURL[7] = getClass().getResource("/sounds/walking_sky_sound.wav");
+		//soundURL[] = getClass().getResource("/sounds/.wav");
 	}
 	
 	public void setFile(int i) {
@@ -29,14 +35,20 @@ public class Sound {
 	}
 	
 	public void play() {
-		clip.start();
+		if (clip != null) {
+			clip.start();
+		}
 	}
 	
 	public void loop() {
-		clip.loop(Clip.LOOP_CONTINUOUSLY);
+		if (clip != null) {
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
+		}
 	}
 	
 	public void stop() {
-		clip.stop();
+		if (clip != null) {
+			clip.stop();
+		}
 	}
 }

@@ -61,7 +61,11 @@ public class CollisionChecker {
             }
 
             // 1. Elevador
-            if (t1 == 16 || t2 == 16) { 
+            if (t1 == 16 || t2 == 16) {
+            	if(!p.elevatorSoundPlaying) {
+            		gp.playMusic(3);
+            		p.elevatorSoundPlaying = true;
+            	}
                 p.worldY -= 4; 
                 p.velocityY = 0;
                 p.jumping = false; 
@@ -69,6 +73,10 @@ public class CollisionChecker {
                 p.onElevator = true;
                 return; 
             } else {
+            	if (p.elevatorSoundPlaying) {
+            		gp.stopMusic();
+            		p.elevatorSoundPlaying = false;
+            	}
             	p.onElevator = false;
             }
          // 2. Sólidos
