@@ -13,6 +13,7 @@ public class Player {
     
     public int maxLife = 6;
     public int life = 6;
+    public int lifeRecoveryCounter = 0;
     
     public int airRecoveryCounter = 0;
     
@@ -99,6 +100,10 @@ public class Player {
         } 
         else if (inWater) {
             airTimer++;
+            
+            if (airTimer > 600) {
+            	airTimer = 600;
+            }
             velocityY = 1.2; 
             jumping = false; 
 
@@ -109,11 +114,19 @@ public class Player {
             worldY += velocityY;
             
             // Dano por sufocamento (após 10 segundos)
-            if (airTimer > 600) { 
-                if (airTimer % 90 == 0 && life > 0) {
-                    life--;
-                    System.out.println("Sufocando! Vida: " + life);
+            if (airTimer >= 600) {
+            	
+            	airRecoveryCounter++;
+            	
+                if (airRecoveryCounter >= 90) {
+                    if(life > 0) {
+                    	life -= 1;
+                    	System.out.println("Sufocando! Vida: " + life);
+                    }
+                    airRecoveryCounter = 0;
                 }
+            } else {
+            	airRecoveryCounter = 0;
             }
         } else {
             // FÍSICA NORMAL (FORA DA ÁGUA)
@@ -130,24 +143,9 @@ public class Player {
                 velocityY = 0;
                 trampoLineJumpCount = 0;
             }
-        }
-
-
-        if (!inWater || onLadder) {
-            if (airTimer > 0) {
-                airRecoveryCounter++; 
-                if (airRecoveryCounter >= 150) { // 2.5 segundos
-                    airTimer -= 60; // Recupera 1 bolinha
-                    if (airTimer < 0) airTimer = 0;
-                    airRecoveryCounter = 0;
-                    System.out.println("Recuperando ar... Bolhas gastas: " + (airTimer/60));
-                }
-            } else {
-                airRecoveryCounter = 0;
-            }
-        } else {
-            // Se estiver na água, reseta o contador de recuperação
-            airRecoveryCounter = 0;
+            
+            
+            atualizarAr(false);
         }
 
         // 5. ITENS E DESCARTE
@@ -165,6 +163,33 @@ public class Player {
             } else {
                 System.out.println("Inventário cheio!");
             }
+        }
+        
+     // 6. RECUPERAÇÃO DE VIDA (1 HP a cada 10 segundos)
+        if (!inWater && life < maxLife) {
+            lifeRecoveryCounter++;
+            
+            if (lifeRecoveryCounter >= 600) { // 600 frames = 10 segundos
+                life++;
+                lifeRecoveryCounter = 0;
+                System.out.println("Vida recuperada automaticamente! Vida: " + life);
+            }
+        } else {
+            // Reseta se entrar na água (interrompe cura) ou se a vida já estiver cheia
+            lifeRecoveryCounter = 0;
+        }
+    }
+    
+    private void atualizarAr(boolean naEscada) {
+        if (airTimer > 0) {
+            airRecoveryCounter++; 
+            if (airRecoveryCounter >= 90) {
+                airTimer -= 60; 
+                if (airTimer < 0) airTimer = 0;
+                airRecoveryCounter = 0;
+            }
+        } else {
+            airRecoveryCounter = 0;
         }
     }
     
