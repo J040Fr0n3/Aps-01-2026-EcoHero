@@ -162,7 +162,11 @@ public class TileManager {
                     screenY < gp.screenHeight) {
                     
                     g.setColor(tile[tileNum].color);
-                    g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+                    if(tileNum == 3) {
+                    	g.fillRect(screenX,  screenY, gp.tileSize, gp.tileSize / 2);
+                    } else {
+                    	g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+                    }
                 }
 
             worldCol++;

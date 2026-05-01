@@ -29,7 +29,7 @@ public class CollisionChecker {
 
                 // Se o bloco de cima for sólido e NÃO for um elevador (G/16)
                 if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision)
-                	&& t1 != 16 && t2 != 16 && t1 != 8 && t2 != 8) {
+                	&& t1 != 16 && t2 != 16 && t1 != 8 && t2 != 8 && t1 != 3 && t2 != 3) {
                     p.velocityY = 0; // Para o pulo imediatamente
                     p.worldY = (nextTopRow + 1) * gp.tileSize; // Empurra o player para baixo do bloco
                 }
@@ -71,35 +71,49 @@ public class CollisionChecker {
             } else {
             	p.onElevator = false;
             }
-            // 2. Sólidos
+         // 2. Sólidos
             if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
-            	// LÓGICA ESPECIAL PARA NUVEM (ID 8)
-            	// CASO SEJA NUVEM (ID 8)
-                if (t1 == 8 || t2 == 8) {
+                
+                // --- PLATAFORMA MEIO BLOCO (ID 3) ---
+                if (t1 == 3 || t2 == 3) {
+                    int topoDaPlataforma = (nextBottomRow * gp.tileSize);
+                    if (p.velocityY >= 0 && (p.worldY + p.currentHeight) <= topoDaPlataforma + Math.abs(p.velocityY) + 1) {
+                        p.collisionOn = true;
+                        p.velocityY = 0;
+                        p.jumping = false;
+                        p.worldY = topoDaPlataforma - p.currentHeight;
+                    } else {
+                        // Se ele estiver pulando (velocityY < 0) ou tentando andar pelos lados
+                        // a colisão DEVE ser false, senão ele trava "congelado" no lugar
+                        p.collisionOn = false;
+                    }
+                }
+                // --- LÓGICA DA NUVEM (ID 8) ---
+                else if (t1 == 8 || t2 == 8) {
                     boolean acimaDaNuvem = (p.worldY + p.currentHeight) <= (nextBottomRow * gp.tileSize) + 10;
-
                     if (p.velocityY > 0 && acimaDaNuvem) {
                         p.collisionOn = true;
                         p.velocityY = 0;
                         p.jumping = false;
                         p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
-                        
                         startCloudDisappear(pLeftCol, nextBottomRow);
                         startCloudDisappear(pRightCol, nextBottomRow);
                     } else {
                         p.collisionOn = false; 
                     }
                 }
-            	
+                // --- OUTROS (ÁGUA, ESCADA) ---
                 else if (t1 == 5 || t2 == 5 || t1 == 4 || t2 == 4) {
-            		p.collisionOn = false;
-            	} else {
-	                p.collisionOn = true;
-	                p.velocityY = 0;
-	                p.jumping = false;
-	                p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
-            	}
-            } 
+                    p.collisionOn = false;
+                } 
+                // --- BLOCOS INTEIROS (CHÃO NORMAL, PAREDE) ---
+                else {
+                    p.collisionOn = true;
+                    p.velocityY = 0;
+                    p.jumping = false;
+                    p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
+                }
+            }
             else {
                 p.jumping = true; 
             }

@@ -256,7 +256,7 @@ public class Player {
     private boolean isSolid(int col, int row) {
     	int tileID = gp.tileM.mapTileNum[col][row];
     	
-    	if (tileID == 8) {
+    	if (tileID == 8 || tileID == 3) {
     		return false;
     	}
     	
