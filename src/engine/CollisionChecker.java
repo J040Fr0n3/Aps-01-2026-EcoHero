@@ -46,6 +46,7 @@ public class CollisionChecker {
             if(gp.tileM.tile[t1] == null || gp.tileM.tile[t2] == null) return;
             
             if(t1 == 6 || t2 == 6) {
+            	gp.playSE(0);
             	if (p.velocityY > 0) {
             		if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
             			p.trampoLineJumpCount++;
