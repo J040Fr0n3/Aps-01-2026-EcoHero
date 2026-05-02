@@ -132,6 +132,7 @@ public class CollisionChecker {
         	int tileIdCenter = gp.tileM.mapTileNum[centerX][centerY];
         	p.onLadder = (tileIdCenter == 4);// Escada
         	p.inWater = (tileIdCenter == 5); //água
+        	p.inToxicWater = (tileIdCenter == 15); // água toxica
         }
     }
     public int checkItem(Player p) {
