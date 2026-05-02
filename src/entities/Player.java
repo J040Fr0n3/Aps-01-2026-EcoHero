@@ -56,6 +56,8 @@ public class Player {
     
     public java.util.ArrayList<String> inventory = new java.util.ArrayList<>();
     public int maxInventorySize = 3;
+    
+    public boolean inToxicWater = false;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
@@ -131,39 +133,34 @@ public class Player {
             if (keyH.up) worldY -= speed;
             if (keyH.down) worldY += speed;
         } 
-        else if (inWater) {
-        	if(!waterSoundPlaying) {
-        		gp.playMusic(2);
-        		waterSoundPlaying = true;
-        	}
-        	
-            airTimer++;
-            if (airTimer > 600) {
-            	airTimer = 600;
-            }
+        else if (inWater || inToxicWater) {
+            // Física de natação
             velocityY = 1.2; 
-            jumping = false; 
-
             if (keyH.up) velocityY = -7;
             else if(keyH.down) velocityY = 7;
-            else velocityY = 1.2;
-            
             worldY += velocityY;
-            
-            // Dano por sufocamento (após 10 segundos)
-            if (airTimer >= 600) {
-            	
-            	airRecoveryCounter++;
-            	
-                if (airRecoveryCounter >= 90) {
-                    if(life > 0) {
-                    	life -= 1;
-                    	gp.playSE(1);
-                    	System.out.println("Sufocando! Vida: " + life);
-                    }
+
+            // Lógica de Dano
+            if (inToxicWater) {
+                airRecoveryCounter++; 
+                if (airRecoveryCounter >= 60) { // 60 frames = 1 segundo
+                    if(life > 0) life -= 1;
+                    System.out.println("Dano Tóxico! Vida: " + life);
                     airRecoveryCounter = 0;
                 }
-            } else {
+                airTimer = 0; 
+            } 
+            else if (inWater) {
+                airTimer++;
+                if (airTimer >= 600) {
+                    airRecoveryCounter++;
+                    if (airRecoveryCounter >= 90) {
+                        if(life > 0) life -= 1;
+                        airRecoveryCounter = 0;
+                    }
+                }
+            }
+         else {
             	airRecoveryCounter = 0;
             }
         } else {
