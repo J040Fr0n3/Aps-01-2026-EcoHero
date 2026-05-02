@@ -54,6 +54,7 @@ public class LevelManager {
         // 3. Carrega o mapa e spawns
         gp.tileM.loadMap(config.mapPath);
         gp.itemM.preSpawnItems();
+        
 
         // 4. Reposiciona o Player
         gp.player.worldX = gp.tileSize * 5;

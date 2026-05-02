@@ -19,6 +19,7 @@ public class Player {
     boolean isWalking = false;
     
     boolean waterSoundPlaying = false;
+    boolean waterToxicSoundPlaying = false;
     public boolean elevatorSoundPlaying = false;
     
     public int airRecoveryCounter = 0;
@@ -134,6 +135,30 @@ public class Player {
             if (keyH.down) worldY += speed;
         } 
         else if (inWater || inToxicWater) {
+        	
+        	if(inWater) {
+        		if (!waterSoundPlaying) {
+        			gp.playMusic(2);
+        			waterSoundPlaying = true;
+        		}
+        	} else {
+        		if(waterSoundPlaying) {
+        			gp.stopMusic();
+        			waterSoundPlaying = false;
+        		}
+        	}
+        	
+        	if(inToxicWater) {
+        		if(!waterToxicSoundPlaying) {
+        			gp.playMusic(11);
+        			waterToxicSoundPlaying = true;
+        		}
+        	} else {
+        		if (waterToxicSoundPlaying) {
+        			gp.stopMusic();
+        			waterToxicSoundPlaying = false;
+        		}
+        	}
             // Física de natação
             velocityY = 1.2; 
             if (keyH.up) velocityY = -7;

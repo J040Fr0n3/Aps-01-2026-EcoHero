@@ -51,6 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
     public TileManager tileM;
     public KeyHandler keyH = new KeyHandler();
     public Sound music = new Sound();
+    public Sound fundo = new Sound();
     public Sound se = new Sound();
     public CollisionChecker cChecker;
     public Thread gameThread;
@@ -134,6 +135,16 @@ public class GamePanel extends JPanel implements Runnable {
         desenharAr(g);
         
         g.dispose();
+    }
+    
+    public void playFundo(int i) {
+    	fundo.setFile(i);
+    	fundo.play();
+    	fundo.loop();
+    }
+    
+    public void stopFundo() {
+    	fundo.stop();
     }
     
     public void playMusic(int i) {
