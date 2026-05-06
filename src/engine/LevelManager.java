@@ -17,14 +17,14 @@ public class LevelManager {
     private void setupLevels() {
         // Fase 1: Tutorial
         levels.add(new LevelConfig(1, "/maps/map01.txt", 
-            Arrays.asList("papel"), 10, 5));
+            Arrays.asList("papel"), 10, 5, 52, 14));
 
         // Fase 2: Papel e Vidro
         levels.add(new LevelConfig(2, "/maps/map02.txt", 
-            Arrays.asList("papel", "vidro"), 15, 7));
+            Arrays.asList("papel", "vidro"), 15, 7, 50, 14));
         
         levels.add(new LevelConfig(3, "/maps/map03.txt",
-        		Arrays.asList("papel", "vidro", "metal"), 15, 7));
+        		Arrays.asList("papel", "vidro", "metal"), 15, 7, 50, 14));
 
     }
 
@@ -52,7 +52,7 @@ public class LevelManager {
         gp.itensColetadosTotal = 0;                  // Reseta o preenchimento
         
         // 3. Carrega o mapa e spawns
-        gp.tileM.loadMap(config.mapPath);
+        gp.tileM.loadMap(config.mapPath, config.maxCols, config.maxRows);
         gp.itemM.preSpawnItems();
         
 

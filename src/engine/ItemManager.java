@@ -2,8 +2,13 @@ package engine;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
+import javax.imageio.ImageIO;
+
 import entities.Item;
 
 public class ItemManager {
@@ -11,9 +16,12 @@ public class ItemManager {
     public ArrayList<Item> activeItems = new ArrayList<>();
     private int spawnCounter = 0;
     private Random random = new Random();
+    
+    public BufferedImage papelImage;
 
     public ItemManager(GamePanel gp) {
         this.gp = gp;
+        getItemImage();
     }
 
     public void update() {
@@ -77,6 +85,15 @@ public class ItemManager {
             default:         return Color.WHITE;
         }
     }
+    
+    public void getItemImage() {
+    	try {
+    		papelImage = ImageIO.read(getClass().getResource("/textures/papel.png"));
+    	} catch (IOException e) {
+    		System.out.println("Erro ao carregar textura do papel: " + e.getMessage());
+    		e.printStackTrace();
+    	}
+    }
 
     public void draw(Graphics g) {
         for (int i = 0; i < activeItems.size(); i++) {
@@ -110,10 +127,13 @@ public class ItemManager {
             // 3. Só desenha se estiver dentro da tela (para performance)
             if (screenX + gp.tileSize > 0 && screenX < gp.screenWidth &&
                 screenY + gp.tileSize > 0 && screenY < gp.screenHeight) {
-                
-                g.setColor(item.color);
-                // Desenha o círculo do item (lixo)
-                g.fillOval(screenX + 12, screenY + 12, 24, 24); 
+            	
+            	if (item.type.equalsIgnoreCase("papel") && papelImage != null) {
+            		g.drawImage(papelImage, screenX + 8, screenY + 8, 32, 32, null);
+            	} else {
+            		g.setColor(item.color);
+            		g.fillOval(screenX + 12, screenY + 12, 24, 24); 
+            	}
             }
         }
     }

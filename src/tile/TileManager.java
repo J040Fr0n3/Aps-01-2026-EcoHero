@@ -73,50 +73,59 @@ public class TileManager {
     	tile[index].color = color;
     }
 
-    public void loadMap(String filePath) {
-    	try {
+    public void loadMap(String filePath, int col, int row) {
+        
+        gp.maxWorldCol = col;
+        gp.maxWorldRow = row;
+        gp.worldWidth = gp.tileSize * col;
+        gp.worldHeight = gp.tileSize * row;
+        
+        // 2. Reinicializa a array do mapa com o novo tamanho da fase
+        mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
+        
+        try {
             InputStream is = getClass().getResourceAsStream(filePath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            int row = 0;
+            int currentRow = 0;
 
-            while (row < gp.maxWorldRow) {
+            while (currentRow < gp.maxWorldRow) {
                 String line = br.readLine();
                 if (line == null) break;
 
-                // Divide a linha por qualquer espaço em branco
+                // Divide a linha por espaços (suporta múltiplos espaços entre números)
                 String numbers[] = line.trim().split("\\s+"); 
 
-                for (int col = 0; col < gp.maxWorldCol; col++) {
-                    if (col < numbers.length) {
+                for (int currentCol = 0; currentCol < gp.maxWorldCol; currentCol++) {
+                    if (currentCol < numbers.length) {
                         try {
-                            // 1. Limpamos a string (trim) e garantimos que seja Maiúscula
-                            String val = numbers[col].trim().toUpperCase();
+                            String val = numbers[currentCol].trim().toUpperCase();
                             
                             int num;
                             if (val.equals("G")) {
-                                num = 16; // Atribui manualmente o ID do elevador
+                                num = 16; // Elevador
                             } else {
+                                // Converte de Hexadecimal (importante se usar A, B, C para lixeiras)
                                 num = Integer.parseInt(val, 16);
                             }
-                            mapTileNum[col][row] = num;
                             
-                            if (num ==9) {
-                            	java.awt.Point p = new java.awt.Point(col, row);
-                            	gp.spawnerData.put(p, 0);
+                            mapTileNum[currentCol][currentRow] = num;
+                            
+                            // Lógica de Spawner de lixo
+                            if (num == 9) {
+                                java.awt.Point p = new java.awt.Point(currentCol, currentRow);
+                                gp.spawnerData.put(p, 0);
                             }
                         } catch (NumberFormatException e) {
-                            // 3. Se encontrar um 'G' ou algo que falhe, tratamos manualmente
-                            // ou apenas definimos como 0 para o mapa não quebrar
-                            mapTileNum[col][row] = 0; 
-                            System.out.println("Aviso: Caractere inválido na posição ["+col+"]["+row+"]");
+                            mapTileNum[currentCol][currentRow] = 0; 
+                            System.out.println("Aviso: Caractere inválido em ["+currentCol+"]["+currentRow+"]");
                         }
                     }
                 }
-                row++;
+                currentRow++;
             }
             br.close();
-            System.out.println("Mapa carregado com sucesso!");
+            System.out.println("Mapa carregado: " + col + "x" + row);
         } catch (Exception e) {
             System.out.println("ERRO CRÍTICO AO LER O ARQUIVO TXT!");
             e.printStackTrace();

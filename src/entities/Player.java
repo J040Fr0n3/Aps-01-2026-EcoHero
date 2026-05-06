@@ -135,47 +135,50 @@ public class Player {
             if (keyH.down) worldY += speed;
         } 
         else if (inWater || inToxicWater) {
-        	
-        	if(inWater) {
-        		if (!waterSoundPlaying) {
-        			gp.playMusic(2);
-        			waterSoundPlaying = true;
-        		}
-        	} else {
-        		if(waterSoundPlaying) {
-        			gp.stopMusic();
-        			waterSoundPlaying = false;
-        		}
-        	}
-        	
-        	if(inToxicWater) {
-        		if(!waterToxicSoundPlaying) {
-        			gp.playMusic(11);
-        			waterToxicSoundPlaying = true;
-        		}
-        	} else {
-        		if (waterToxicSoundPlaying) {
-        			gp.stopMusic();
-        			waterToxicSoundPlaying = false;
-        		}
-        	}
             // Física de natação
             velocityY = 1.2; 
             if (keyH.up) velocityY = -7;
             else if(keyH.down) velocityY = 7;
             worldY += velocityY;
 
-            // Lógica de Dano
+            // --- LÓGICA DE ÁGUA TÓXICA ---
             if (inToxicWater) {
+                // Se entrar na tóxica, para o som da água normal se ele estiver tocando
+                if (waterSoundPlaying) { 
+                    gp.stopMusic(); 
+                    waterSoundPlaying = false; 
+                }
+
+                // Liga o som tóxico apenas uma vez
+                if (!waterToxicSoundPlaying) {
+                    gp.playMusic(11);
+                    waterToxicSoundPlaying = true;
+                }
+
+                // Sistema de Dano Tóxico
                 airRecoveryCounter++; 
-                if (airRecoveryCounter >= 60) { // 60 frames = 1 segundo
+                if (airRecoveryCounter >= 60) {
                     if(life > 0) life -= 1;
-                    System.out.println("Dano Tóxico! Vida: " + life);
+                    gp.playSE(1);
                     airRecoveryCounter = 0;
                 }
                 airTimer = 0; 
             } 
+            // --- LÓGICA DE ÁGUA NORMAL ---
             else if (inWater) {
+                // Se estiver na normal, para o som da tóxica se ele estiver tocando
+                if (waterToxicSoundPlaying) { 
+                    gp.stopMusic(); 
+                    waterToxicSoundPlaying = false; 
+                }
+
+                // Liga o som de água normal apenas uma vez
+                if (!waterSoundPlaying) {
+                    gp.playMusic(2);
+                    waterSoundPlaying = true;
+                }
+
+                // Sistema de Fôlego
                 airTimer++;
                 if (airTimer >= 600) {
                     airRecoveryCounter++;
@@ -185,16 +188,15 @@ public class Player {
                     }
                 }
             }
-         else {
-            	airRecoveryCounter = 0;
-            }
         } else {
+            // FÍSICA NORMAL (FORA DA ÁGUA)
         	
-        	if (waterSoundPlaying) {
+        	if (waterSoundPlaying || waterToxicSoundPlaying) {
         		gp.stopMusic();
         		waterSoundPlaying = false;
+        		waterToxicSoundPlaying = false;
         	}
-            // FÍSICA NORMAL (FORA DA ÁGUA)
+        	
             velocityY += gravity;
 
             if (keyH.up && !jumping && !onElevator) {
