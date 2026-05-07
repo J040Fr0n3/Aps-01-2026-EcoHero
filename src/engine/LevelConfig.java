@@ -11,8 +11,9 @@ public class LevelConfig {
     public int spawnRate;
     public int maxCols;
     public int maxRows;
+    public int bueiroDestino;
 
-    public LevelConfig(int level, String path, List<String> items, int max, int rate, int cols, int rows) {
+    public LevelConfig(int level, String path, List<String> items, int max, int rate, int cols, int rows, int bueiroDestino) {
         this.levelNumber = level;
         this.mapPath = path;
         this.allowedItems = items;
@@ -20,6 +21,7 @@ public class LevelConfig {
         this.spawnRate = rate;
         this.maxCols = cols;
         this.maxRows = rows;
+        this.bueiroDestino = bueiroDestino;
     }
     
     

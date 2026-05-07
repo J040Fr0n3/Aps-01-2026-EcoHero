@@ -91,6 +91,20 @@ public class Player {
             currentHeight = defaultHeight;
             speed = keyH.ctrl ? 7 : 5;
         }
+        
+        if(keyH.interact) {
+        	int col = worldX / gp.tileSize;
+        	int row = (worldY + currentHeight / 2) / gp.tileSize;
+        	int tileID = gp.tileM.mapTileNum[col][row];
+        	
+        	if(tileID == 7) {
+        		int destino = gp.levelM.getCurrentLevel().bueiroDestino;
+        		gp.levelM.currentLevelIndex = destino;
+        		gp.levelM.loadCurrentLevel();
+        		
+        		keyH.interact = false;
+        	}
+        }
 
         // 2. MOVIMENTO HORIZONTAL 
         int horizontalSpeed = inWater ? speed / 2 : speed;
