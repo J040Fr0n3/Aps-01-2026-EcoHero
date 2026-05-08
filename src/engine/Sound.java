@@ -30,6 +30,11 @@ public class Sound {
 	
 	public void setFile(int i) {
 		try {
+			
+			if (clip != null) {
+				if (clip.isOpen()) clip.close();
+			}
+			
 			AudioInputStream ais = AudioSystem.getAudioInputStream(soundURL[i]);
 			clip = AudioSystem.getClip();
 			clip.open(ais);

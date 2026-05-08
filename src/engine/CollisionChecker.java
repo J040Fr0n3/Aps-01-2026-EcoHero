@@ -46,37 +46,32 @@ public class CollisionChecker {
             if(gp.tileM.tile[t1] == null || gp.tileM.tile[t2] == null) return;
             
             if(t1 == 6 || t2 == 6) {
-            	gp.playSE(0);
             	if (p.velocityY > 0) {
+            		if(p.trampoSoundTimer <= 0) {
+            			gp.playSE(0);
+            			p.trampoSoundTimer = 15;
+            		}
             		if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
             			p.trampoLineJumpCount++;
             		}
             		double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
-            		p.velocityY = -10 * boost;
             		
+            		p.velocityY = -10 * boost;
             		p.jumping = true;
             		p.collisionOn = false;
+            		
+            		p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight -1;
             		return;
             	}
             }
 
             // 1. Elevador
             if (t1 == 16 || t2 == 16) {
-            	if(!p.elevatorSoundPlaying) {
-            		gp.playMusic(3);
-            		p.elevatorSoundPlaying = true;
-            	}
-                p.worldY -= 4; 
                 p.velocityY = 0;
                 p.jumping = false; 
                 p.collisionOn = true; 
                 p.onElevator = true;
-                return; 
             } else {
-            	if (p.elevatorSoundPlaying) {
-            		gp.stopMusic();
-            		p.elevatorSoundPlaying = false;
-            	}
             	p.onElevator = false;
             }
          // 2. Sólidos

@@ -60,6 +60,18 @@ public class LevelManager {
         gp.player.worldX = gp.tileSize * 5;
         gp.player.worldY = gp.tileSize * 10;
         
+        gp.player.velocityY = 0;
+        gp.player.jumping = false;
+        gp.player.onLadder = false;
+        gp.player.inWater = false;
+        
+        gp.stopMusic();
+        gp.player.currentFootstepSound = -1;
+        gp.player.waterSoundPlaying = false;
+        gp.player.waterToxicSoundPlaying = false;
+        gp.player.elevatorSoundPlaying = false;
+        
+        
         System.out.println("Nível carregado: " + config.levelNumber + " | Objetivo: " + config.maxTotalItems);
     }
 }

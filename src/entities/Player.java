@@ -15,11 +15,11 @@ public class Player {
     public int life = 6;
     public int lifeRecoveryCounter = 0;
     
-    int currentFootstepSound = -1;
+    public int currentFootstepSound = -1;
     boolean isWalking = false;
     
-    boolean waterSoundPlaying = false;
-    boolean waterToxicSoundPlaying = false;
+    public boolean waterSoundPlaying = false;
+    public boolean waterToxicSoundPlaying = false;
     public boolean elevatorSoundPlaying = false;
     
     public int airRecoveryCounter = 0;
@@ -47,6 +47,7 @@ public class Player {
     
     public int trampoLineJumpCount = 0;
     public final int maxTrampoLineJumps = 3;
+    public int trampoSoundTimer = 0;
     
     public boolean onLadder = false;
     
@@ -75,6 +76,7 @@ public class Player {
     }
 
     public void update() {
+    	if(trampoSoundTimer > 0) trampoSoundTimer--;
         // 1. LÓGICA DE AGACHAR 
         if (keyH.down && !onLadder && !inWater) {
             if (!isCrouching) {
@@ -85,11 +87,17 @@ public class Player {
             speed = 2;
         } else {
             if (isCrouching) {
-                worldY -= (defaultHeight - crouchHeight);
-                isCrouching = false;
+            	if (!checkWallCollision(worldX, worldY - (defaultHeight - crouchHeight))) {
+	                worldY -= (defaultHeight - crouchHeight);
+	                isCrouching = false;
+            	}else {
+            		currentHeight = crouchHeight;
+            		speed = 2;
+            	}
+            }else {
+	            currentHeight = defaultHeight;
+	            speed = keyH.ctrl ? 7 : 5;
             }
-            currentHeight = defaultHeight;
-            speed = keyH.ctrl ? 7 : 5;
         }
         
         if(keyH.interact) {
@@ -112,7 +120,7 @@ public class Player {
         if (keyH.right && !checkWallCollision(worldX + horizontalSpeed, worldY)) worldX += horizontalSpeed;
         
         
-        isWalking = (keyH.left || keyH.right) && !jumping && !onLadder && !inWater && !onElevator;
+        isWalking = (keyH.left || keyH.right) && !jumping && !onLadder && !inWater && !inToxicWater && !onElevator;
         //Bug de ficar tocando o som repetidamente sem parar
         if (isWalking) {
         	int col = worldX / gp.tileSize;
@@ -149,7 +157,13 @@ public class Player {
             if (keyH.down) worldY += speed;
         } 
         else if (inWater || inToxicWater) {
-            // Física de natação
+        	
+        	
+        	if (currentFootstepSound != -1) {
+        		gp.stopMusic();
+        		currentFootstepSound = -1;
+        	}
+        	
             velocityY = 1.2; 
             if (keyH.up) velocityY = -7;
             else if(keyH.down) velocityY = 7;
@@ -157,19 +171,13 @@ public class Player {
 
             // --- LÓGICA DE ÁGUA TÓXICA ---
             if (inToxicWater) {
-                // Se entrar na tóxica, para o som da água normal se ele estiver tocando
-                if (waterSoundPlaying) { 
-                    gp.stopMusic(); 
-                    waterSoundPlaying = false; 
-                }
-
-                // Liga o som tóxico apenas uma vez
                 if (!waterToxicSoundPlaying) {
+                	gp.stopMusic();
                     gp.playMusic(11);
                     waterToxicSoundPlaying = true;
+                    waterSoundPlaying = false;
                 }
 
-                // Sistema de Dano Tóxico
                 airRecoveryCounter++; 
                 if (airRecoveryCounter >= 60) {
                     if(life > 0) life -= 1;
@@ -180,16 +188,11 @@ public class Player {
             } 
             // --- LÓGICA DE ÁGUA NORMAL ---
             else if (inWater) {
-                // Se estiver na normal, para o som da tóxica se ele estiver tocando
-                if (waterToxicSoundPlaying) { 
-                    gp.stopMusic(); 
-                    waterToxicSoundPlaying = false; 
-                }
-
-                // Liga o som de água normal apenas uma vez
                 if (!waterSoundPlaying) {
+                	gp.stopMusic();
                     gp.playMusic(2);
                     waterSoundPlaying = true;
+                    waterToxicSoundPlaying = false;
                 }
 
                 // Sistema de Fôlego
@@ -211,10 +214,28 @@ public class Player {
         		waterToxicSoundPlaying = false;
         	}
         	
+        	if(onElevator){
+        		if (currentFootstepSound != -1) {
+        			gp.stopMusic();
+        			currentFootstepSound = -1;
+        		}
+        		
+        		if(!elevatorSoundPlaying) {
+        			gp.stopMusic();
+        			gp.playMusic(3);
+        			elevatorSoundPlaying = true;
+        		}
+        		worldY -= 4;
+        	}else {
+        		if (elevatorSoundPlaying) {
+        			gp.stopMusic();
+        			elevatorSoundPlaying = false;
+        		}
+        	}
+        	
             velocityY += gravity;
 
             if (keyH.up && !jumping && !onElevator) {
-                gp.playSE(8);
                 velocityY = isCrouching ? -5 : -10;
                 jumping = true;
             }
@@ -222,8 +243,21 @@ public class Player {
             if (!collisionOn || velocityY < 0) {
                 worldY += velocityY;
             } else {
-                velocityY = 0;
-                trampoLineJumpCount = 0;
+            	
+            	int col = worldX / gp.tileSize;
+            	int row = (worldY + currentHeight +1) / gp.tileSize;
+            	int tileAbaixo = gp.tileM.mapTileNum[col][row];
+            	
+            	if (tileAbaixo == 6) {
+            		if (velocityY >= 0 ) {
+	            		gp.playSE(0);
+	            		velocityY = -15;
+	            		jumping = true;
+            		}
+            	}else {
+            		velocityY = 0;
+            		trampoLineJumpCount = 0;
+            	}
             }
             
             
@@ -293,11 +327,11 @@ public class Player {
             boolean acerto = false;
 
             // Lógica de Validação: Item vs Lixeira
-            if (itemParaDescartar.equals("papel") && tileID == 10) acerto = true;
-            else if (itemParaDescartar.equals("vidro") && tileID == 11) acerto = true;
-            else if (itemParaDescartar.equals("metal") && tileID == 12) acerto = true;
-            else if (itemParaDescartar.equals("plastico") && tileID == 13) acerto = true;
-            else if (itemParaDescartar.equals("organico") && tileID == 14) acerto = true;
+            if (itemParaDescartar.equalsIgnoreCase("papel") && tileID == 10) acerto = true;
+            else if (itemParaDescartar.equalsIgnoreCase("vidro") && tileID == 11) acerto = true;
+            else if (itemParaDescartar.equalsIgnoreCase("metal") && tileID == 12) acerto = true;
+            else if (itemParaDescartar.equalsIgnoreCase("plastico") && tileID == 13) acerto = true;
+            else if (itemParaDescartar.equalsIgnoreCase("organico") && tileID == 14) acerto = true;
 
             if (acerto) {
                 // Regra de Acerto: Soma 10 * Multiplicador
