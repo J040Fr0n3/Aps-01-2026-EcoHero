@@ -16,12 +16,13 @@ public class ItemManager {
     public ArrayList<Item> activeItems = new ArrayList<>();
     private int spawnCounter = 0;
     private Random random = new Random();
+    private double floatingCounter = 0;
     
-    public BufferedImage papelImage;
+    public BufferedImage papelImage, plasticoImage, metalImage, vidroImage, organicImage;
 
     public ItemManager(GamePanel gp) {
         this.gp = gp;
-        getItemImage();
+        getItemImages();
     }
 
     public void update() {
@@ -31,6 +32,11 @@ public class ItemManager {
         if (spawnCounter >= 120) {
             spawnAttempt();
             spawnCounter = 0;
+        }
+        
+        floatingCounter += 0.05;
+        if(floatingCounter > Math.PI *2) {
+        	floatingCounter = 0;
         }
     }
 
@@ -86,15 +92,37 @@ public class ItemManager {
         }
     }
     
-    public void getItemImage() {
-    	try {
-    		papelImage = ImageIO.read(getClass().getResource("/textures/papel.png"));
-    	} catch (IOException e) {
-    		System.out.println("Erro ao carregar textura do papel: " + e.getMessage());
-    		e.printStackTrace();
-    	}
+    public void getItemImages() {
+        papelImage = setup("/textures/papel.png");
+        plasticoImage = setup("/textures/plastico.png");
+        metalImage = setup("/textures/metal.png");
+        vidroImage = setup("/textures/vidro.png");     
+        organicImage = setup("/textures/organico.png");
     }
-
+    
+    public BufferedImage setup(String imagePath) {
+        try {
+            return ImageIO.read(getClass().getResource(imagePath));
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println("Erro ao carregar: " + imagePath);
+            return null; 
+        }
+    }
+    
+    public BufferedImage getImageByType(String type) {
+        if (type == null) return null;
+        
+        switch (type.toLowerCase()) {
+            case "papel":    return papelImage;
+            case "vidro":    return vidroImage;
+            case "metal":    return metalImage;
+            case "plastico": return plasticoImage;
+            case "organico": return organicImage;
+            default:         return null;
+        }
+    }
+    
+    
     public void draw(Graphics g) {
         for (int i = 0; i < activeItems.size(); i++) {
             Item item = activeItems.get(i);
@@ -128,12 +156,17 @@ public class ItemManager {
             if (screenX + gp.tileSize > 0 && screenX < gp.screenWidth &&
                 screenY + gp.tileSize > 0 && screenY < gp.screenHeight) {
             	
-            	if (item.type.equalsIgnoreCase("papel") && papelImage != null) {
-            		g.drawImage(papelImage, screenX + 8, screenY + 8, 32, 32, null);
-            	} else {
-            		g.setColor(item.color);
-            		g.fillOval(screenX + 12, screenY + 12, 24, 24); 
-            	}
+            	double individualTime = floatingCounter + item.animationOffset;
+            	int animationY = (int) (Math.sin(individualTime) * 5);
+            	
+            	BufferedImage image = getImageByType(item.type);
+
+                if (image != null) {
+                	g.drawImage(image, screenX + 8, screenY + 8 + animationY, 32, 32, null);
+                } else {
+                    g.setColor(item.color);
+                    g.fillOval(screenX + 12, screenY + 12, 24, 24); 
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ package engine;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -167,32 +168,28 @@ public class GamePanel extends JPanel implements Runnable {
     }
     
     private void desenharSlotDeItem(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
         int boxSize = 60;
         int inventoryX = (screenWidth / 2) - (boxSize / 2);
         int inventoryY = 20;
 
-        // --- 1. DESENHO DA BARRA DE PROGRESSO (SCORE) ---
+        // --- 1. BARRA DE PROGRESSO (SCORE) ---
         int barX = 20;
         int barY = inventoryY + 10; 
         int barHeight = 40;
-        // A barra vai da esquerda até 20px antes do slot de inventário
         int barMaxWidth = inventoryX - barX - 20; 
 
-        // Fundo da barra (Vazio)
         g.setColor(new Color(0, 0, 0, 150));
         g.fillRoundRect(barX, barY, barMaxWidth, barHeight, 10, 10);
         g.setColor(Color.WHITE);
         g.drawRoundRect(barX, barY, barMaxWidth, barHeight, 10, 10);
 
-
         if (totalItemsNoNivel > 0) {
             double progresso = (double) itensColetadosTotal / totalItemsNoNivel;
             int barFillWidth = (int) (barMaxWidth * progresso);
-
-            g.setColor(new Color(0, 255, 100, 200)); // Verde
+            g.setColor(new Color(0, 255, 100, 200)); 
             g.fillRoundRect(barX + 2, barY + 2, Math.max(0, barFillWidth - 4), barHeight - 4, 8, 8);
         }
-
 
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.setColor(Color.WHITE);
@@ -200,36 +197,63 @@ public class GamePanel extends JPanel implements Runnable {
         int scoreTextX = barX + (barMaxWidth / 2) - (g.getFontMetrics().stringWidth(scoreText) / 2);
         g.drawString(scoreText, scoreTextX, barY + 25);
 
-        Graphics2D g2 = (Graphics2D) g;
-
-        // Lógica de Cor da Borda: Vermelho se cheio, Verde se houver espaço
-        boolean estaCheio = player.inventory.size() >= player.maxInventorySize;
-        Color corBorda = estaCheio ? new Color(255, 0, 0) : new Color(0, 255, 0);
-
-
+        // --- 2. SLOT DO INVENTÁRIO (QUADRADO CINZA) ---
+        // Fundo do slot
         g2.setColor(new Color(0, 0, 0, 180));
         g2.fillRect(inventoryX, inventoryY, boxSize, boxSize);
 
-
-        g2.setStroke(new BasicStroke(10)); 
-        g2.setColor(corBorda);
+        // Borda Cinza Fixa
+        g2.setStroke(new BasicStroke(3)); // Borda um pouco mais fina para ser elegante
+        g2.setColor(new Color(150, 150, 150)); // Cinza médio
         g2.drawRect(inventoryX, inventoryY, boxSize, boxSize);
         g2.setStroke(new BasicStroke(1)); 
 
+        // Item dentro do slot (o próximo a ser jogado)
         if (player.inventory.size() > 0) {
             String proximoItem = player.inventory.get(0);
-            
-            g2.setColor(getCorDoItem(proximoItem)); 
-            g2.fillRect(inventoryX + 10, inventoryY + 10, boxSize - 20, boxSize - 20);
+            BufferedImage img = itemM.getImageByType(proximoItem);
 
+            if (img != null) {
+                // Desenha a textura centralizada no slot
+                g2.drawImage(img, inventoryX + 10, inventoryY + 10, boxSize - 20, boxSize - 20, null);
+            } else {
+                // Fallback: Se a imagem falhar, usamos a cor antiga para o jogo não ficar "vazio"
+                g2.setColor(getCorDoItem(proximoItem)); 
+                g2.fillRect(inventoryX + 10, inventoryY + 10, boxSize - 20, boxSize - 20);
+            }
 
+            // Texto com nome do item abaixo das bolinhas (ajustado Y)
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.BOLD, 12));
             String nomeItem = proximoItem.toUpperCase();
             int nomeX = inventoryX + (boxSize/2) - (g2.getFontMetrics().stringWidth(nomeItem)/2);
-            g2.drawString(nomeItem, nomeX, inventoryY + boxSize + 22);
+            g2.drawString(nomeItem, nomeX, inventoryY + boxSize + 35);
         }
 
+        // --- 3. INDICADORES DE ESPAÇO (BOLINHAS) ---
+        int dotSpacing = 15; // Espaço entre as bolinhas
+        int dotY = inventoryY + boxSize + 12; // Posição logo abaixo do quadrado
+        
+        for (int i = 0; i < player.maxInventorySize; i++) {
+            // Centraliza as 3 bolinhas em relação ao quadrado
+            int totalWidth = (player.maxInventorySize - 1) * dotSpacing;
+            int startX = inventoryX + (boxSize / 2) - (totalWidth / 2);
+            int dotX = startX + (i * dotSpacing);
+
+            if (i < player.inventory.size()) {
+                // Bolinha CHEIA (Item presente)
+                g2.setColor(Color.WHITE);
+                int size = 10; // Maior
+                g2.fillOval(dotX - size/2, dotY - size/2, size, size);
+            } else {
+                // Bolinha VAZIA (Espaço disponível)
+                g2.setColor(new Color(255, 255, 255, 100)); // Transparente
+                int size = 6; // Menor
+                g2.fillOval(dotX - size/2, dotY - size/2, size, size);
+            }
+        }
+
+        // --- 4. MULTIPLICADOR DE COMBO ---
         if (comboMultiplier > 1) {
             g.setColor(Color.ORANGE);
             g.setFont(new Font("Arial", Font.BOLD, 14));

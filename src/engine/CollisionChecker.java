@@ -115,7 +115,7 @@ public class CollisionChecker {
                     p.collisionOn = true;
                     p.velocityY = 0;
                     p.jumping = false;
-                    //p.trampoLineJumpCount = 0;
+                    p.trampoLineJumpCount = 0;
                     p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
                 }
             }

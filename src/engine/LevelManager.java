@@ -24,7 +24,7 @@ public class LevelManager {
             Arrays.asList("papel", "vidro"), 15, 7, 50, 14, 2));
         
         levels.add(new LevelConfig(3, "/maps/map03.txt",
-        		Arrays.asList("papel", "vidro", "metal"), 15, 7, 50, 14, 0));
+        		Arrays.asList("papel", "plastico", "metal", "organico"), 15, 7, 50, 14, 0));
 
     }
 
