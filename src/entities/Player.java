@@ -163,10 +163,11 @@ public class Player {
         		gp.stopMusic();
         		currentFootstepSound = -1;
         	}
-        	
-            velocityY = 1.2; 
-            if (keyH.up) velocityY = -7;
-            else if(keyH.down) velocityY = 7;
+        	if(velocityY >= -7) {
+        		velocityY = 1.2; 
+        		if (keyH.up) velocityY = -7;
+        		else if(keyH.down) velocityY = 7;
+        	}
             worldY += velocityY;
 
             // --- LÓGICA DE ÁGUA TÓXICA ---
@@ -242,22 +243,7 @@ public class Player {
 
             if (!collisionOn || velocityY < 0) {
                 worldY += velocityY;
-            } else {
-            	
-            	int col = worldX / gp.tileSize;
-            	int row = (worldY + currentHeight +1) / gp.tileSize;
-            	int tileAbaixo = gp.tileM.mapTileNum[col][row];
-            	
-            	if (tileAbaixo == 6) {
-            		if (velocityY >= 0 ) {
-	            		gp.playSE(0);
-	            		velocityY = -15;
-	            		jumping = true;
-            		}
-            	}else {
-            		velocityY = 0;
-            		trampoLineJumpCount = 0;
-            	}
+            
             }
             
             

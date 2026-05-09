@@ -31,7 +31,7 @@ public class CollisionChecker {
                 if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision)
                 	&& t1 != 16 && t2 != 16 && t1 != 8 && t2 != 8 && t1 != 3 && t2 != 3) {
                     p.velocityY = 0; // Para o pulo imediatamente
-                    p.worldY = (nextTopRow + 1) * gp.tileSize; // Empurra o player para baixo do bloco
+                    p.worldY = (nextTopRow + 1) * gp.tileSize + 1; // Empurra o player para baixo do bloco
                 }
         	}
         }
@@ -45,22 +45,23 @@ public class CollisionChecker {
             
             if(gp.tileM.tile[t1] == null || gp.tileM.tile[t2] == null) return;
             
+            
             if(t1 == 6 || t2 == 6) {
             	if (p.velocityY > 0) {
+            		
             		if(p.trampoSoundTimer <= 0) {
             			gp.playSE(0);
             			p.trampoSoundTimer = 15;
             		}
+            		
             		if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
             			p.trampoLineJumpCount++;
             		}
             		double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
-            		
             		p.velocityY = -10 * boost;
+            		
             		p.jumping = true;
             		p.collisionOn = false;
-            		
-            		p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight -1;
             		return;
             	}
             }
@@ -114,6 +115,7 @@ public class CollisionChecker {
                     p.collisionOn = true;
                     p.velocityY = 0;
                     p.jumping = false;
+                    //p.trampoLineJumpCount = 0;
                     p.worldY = (nextBottomRow * gp.tileSize) - p.currentHeight;
                 }
             }

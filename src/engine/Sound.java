@@ -10,6 +10,7 @@ import javax.sound.sampled.Clip;
 public class Sound {
 	
 	Clip clip;
+	Clip[] clips = new Clip[30];
 	URL soundURL[]= new URL[30];
 	
 	public Sound() {
@@ -26,6 +27,30 @@ public class Sound {
 		soundURL[10] = getClass().getResource("/sounds/walking_sewage_sound.wav");
 		soundURL[11] = getClass().getResource("/sounds/water_toxic_sound.wav");
 		//soundURL[] = getClass().getResource("/sounds/.wav");
+		preLoad(0);
+	}
+	
+	public void preLoad(int i) {
+		try {
+			if(clips[i] == null) {
+				AudioInputStream ais = AudioSystem.getAudioInputStream(soundURL[i]);
+				clips[i] = AudioSystem.getClip();
+				clips[i].open(ais);
+			}
+		} catch (Exception e) {
+			System.out.println("Erro ao pré-carregar: " + e.getMessage());
+		}
+	}
+	
+	public void playSE(int i) {
+		try {
+			if (clips[i] == null) preLoad(i);
+			clips[i].stop();
+			clips[i].setFramePosition(0);
+			clips[i].start();
+		} catch (Exception e) {
+			System.out.println("Erro no SE: " + e.getMessage());
+		}
 	}
 	
 	public void setFile(int i) {
