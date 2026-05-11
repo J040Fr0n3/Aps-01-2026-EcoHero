@@ -39,6 +39,13 @@ public class GamePanel extends JPanel implements Runnable {
     public int totalItemsNoNivel = 0;
     public int itensColetadosTotal = 0;
     
+    public int gameState;
+    public final int titleState = 0;
+    public final int playState = 1;
+    public final int tutorialState = 2;
+    
+    public UI ui = new UI(this);
+    
     public ItemManager itemM = new ItemManager(this);
     
     // teste mapas
@@ -50,7 +57,7 @@ public class GamePanel extends JPanel implements Runnable {
 
 
     public TileManager tileM;
-    public KeyHandler keyH = new KeyHandler();
+    public KeyHandler keyH = new KeyHandler(this);
     public Sound music = new Sound();
     public Sound fundo = new Sound();
     public Sound se = new Sound();
@@ -80,6 +87,8 @@ public class GamePanel extends JPanel implements Runnable {
         this.player = new Player(this, keyH);
         this.levelM.loadCurrentLevel();
         this.cloudM = new CloudManager(this);
+        
+        gameState = titleState;
         
     }
 
@@ -126,16 +135,30 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
         
-        // Importante: Verifique se o mapa e player não são nulos antes de desenhar
-        if(tileM != null) tileM.draw(g);
-        if(itemM != null) itemM.draw(g);
-        if(player != null) player.draw(g);
-        desenharSlotDeItem(g);
-        desenharVida(g);
-        desenharAr(g);
+        // TELA DE MENU
+        if (gameState == titleState) {
+            ui.draw(g2); // Se estiver no menu, desenha SÓ o menu
+        } 
+        // TELA DO JOGO
+        else {
+            // Se não for menu, desenha o jogo normal
+            if(tileM != null) tileM.draw(g);
+            if(itemM != null) itemM.draw(g);
+            if(player != null) player.draw(g);
+            
+            desenharSlotDeItem(g);
+            desenharVida(g);
+            desenharAr(g);
+            
+            // Se você quiser um menu de tutorial que aparece "por cima" do mapa:
+            if (gameState == tutorialState) {
+                ui.draw(g2);
+            }
+        }
         
-        g.dispose();
+        g2.dispose();
     }
     
     public void playFundo(int i) {
