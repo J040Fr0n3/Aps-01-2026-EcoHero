@@ -26,7 +26,8 @@ public class Sound {
 		soundURL[9] = getClass().getResource("/sounds/fundo_esgoto_sound.wav");
 		soundURL[10] = getClass().getResource("/sounds/walking_sewage_sound.wav");
 		soundURL[11] = getClass().getResource("/sounds/water_toxic_sound.wav");
-		//soundURL[] = getClass().getResource("/sounds/.wav");
+		soundURL[12] = getClass().getResource("/sounds/escadas_sound.wav");
+		//soundURL[] = getClass().getResource("/sounds/escada_sound.wav");
 		preLoad(0);
 	}
 	

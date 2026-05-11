@@ -214,7 +214,7 @@ public class GamePanel extends JPanel implements Runnable {
             g.fillRoundRect(barX + 2, barY + 2, Math.max(0, barFillWidth - 4), barHeight - 4, 8, 8);
         }
 
-        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.setFont(Fonts.getPixelFont(16f));
         g.setColor(Color.WHITE);
         String scoreText = "SCORE: " + score;
         int scoreTextX = barX + (barMaxWidth / 2) - (g.getFontMetrics().stringWidth(scoreText) / 2);
@@ -247,7 +247,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             // Texto com nome do item abaixo das bolinhas (ajustado Y)
             g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Arial", Font.BOLD, 12));
+            g2.setFont(Fonts.getPixelFont(12f));
             String nomeItem = proximoItem.toUpperCase();
             int nomeX = inventoryX + (boxSize/2) - (g2.getFontMetrics().stringWidth(nomeItem)/2);
             g2.drawString(nomeItem, nomeX, inventoryY + boxSize + 35);
@@ -279,7 +279,7 @@ public class GamePanel extends JPanel implements Runnable {
         // --- 4. MULTIPLICADOR DE COMBO ---
         if (comboMultiplier > 1) {
             g.setColor(Color.ORANGE);
-            g.setFont(new Font("Arial", Font.BOLD, 14));
+            g.setFont(Fonts.getPixelFont(14f));
             g.drawString("X" + comboMultiplier, barX, barY + barHeight + 20);
         }
     }

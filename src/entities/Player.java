@@ -113,7 +113,7 @@ public class Player {
         		keyH.interact = false;
         	}
         }
-
+        
         // 2. MOVIMENTO HORIZONTAL 
         int horizontalSpeed = inWater ? speed / 2 : speed;
         if (keyH.left && !checkWallCollision(worldX - horizontalSpeed, worldY)) worldX -= horizontalSpeed;
@@ -140,7 +140,8 @@ public class Player {
         		currentFootstepSound = novoSom;
         	}
         } else {
-        	if (currentFootstepSound != -1) {
+        	
+        	if (currentFootstepSound != -1 && !onLadder) {
         		gp.stopMusic();
         		currentFootstepSound = -1;
         	}
@@ -153,10 +154,31 @@ public class Player {
         if (onLadder) {
             velocityY = 0; 
             jumping = false; 
-            if (keyH.up) worldY -= speed;
-            if (keyH.down) worldY += speed;
+            
+            int ladderSpeed = 3;
+            
+            if (keyH.up || keyH.down) {
+                if (keyH.up) worldY -= ladderSpeed;
+                if (keyH.down) worldY += ladderSpeed;
+
+
+                if (currentFootstepSound != 12) { 
+                    gp.stopMusic(); 
+                    gp.playMusic(12); 
+                    currentFootstepSound = 12;
+                }
+            } else {
+
+                if (currentFootstepSound == 12) {
+                    gp.stopMusic();
+                    currentFootstepSound = -1;
+                }
+            }
+            gp.cChecker.checkTile(this);
+            atualizarAr(true);
+            return;
         } 
-        else if (inWater || inToxicWater) {
+        if (inWater || inToxicWater) {
         	
         	
         	if (currentFootstepSound != -1) {
@@ -239,6 +261,8 @@ public class Player {
             if (keyH.up && !jumping && !onElevator) {
                 velocityY = isCrouching ? -5 : -10;
                 jumping = true;
+                
+               gp.playSE(8);
             }
 
             if (!collisionOn || velocityY < 0) {

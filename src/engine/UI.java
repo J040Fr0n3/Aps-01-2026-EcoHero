@@ -3,6 +3,7 @@ package engine;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 public class UI {
     
@@ -16,12 +17,13 @@ public class UI {
     
     public UI(GamePanel gp) {
         this.gp = gp;
-        // Usamos uma fonte do Windows que é quadradinha e não falha
-        maruMonica = new Font("Lucida Console", Font.BOLD, 40);
+       
+       // maruMonica = new Font("Lucida Console", Font.BOLD, 40);
     }
 
     public void draw(Graphics2D g2) {
         this.g2 = g2;
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
         if (gp.gameState == gp.titleState) {
             drawTitleScreen();
@@ -34,7 +36,7 @@ public class UI {
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
         
         // 2. TÍTULO
-        g2.setFont(new Font("Lucida Console", Font.BOLD, 80));
+        g2.setFont(Fonts.getPixelFont(80f));
         String text = "ECO HERO";
         int x = getXforCenteredText(text);
         int y = gp.tileSize * 3;
@@ -47,7 +49,7 @@ public class UI {
         g2.drawString(text, x, y);
 
         // 3. MENU (Fonte menor)
-        g2.setFont(new Font("Lucida Console", Font.BOLD, 40));
+        g2.setFont(Fonts.getPixelFont(40f));
 
         // INICIAR
         text = "INICIAR";

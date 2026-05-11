@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import main.Main;
+
 public class LevelManager {
     GamePanel gp;
     public List<LevelConfig> levels = new ArrayList<>();

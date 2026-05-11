@@ -1,18 +1,31 @@
 package tile;
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import engine.GamePanel;
-import entities.Item;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public class TileManager {
 
     GamePanel gp;
     public Tile[] tile;
     public int mapTileNum[][];
+    BufferedImage fundoGeral = setupBackground("fundo");
+    BufferedImage fundoCidade = setupBackground("cidade");
+    
+    public BufferedImage setupBackground(String name) {
+    	try {
+            return ImageIO.read(getClass().getResourceAsStream("/textures/" + name + ".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public TileManager(GamePanel gp) {
         this.gp = gp;
@@ -66,11 +79,27 @@ public class TileManager {
         // G - Elevador
         setup(16, "elevador", false, Color.CYAN); // com fisica
     }
-    public void setup(int index, String type, boolean collision, Color color) {
+    public void setup(int index, String imageName, boolean collision, Color color) {
     	tile[index] = new Tile();
-    	tile[index].type = type;
     	tile[index].collision = collision;
     	tile[index].color = color;
+    	
+    	try {
+            // 1. Pegamos o caminho completo
+            String path = "/textures/" + imageName + ".png";
+            InputStream is = getClass().getResourceAsStream(path);
+
+            // 2. Verificamos se o arquivo existe antes de tentar ler
+            if (is != null) {
+                tile[index].image = ImageIO.read(is);
+            } else {
+                System.out.println("AVISO: Imagem não encontrada: " + path);
+                // Aqui o tile[index].image continuará null, 
+                // e seu método draw usará o g.fillRect como fallback.
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadMap(String filePath, int col, int row) {
@@ -133,6 +162,21 @@ public class TileManager {
     }
 
     public void draw(Graphics g) {
+    	
+    	if (fundoGeral != null) {
+            g.drawImage(fundoGeral, 0, 0, gp.screenWidth, gp.screenHeight, null);
+        }
+    	if (fundoCidade != null) {
+            int bgX = 0;
+            int bgY = -gp.player.worldY + gp.player.screenY; 
+            if (gp.player.screenY > gp.player.worldY) bgY = 0;
+            int bottomOffset = gp.screenHeight - gp.player.screenY;
+            if (bottomOffset > gp.worldHeight - gp.player.worldY) {
+                bgY = -(gp.worldHeight - gp.screenHeight);
+            }
+
+            g.drawImage(fundoCidade, bgX, bgY, gp.screenWidth, gp.worldHeight, null);
+        }
         int worldCol = 0;
         int worldRow = 0;
 
@@ -164,19 +208,28 @@ public class TileManager {
                 screenY = worldY - (gp.worldHeight - gp.screenHeight);
             }
             // ---------------------------------------
-
-            if (screenX + gp.tileSize > 0 && 
-                    screenX < gp.screenWidth && 
-                    screenY + gp.tileSize > 0 && 
-                    screenY < gp.screenHeight) {
-                    
-                    g.setColor(tile[tileNum].color);
-                    if(tileNum == 3) {
-                    	g.fillRect(screenX,  screenY, gp.tileSize, gp.tileSize / 2);
-                    } else {
-                    	g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
-                    }
-                }
+            if(tileNum != 0 && tileNum != 2) {
+	            if (screenX + gp.tileSize > 0 && 
+	                    screenX < gp.screenWidth && 
+	                    screenY + gp.tileSize > 0 && 
+	                    screenY < gp.screenHeight) {
+	            	
+	            	if (tile[tileNum].image != null) {
+	                    if (tileNum == 3) {
+	                    	g.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize / 2, null);
+	                    } else {
+	                    	g.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+	                    }
+	                } else {
+	                    g.setColor(tile[tileNum].color);
+	                    if(tileNum == 3) {
+	                    	g.fillRect(screenX,  screenY, gp.tileSize, gp.tileSize / 2);
+	                    } else {
+	                    	g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
+	                    }
+	                }
+	            }
+            }
 
             worldCol++;
             if (worldCol == gp.maxWorldCol) {
