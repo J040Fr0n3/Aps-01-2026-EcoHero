@@ -17,6 +17,7 @@ public class TileManager {
     public int mapTileNum[][];
     BufferedImage fundoGeral = setupBackground("fundo");
     BufferedImage fundoCidade = setupBackground("cidade");
+    private boolean[][] bueiroDesenhado;
     
     public BufferedImage setupBackground(String name) {
     	try {
@@ -177,64 +178,111 @@ public class TileManager {
 
             g.drawImage(fundoCidade, bgX, bgY, gp.screenWidth, gp.worldHeight, null);
         }
+    	boolean[][] pularTile = new boolean[gp.maxWorldCol][gp.maxWorldRow];
+
         int worldCol = 0;
         int worldRow = 0;
 
         while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            int tileNum = mapTileNum[worldCol][worldRow];
+            
+            // Se este tile já foi desenhado como parte de um bueiro 2x2, pula ele
+            if (pularTile[worldCol][worldRow]) {
+                worldCol++;
+                if (worldCol == gp.maxWorldCol) { worldCol = 0; worldRow++; }
+                continue;
+            }
 
+            int tileNum = mapTileNum[worldCol][worldRow];
             int worldX = worldCol * gp.tileSize;
             int worldY = worldRow * gp.tileSize;
 
-            // --- LÓGICA DE TRAVAMENTO DA CÂMERA ---
+            // --- CÁLCULO DE SCREEN X/Y (Igual ao seu) ---
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY = worldY - gp.player.worldY + gp.player.screenY;
 
-            // Trava no eixo X (Esquerda e Direita)
-            if (gp.player.screenX > gp.player.worldX) {
-                screenX = worldX;
-            }
+            if (gp.player.screenX > gp.player.worldX) screenX = worldX;
             int rightOffset = gp.screenWidth - gp.player.screenX;
-            if (rightOffset > gp.worldWidth - gp.player.worldX) {
-                screenX = worldX - (gp.worldWidth - gp.screenWidth);
-            }
-
-            // Trava no eixo Y (Topo e Fundo)
-            if (gp.player.screenY > gp.player.worldY) {
-                screenY = worldY;
-            }
+            if (rightOffset > gp.worldWidth - gp.player.worldX) screenX = worldX - (gp.worldWidth - gp.screenWidth);
+            
+            if (gp.player.screenY > gp.player.worldY) screenY = worldY;
             int bottomOffset = gp.screenHeight - gp.player.screenY;
-            if (bottomOffset > gp.worldHeight - gp.player.worldY) {
-                screenY = worldY - (gp.worldHeight - gp.screenHeight);
-            }
-            // ---------------------------------------
-            if(tileNum != 0 && tileNum != 2) {
-	            if (screenX + gp.tileSize > 0 && 
-	                    screenX < gp.screenWidth && 
-	                    screenY + gp.tileSize > 0 && 
-	                    screenY < gp.screenHeight) {
-	            	
-	            	if (tile[tileNum].image != null) {
-	                    if (tileNum == 3) {
-	                    	g.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize / 2, null);
-	                    } else {
-	                    	g.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
-	                    }
-	                } else {
-	                    g.setColor(tile[tileNum].color);
-	                    if(tileNum == 3) {
-	                    	g.fillRect(screenX,  screenY, gp.tileSize, gp.tileSize / 2);
-	                    } else {
-	                    	g.fillRect(screenX, screenY, gp.tileSize, gp.tileSize);
-	                    }
-	                }
-	            }
+            if (bottomOffset > gp.worldHeight - gp.player.worldY) screenY = worldY - (gp.worldHeight - gp.screenHeight);
+
+            // --- VERIFICAÇÃO DE BUEIRO 2x2 (ID 7) ---
+            if (tileNum == 7) {
+                // Checa se existe espaço e se os vizinhos (Direita, Baixo, Diagonal) também são ID 7
+                if (worldCol + 1 < gp.maxWorldCol && worldRow + 1 < gp.maxWorldRow &&
+                    mapTileNum[worldCol + 1][worldRow] == 7 &&
+                    mapTileNum[worldCol][worldRow + 1] == 7 &&
+                    mapTileNum[worldCol + 1][worldRow + 1] == 7) {
+
+                    // Desenha a imagem 2x2 (dobro do tamanho)
+                    if (tile[tileNum].image != null) {
+                        g.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize * 2, gp.tileSize * 2, null);
+                    }
+                    
+                    // Marca os 4 tiles para serem pulados nas próximas iterações
+                    pularTile[worldCol][worldRow] = true;
+                    pularTile[worldCol + 1][worldRow] = true;
+                    pularTile[worldCol][worldRow + 1] = true;
+                    pularTile[worldCol + 1][worldRow + 1] = true;
+                } 
+                else {
+                    // Desenha bueiro solitário (normal)
+                    desenharTile(g, tileNum, screenX, screenY);
+                }
+            } 
+            // --- DESENHO DE OUTROS TILES ---
+            else if (tileNum != 0 && tileNum != 9) {
+                desenharTile(g, tileNum, screenX, screenY);
             }
 
             worldCol++;
             if (worldCol == gp.maxWorldCol) {
                 worldCol = 0;
                 worldRow++;
+            }
+        }
+    }
+    
+    private void desenharTile(Graphics g, int tileNum, int screenX, int screenY) {
+        if (screenX + gp.tileSize > 0 && screenX < gp.screenWidth && 
+            screenY + gp.tileSize > 0 && screenY < gp.screenHeight) {
+            
+        	if (tile[tileNum].image != null) {
+                int drawX = screenX;
+                int drawY = screenY;
+                int width = gp.tileSize;
+                int height = gp.tileSize;
+
+                // --- LÓGICA DE ALTURA ESPECIAL ---
+                if (tileNum == 3) {
+                    // Plataforma (Metade da altura)
+                    height = gp.tileSize / 2;
+                } 
+                else if (tileNum >= 10 && tileNum <= 14) {
+                    // Lixeiras (1.5 de altura)
+                    height = (int)(gp.tileSize * 1.5);
+                    // Subtraímos a diferença da altura do Y para ela crescer para CIMA
+                    drawY -= (gp.tileSize * 0.5); 
+                }
+
+                g.drawImage(tile[tileNum].image, drawX, drawY, width, height, null);
+                
+            } else {
+                // FALLBACK PARA CORES (Caso não tenha imagem)
+                g.setColor(tile[tileNum].color);
+                int drawY = screenY;
+                int height = gp.tileSize;
+
+                if (tileNum == 3) {
+                    height = gp.tileSize / 2;
+                } else if (tileNum >= 10 && tileNum <= 14) {
+                    height = (int)(gp.tileSize * 1.5);
+                    drawY -= (gp.tileSize * 0.5);
+                }
+                
+                g.fillRect(screenX, drawY, gp.tileSize, height);
             }
         }
     }

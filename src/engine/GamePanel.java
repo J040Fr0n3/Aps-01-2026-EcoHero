@@ -28,6 +28,8 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
     
+    BufferedImage heartImage;
+    
     public int maxWorldCol; 
     public int maxWorldRow; 
     public int worldWidth;
@@ -80,6 +82,12 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        
+        try {
+            heartImage = javax.imageio.ImageIO.read(getClass().getResourceAsStream("/textures/coracao.png"));
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
         
         this.levelM = new LevelManager(this);
         this.tileM = new TileManager(this);
@@ -295,36 +303,34 @@ public class GamePanel extends JPanel implements Runnable {
     }
     
     private void desenharVida(Graphics g) {
-        int x = screenWidth - 160; // Posição inicial X (canto direito)
-        int y = 25;                // Posição inicial Y
-        int size = 30;             // Tamanho do quadrado do coração
-        int spacing = 10;          // Espaço entre os corações
+        int x = screenWidth - 250; // Ajustado para caber os 6 corações na linha
+        int y = 25;
+        int size = 30;             // Tamanho da imagem do coração
+        int spacing = 5;           // Espaço entre eles
 
-        for (int i = 0; i < 3; i++) {
-            // Determinamos quanto de vida este coração específico representa
-            // Coração 0: vida 1 e 2 | Coração 1: vida 3 e 4 | Coração 2: vida 5 e 6
-            int limiteVidaCoração = (i + 1) * 2;
+        for (int i = 0; i < player.maxLife; i++) { // Loop de 0 a 5 (6 total)
+            
+            int currentHeartX = x + (i * (size + spacing));
 
-            // Desenha o fundo (Preto translúcido para o espaço vazio)
-            g.setColor(new Color(0, 0, 0, 150));
-            g.fillRect(x + (i * (size + spacing)), y, size, size);
-
-            // Lógica de preenchimento
-            if (player.life >= limiteVidaCoração) {
-                // CORAÇÃO CHEIO (Tem os 2 pontos de vida)
-                g.setColor(Color.RED);
-                g.fillRect(x + (i * (size + spacing)) + 2, y + 2, size - 4, size - 4);
-            } 
-            else if (player.life == limiteVidaCoração - 1) {
-                // MEIO CORAÇÃO (Tem apenas 1 ponto de vida)
-                g.setColor(Color.RED);
-                // Desenha apenas a metade esquerda do quadrado
-                g.fillRect(x + (i * (size + spacing)) + 2, y + 2, (size - 4) / 2, size - 4);
+            // 1. Desenha o fundo do "slot" (opcional, dá um efeito de Zelda/Minecraft)
+            g.setColor(new Color(0, 0, 0, 0)); // Preto transparente
+            g.fillRect(currentHeartX, y, size, size);
+            
+            // 2. Desenha a textura do coração
+            // Se o índice i for menor que a vida atual, o player ainda tem esse coração
+            if (i < player.life) {
+                if (heartImage != null) {
+                    g.drawImage(heartImage, currentHeartX, y, size, size, null);
+                } else {
+                    // Caso a imagem falhe em carregar, desenha um quadrado vermelho de segurança
+                    g.setColor(Color.RED);
+                    g.fillRect(currentHeartX + 2, y + 2, size - 4, size - 4);
+                }
+            } else {
+                // 3. Opcional: Desenha uma borda cinza para os corações perdidos
+                g.setColor(new Color(255, 255, 255, 50));
+                g.drawRect(currentHeartX, y, size, size);
             }
-
-            // Borda do quadrado (Sempre branca)
-            g.setColor(Color.WHITE);
-            g.drawRect(x + (i * (size + spacing)), y, size, size);
         }
     }
     
@@ -333,7 +339,7 @@ public class GamePanel extends JPanel implements Runnable {
         // Isso garante que mesmo fora da água, se houver ar para recuperar, a HUD desenha.
         if (player.inWater || player.airTimer > 0) {
             
-            int x = screenWidth - 160; 
+            int x = screenWidth - 200; 
             int y = 65;               
             int bubbleSize = 10;
             int spacing = 5;

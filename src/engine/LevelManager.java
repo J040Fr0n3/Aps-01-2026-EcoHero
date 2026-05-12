@@ -19,14 +19,14 @@ public class LevelManager {
     private void setupLevels() {
         // Fase 1: Tutorial
         levels.add(new LevelConfig(1, "/maps/map01.txt", 
-            Arrays.asList("papel"), 10, 5, 52, 14, 1));
+            Arrays.asList("papel"), 10, 5, 52, 14, 1, 13));
 
         // Fase 2: Papel e Vidro
         levels.add(new LevelConfig(2, "/maps/map02.txt", 
-            Arrays.asList("papel", "vidro"), 15, 7, 50, 14, 2));
+            Arrays.asList("papel", "vidro"), 15, 7, 50, 14, 2, 14));
         
         levels.add(new LevelConfig(3, "/maps/map03.txt",
-        		Arrays.asList("papel", "plastico", "metal", "organico"), 15, 7, 50, 14, 0));
+        		Arrays.asList("papel", "plastico", "metal", "organico"), 15, 7, 50, 14, 0, 13));
 
     }
 
@@ -67,7 +67,10 @@ public class LevelManager {
         gp.player.onLadder = false;
         gp.player.inWater = false;
         
-        gp.stopMusic();
+        if(gp.gameState == gp.playState) {
+	        gp.stopMusic();
+	        gp.playFundo(config.musicID);
+        }
         gp.player.currentFootstepSound = -1;
         gp.player.waterSoundPlaying = false;
         gp.player.waterToxicSoundPlaying = false;
