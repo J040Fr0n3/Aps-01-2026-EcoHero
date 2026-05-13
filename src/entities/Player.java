@@ -1,6 +1,9 @@
 package entities;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.awt.Color;
 import engine.GamePanel;
 import engine.KeyHandler;
@@ -60,6 +63,13 @@ public class Player {
     public int maxInventorySize = 3;
     
     public boolean inToxicWater = false;
+    
+    public final int visualWidth = 80;  
+    public final int visualHeight = 80;
+    
+    public Image walkGif;
+    public BufferedImage idle, jump;
+    private String direction = "right";
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
@@ -73,6 +83,27 @@ public class Player {
         // Define a posição inicial no mundo (ex: coluna 10, linha 10)
         this.worldX = gp.tileSize * 5; 
         this.worldY = gp.tileSize * 10;
+        
+        getPlayerImage();
+    }
+    
+    public void getPlayerImage() {
+    	idle = setup("/textures/player_stopeted.png");
+    	jump = setup("/textures/player_jumping.png");
+    	
+    	try {
+    		walkGif = java.awt.Toolkit.getDefaultToolkit().createImage(getClass().getResource("/textures/player_walking.gif"));
+    	} catch (Exception e) {
+    		System.err.println("Erro ao carregar Gif: " + e.getMessage());
+    	}
+    }
+    public BufferedImage setup(String imagePath) {
+        try {
+            return javax.imageio.ImageIO.read(getClass().getResource(imagePath));
+        } catch (java.io.IOException | IllegalArgumentException e) {
+            System.err.println("Erro ao carregar textura do player: " + imagePath);
+            return null;
+        }
     }
 
     public void update() {
@@ -116,8 +147,14 @@ public class Player {
         
         // 2. MOVIMENTO HORIZONTAL 
         int horizontalSpeed = inWater ? speed / 2 : speed;
-        if (keyH.left && !checkWallCollision(worldX - horizontalSpeed, worldY)) worldX -= horizontalSpeed;
-        if (keyH.right && !checkWallCollision(worldX + horizontalSpeed, worldY)) worldX += horizontalSpeed;
+        if (keyH.left && !checkWallCollision(worldX - horizontalSpeed, worldY)) {
+        	direction = "right";
+        	worldX -= horizontalSpeed;
+        }
+        if (keyH.right && !checkWallCollision(worldX + horizontalSpeed, worldY)) {
+        	direction = "left";
+        	worldX += horizontalSpeed;
+        } 
         
         
         isWalking = (keyH.left || keyH.right) && !jumping && !onLadder && !inWater && !inToxicWater && !onElevator;
@@ -393,6 +430,18 @@ public class Player {
     }
 
     public void draw(Graphics g) {
+    	
+    	Graphics g2 = (Graphics2D) g;
+    	java.awt.Image currentImage = null;
+    	
+    	if(jumping || inWater || inToxicWater || onLadder) {
+    		currentImage = jump;
+    	} else if (keyH.left || keyH.right) {
+    		currentImage = walkGif;
+    	} else {
+    		currentImage = idle;
+    	}
+    	
         int x = screenX;
         int y = screenY;
 
@@ -417,8 +466,18 @@ public class Player {
                 y = gp.screenHeight - (gp.worldHeight - worldY);
             }
         }
-
-        g.setColor(Color.blue);
-        g.fillRect(x, y, 40, currentHeight);
+        
+        int offsetX = (visualWidth - 40) / 2;
+        int offsetY = (visualHeight - currentHeight);
+        
+        if (currentImage != null) {
+            if (direction.equals("right")) {
+                // Inverte usando visualWidth
+                g2.drawImage(currentImage, x - offsetX + visualWidth, y - offsetY, -visualWidth, visualHeight, gp);
+            } else {
+                g2.drawImage(currentImage, x - offsetX, y - offsetY, visualWidth, visualHeight, gp);
+            }
+        }
+        // g.drawRect(x, y, 40, currentHeight);
     }
 }
