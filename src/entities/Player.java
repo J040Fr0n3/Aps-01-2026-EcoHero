@@ -261,6 +261,7 @@ public class Player {
                     airRecoveryCounter++;
                     if (airRecoveryCounter >= 90) {
                         if(life > 0) life -= 1;
+                        gp.playSE(1);
                         airRecoveryCounter = 0;
                     }
                 }
