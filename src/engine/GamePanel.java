@@ -43,6 +43,8 @@ public class GamePanel extends JPanel implements Runnable {
     public final int playState = 1;
     public final int scoreState = 2;
     public final int dataInputState = 3;
+    public final int pauseState = 5;
+    public final int quitConfirmationState = 6;
     
     public UI ui = new UI(this);
     
@@ -125,17 +127,32 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
         
-        if(itemM != null) {
-        	itemM.update();
+        // O jogo só processa movimentos e lógica se estiver no estado PLAY
+        if (gameState == playState) {
+            
+            player.update();
+            
+            if (itemM != null) {
+                itemM.update();
+            }
+            
+            // Verifica se o player pediu para pular de nível (atalho 'N')
+            if (keyH.nextLevelRequested) {
+                levelM.nextLevel();
+                keyH.nextLevelRequested = false;
+            }
+            
+            if (cloudM != null) {
+                cloudM.update();
+            }
+            
+            // AQUI: Incremente seu cronômetro de tempo e pontuação
+            // Ex: scoreManager.update();
         }
         
-        if (keyH.nextLevelRequested) {
-            levelM.nextLevel();
-            keyH.nextLevelRequested = false;
-        }
-        cloudM.update();
+        // Se o gameState for pauseState ou quitConfirmationState, 
+        // este método não fará nada, "congelando" o jogo visualmente.
     }
 
     @Override
@@ -143,34 +160,25 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         
-        // 1. ESTADO DE MENU (TITLE)
-        if (gameState == titleState) {
+        // ESTADOS QUE SÃO APENAS INTERFACE (Fundo Preto)
+        if (gameState == titleState || gameState == dataInputState || gameState == scoreState) {
             ui.draw(g2); 
         } 
         
-        // 2. ESTADO DE CADASTRO (NOME E RA)
-        else if (gameState == dataInputState) {
-            ui.draw(g2); // Aqui a UI desenha o fundo preto e os inputs
-        }
-        
-        // 3. ESTADO DE SCORE (TOP 10)
-        else if (gameState == scoreState) {
-            ui.draw(g2);
-        }
-        
-        // 4. ESTADO DE JOGO (PLAY)
-        else if (gameState == playState) {
-            // Desenha o cenário e entidades
+        // ESTADOS QUE ENVOLVEM O MUNDO DO JOGO (Mapa visível)
+        else if (gameState == playState || gameState == pauseState || gameState == quitConfirmationState) {
+            
+            // 1. Desenha o mundo (Mapa, Itens, Player)
             if(tileM != null) tileM.draw(g2);
             if(itemM != null) itemM.draw(g2);
             if(player != null) player.draw(g2);
             
-            // Desenha a HUD (Vida, Ar, Itens)
+            // 2. Desenha a HUD básica (Vida, Ar)
             desenharSlotDeItem(g2);
             desenharVida(g2);
             desenharAr(g2);
             
-            // Desenha mensagens da UI por cima do jogo (se houver)
+            // 3. Desenha a UI (Janela de Pausa ou Aviso de Saída vai por cima de tudo)
             ui.draw(g2);
         }
         

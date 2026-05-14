@@ -34,18 +34,21 @@ public class UI {
             drawTitleScreen();
         }
         // 2. TELA DE CADASTRO (NOME E RA)
-        else if (gp.gameState == gp.dataInputState) {
+        if (gp.gameState == gp.dataInputState) {
             drawDataInputScreen();
         }
         // 3. TELA DE RECORDES (SCORE)
-        else if (gp.gameState == gp.scoreState) {
+        if (gp.gameState == gp.scoreState) {
             drawScoreScreen();
         }
         // 4. INTERFACE DURANTE O JOGO (HUD)
-        else if (gp.gameState == gp.playState) {
-            // Aqui você pode chamar métodos para desenhar mensagens temporárias, 
-            // diálogos ou inventário que aparecem por cima do jogo.
-            // drawPlayerHUD(); 
+        if (gp.gameState == gp.playState) { 
+        }
+        if (gp.gameState == gp.pauseState) {
+            drawPauseScreen();
+        }
+        if (gp.gameState == gp.quitConfirmationState) {
+            drawQuitConfirmationScreen();
         }
     }
 
@@ -216,6 +219,87 @@ public class UI {
         g2.setColor(Color.darkGray);
         String exit = "ESC PARA SAIR";
         g2.drawString(exit, getXforCenteredText(exit), y);
+    }
+    
+    public void drawPauseScreen() {
+        // Escurecer o fundo do jogo
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        // Janela Central
+        int x = gp.screenWidth / 4;
+        int y = gp.screenHeight / 4;
+        int width = gp.screenWidth / 2;
+        int height = gp.screenHeight / 2;
+        drawSubWindow(x, y, width, height);
+
+        g2.setColor(Color.white);
+        g2.setFont(Fonts.getPixelFont(40f));
+        
+        // Título da Fase
+        String text = "FASE " + (gp.levelM.currentLevelIndex + 1);
+        g2.drawString(text, getXforCenteredText(text), y + gp.tileSize);
+
+        // Mensagem
+        g2.setFont(Fonts.getPixelFont(25f));
+        text = "(Score / Tempo pausado)";
+        g2.drawString(text, getXforCenteredText(text), y + gp.tileSize * 2);
+
+        // Botão Continuar
+        text = "CONTINUAR";
+        int ty = y + gp.tileSize * 4;
+        if (commandNum == 0) g2.setColor(amareloMenu); else g2.setColor(Color.white);
+        g2.drawString(text, getXforCenteredText(text), ty);
+        
+        // Botão Sair
+        text = "SAIR";
+        ty += gp.tileSize;
+        if (commandNum == 1) g2.setColor(amareloMenu); else g2.setColor(Color.white);
+        g2.drawString(text, getXforCenteredText(text), ty);
+    }
+
+    public void drawQuitConfirmationScreen() {
+        // Overlay ainda mais escuro
+        g2.setColor(new Color(0, 0, 0, 200));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        int x = gp.screenWidth / 6;
+        int y = gp.screenHeight / 3;
+        int width = gp.screenWidth * 2/3;
+        int height = gp.screenHeight / 3;
+        drawSubWindow(x, y, width, height);
+
+        g2.setColor(Color.red);
+        g2.setFont(Fonts.getPixelFont(45f));
+        String text = "AVISO";
+        g2.drawString(text, getXforCenteredText(text), y + gp.tileSize);
+
+        g2.setColor(Color.white);
+        g2.setFont(Fonts.getPixelFont(20f));
+        text = "Ao sair sua pontuação ate agora será apagada";
+        g2.drawString(text, getXforCenteredText(text), y + gp.tileSize * 1.5f);
+
+        // Opções Lado a Lado
+        g2.setFont(Fonts.getPixelFont(30f));
+        
+        // SAIR
+        text = "SAIR";
+        if(subState == 0) g2.setColor(amareloMenu); else g2.setColor(Color.white);
+        g2.drawString(text, x + gp.tileSize, y + height - gp.tileSize);
+
+        // CONTINUAR
+        text = "CONTINUAR";
+        if(subState == 1) g2.setColor(amareloMenu); else g2.setColor(Color.white);
+        g2.drawString(text, x + width - gp.tileSize * 4, y + height - gp.tileSize);
+    }
+
+    // Método auxiliar para criar o fundo da janelinha
+    public void drawSubWindow(int x, int y, int width, int height) {
+        g2.setColor(new Color(0, 0, 0, 210));
+        g2.fillRoundRect(x, y, width, height, 35, 35);
+        g2.setColor(Color.white);
+        g2.setStroke(new java.awt.BasicStroke(5));
+        g2.drawRoundRect(x + 5, y + 5, width - 10, height - 10, 25, 25);
     }
 
     public int getXforCenteredText(String text) {

@@ -28,6 +28,46 @@ public class KeyHandler implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         
+     // Dentro do keyPressed
+        if (code == KeyEvent.VK_ESCAPE) {
+            if (gp.gameState == gp.playState) gp.gameState = gp.pauseState;
+            else if (gp.gameState == gp.pauseState) gp.gameState = gp.playState;
+        }
+
+        // Navegação no Menu de Pausa
+        if (gp.gameState == gp.pauseState) {
+            if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
+                gp.ui.commandNum--;
+                if (gp.ui.commandNum < 0) gp.ui.commandNum = 1; // 0: Continuar, 1: Sair
+            }
+            if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+                gp.ui.commandNum++;
+                if (gp.ui.commandNum > 1) gp.ui.commandNum = 0;
+            }
+            if (code == KeyEvent.VK_ENTER) {
+                if (gp.ui.commandNum == 0) gp.gameState = gp.playState;
+                if (gp.ui.commandNum == 1) gp.gameState = gp.quitConfirmationState;
+            }
+        }
+
+        // Navegação na Confirmação de Saída
+        else if (gp.gameState == gp.quitConfirmationState) {
+            if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT || code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+                gp.ui.subState = (gp.ui.subState == 0) ? 1 : 0; // Alterna entre Sair (0) e Continuar (1)
+            }
+            if (code == KeyEvent.VK_ENTER) {
+                if (gp.ui.subState == 0) { // SAIR REALMENTE
+                    gp.gameState = gp.titleState;
+                    // Resetar dados aqui se necessário
+                    gp.ui.playerName = ""; 
+                    gp.ui.playerRA = "";
+                } else { // CONTINUAR
+                    gp.gameState = gp.playState;
+                }
+                return;
+            }
+        }
+        
         // --- LÓGICA DA TELA DE CADASTRO (DATA INPUT) ---
         if (gp.gameState == gp.dataInputState) {
         	if (code == KeyEvent.VK_ESCAPE) {
