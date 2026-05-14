@@ -42,35 +42,61 @@ public class ItemManager {
 
     private void spawnAttempt() {
         LevelConfig config = gp.levelM.getCurrentLevel();
-        int limitePorSpawner = 3; // X = quantidade máxima por ponto
 
-        if (activeItems.size() < config.maxTotalItems && !gp.spawnerData.isEmpty()) {
+        // TRAVA PRINCIPAL: Só entra se não houver NENHUM item no chão (activeItems vazio)
+        // E se o jogador ainda não completou o objetivo total da fase
+        if (activeItems.isEmpty() && gp.itensColetadosTotal < gp.totalItemsNoNivel) {
             
-            // Transforma as chaves do Map em uma lista para sortear
-            java.util.List<java.awt.Point> locations = new java.util.ArrayList<>(gp.spawnerData.keySet());
-            java.awt.Point spawnPos = locations.get(random.nextInt(locations.size()));
-
-            int itensJaGerados = gp.spawnerData.get(spawnPos);
-
-            if (itensJaGerados < limitePorSpawner && !isLocationOccupied(spawnPos.x * gp.tileSize, spawnPos.y * gp.tileSize)) {
-                String type = config.allowedItems.get(random.nextInt(config.allowedItems.size()));
+            // 1. Filtra o que ainda falta (Tasks)
+            ArrayList<String> tiposNecessarios = new ArrayList<>();
+            for (String tipo : config.itemsRequired.keySet()) {
+                int objetivo = config.itemsRequired.get(tipo);
+                int entregues = gp.itensEntreguesFase.getOrDefault(tipo, 0);
                 
-                activeItems.add(new Item(type, spawnPos.x * gp.tileSize, spawnPos.y * gp.tileSize, getItemColor(type)));
+                if (entregues < objetivo) {
+                    tiposNecessarios.add(tipo);
+                }
+            }
+
+            // Se não falta mais nada, sai do método
+            if (tiposNecessarios.isEmpty()) return;
+
+            // 2. Escolhe um local de spawn aleatório entre os disponíveis no mapa
+            if (!gp.spawnerData.isEmpty()) {
+                java.util.List<java.awt.Point> locations = new java.util.ArrayList<>(gp.spawnerData.keySet());
+                java.awt.Point spawnPos = locations.get(random.nextInt(locations.size()));
+
+                // 3. Escolhe o tipo de item
+                String type = tiposNecessarios.get(random.nextInt(tiposNecessarios.size()));
                 
-                // Aumenta o contador desse spawner específico
-                gp.spawnerData.put(spawnPos, itensJaGerados + 1);
+                // 4. Gera o item exatamente na posição do spawner
+                activeItems.add(new Item(type, 
+                    spawnPos.x * gp.tileSize, 
+                    spawnPos.y * gp.tileSize, 
+                    getItemColor(type)));
+                
+                System.out.println("Gerado: " + type + " | Aguardando coleta...");
             }
         }
     }
     
     public void preSpawnItems() {
-        // Tenta spawnar um item em cada spawner do mapa uma vez
-        for (java.awt.Point p : gp.spawnerData.keySet()) {
-            LevelConfig config = gp.levelM.getCurrentLevel();
-            String type = config.allowedItems.get(random.nextInt(config.allowedItems.size()));
+        LevelConfig config = gp.levelM.getCurrentLevel();
+        java.util.List<java.awt.Point> locations = new java.util.ArrayList<>(gp.spawnerData.keySet());
+        
+        // Lista de tipos que a fase exige
+        ArrayList<String> requirementList = new ArrayList<>(config.itemsRequired.keySet());
+        if (requirementList.isEmpty()) return;
+
+        for (java.awt.Point p : locations) {
+            // Escolhe um tipo que faz parte dos requisitos da fase
+            String type = requirementList.get(random.nextInt(requirementList.size()));
             
             activeItems.add(new Item(type, p.x * gp.tileSize, p.y * gp.tileSize, getItemColor(type)));
-            gp.spawnerData.put(p, 1); // Marca que o primeiro item já foi gerado
+            gp.spawnerData.put(p, 1);
+            
+            // Opcional: Parar o pre-spawn se já encher o mapa ou atingir a meta
+            if (activeItems.size() >= config.getTotalRequiredItems()) break;
         }
     }
 

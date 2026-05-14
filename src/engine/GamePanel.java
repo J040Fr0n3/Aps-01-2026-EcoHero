@@ -4,6 +4,8 @@ package engine;
 
 import javax.swing.JPanel;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -37,6 +39,8 @@ public class GamePanel extends JPanel implements Runnable {
     public int correctSequence = 0;
     public int totalItemsNoNivel = 0;
     public int itensColetadosTotal = 0;
+    public Map<String, Integer> itensEntreguesFase = new HashMap<>();
+    
     
     public int gameState;
     public final int titleState = 0;

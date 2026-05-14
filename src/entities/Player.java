@@ -363,8 +363,7 @@ public class Player {
     public void discardItem() {
         if (inventory.isEmpty()) return;
 
-        // 1. Identifica em qual tile o player está tentando interagir
-        // Vamos checar o tile à frente ou no centro do player
+        // 1. Identifica o tile onde o player está
         int col = worldX / gp.tileSize;
         int row = (worldY + currentHeight / 2) / gp.tileSize;
         int tileID = gp.tileM.mapTileNum[col][row];
@@ -372,36 +371,51 @@ public class Player {
         // 2. Verifica se o tile é uma lixeira (IDs 10 a 14)
         if (tileID >= 10 && tileID <= 14) {
             String itemParaDescartar = inventory.get(0);
-            boolean acerto = false;
+            boolean acertoLixeiraCorreta = false;
 
             // Lógica de Validação: Item vs Lixeira
-            if (itemParaDescartar.equalsIgnoreCase("papel") && tileID == 10) acerto = true;
-            else if (itemParaDescartar.equalsIgnoreCase("vidro") && tileID == 11) acerto = true;
-            else if (itemParaDescartar.equalsIgnoreCase("metal") && tileID == 12) acerto = true;
-            else if (itemParaDescartar.equalsIgnoreCase("plastico") && tileID == 13) acerto = true;
-            else if (itemParaDescartar.equalsIgnoreCase("organico") && tileID == 14) acerto = true;
+            if (itemParaDescartar.equalsIgnoreCase("papel") && tileID == 10) acertoLixeiraCorreta = true;
+            else if (itemParaDescartar.equalsIgnoreCase("vidro") && tileID == 11) acertoLixeiraCorreta = true;
+            else if (itemParaDescartar.equalsIgnoreCase("metal") && tileID == 12) acertoLixeiraCorreta = true;
+            else if (itemParaDescartar.equalsIgnoreCase("plastico") && tileID == 13) acertoLixeiraCorreta = true;
+            else if (itemParaDescartar.equalsIgnoreCase("organico") && tileID == 14) acertoLixeiraCorreta = true;
 
-            if (acerto) {
-                // Regra de Acerto: Soma 10 * Multiplicador
-                gp.score += (10 * gp.comboMultiplier);
-                gp.itensColetadosTotal++;
-                gp.correctSequence++;
-                
-                // Sobe o multiplicador a cada acerto (limite x5)
-                if (gp.comboMultiplier < 5) {
-                    gp.comboMultiplier++;
+            if (acertoLixeiraCorreta) {
+                // --- NOVA TRAVA DE SEGURANÇA ---
+                engine.LevelConfig config = gp.levelM.getCurrentLevel();
+                int objetivo = config.itemsRequired.getOrDefault(itemParaDescartar, 0);
+                int jaEntregues = gp.itensEntreguesFase.getOrDefault(itemParaDescartar, 0);
+
+                if (jaEntregues < objetivo) {
+                    // REGRA DE ACERTO: Só entra aqui se ainda faltarem itens para a meta
+                    gp.score += (10 * gp.comboMultiplier);
+                    gp.itensColetadosTotal++; // Aumenta a barra de progresso do nível
+                    gp.correctSequence++;
+                    
+                    // Incrementa o contador individual da task no GamePanel
+                    gp.itensEntreguesFase.put(itemParaDescartar, jaEntregues + 1);
+
+                    if (gp.comboMultiplier < 5) {
+                        gp.comboMultiplier++;
+                    }
+                    gp.playSE(4); // Som de sucesso (ajuste o ID se necessário)
+                    System.out.println("Acertou! Task " + itemParaDescartar + ": " + (jaEntregues + 1) + "/" + objetivo);
+                } else {
+                    // REGRA DE META BATIDA: O item é descartado, mas não soma pontos nem barra
+                    System.out.println("Meta de " + itemParaDescartar + " já atingida. Item reciclado sem pontos extras.");
+                    // Você pode tocar um som neutro aqui
                 }
-                System.out.println("Acertou! Score: " + gp.score + " Combo: x" + gp.comboMultiplier);
             } else {
-                // Regra de Erro: Subtrai 10 e reseta combo
+                // REGRA DE ERRO: Errou a lixeira
                 gp.score -= 10;
-                if (gp.score < 0) gp.score = 0; // Evita score negativo se preferir
+                if (gp.score < 0) gp.score = 0;
                 gp.comboMultiplier = 1;
                 gp.correctSequence = 0;
                 System.out.println("Errou a lixeira! Combo resetado.");
+                // gp.playSE(ID_SOM_ERRO); 
             }
 
-            // Remove o item do inventário após a tentativa
+            // Remove o item do inventário após a tentativa (sucesso, meta batida ou erro)
             inventory.remove(0);
         }
     }

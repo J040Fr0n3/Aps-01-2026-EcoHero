@@ -2,7 +2,9 @@ package engine;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import main.Main;
 
@@ -17,17 +19,24 @@ public class LevelManager {
     }
 
     private void setupLevels() {
-        // Fase 1: Tutorial
-        levels.add(new LevelConfig(1, "/maps/map01.txt", 
-            Arrays.asList("papel"), 10, 5, 52, 14, 1, 13));
+    	// Fase 1: Tutorial - Precisa de 10 papéis
+        Map<String, Integer> f1Req = new HashMap<>();
+        f1Req.put("papel", 10);
+        levels.add(new LevelConfig(1, "/maps/map01.txt", f1Req, 5, 52, 14, 1, 13));
 
         // Fase 2: Papel e Vidro
-        levels.add(new LevelConfig(2, "/maps/map02.txt", 
-            Arrays.asList("papel", "vidro"), 15, 7, 50, 14, 2, 14));
-        
-        levels.add(new LevelConfig(3, "/maps/map03.txt",
-        		Arrays.asList("papel", "plastico", "metal", "organico"), 15, 7, 50, 14, 0, 13));
+        Map<String, Integer> f2Req = new HashMap<>();
+        f2Req.put("papel", 5);
+        f2Req.put("vidro", 5);
+        levels.add(new LevelConfig(2, "/maps/map02.txt", f2Req, 7, 50, 14, 2, 14));
 
+        // Fase 3: Diversos
+        Map<String, Integer> f3Req = new HashMap<>();
+        f3Req.put("papel", 4);
+        f3Req.put("plastico", 4);
+        f3Req.put("metal", 4);
+        f3Req.put("organico", 4);
+        levels.add(new LevelConfig(3, "/maps/map03.txt", f3Req, 7, 50, 14, 0, 13));
     }
 
     public LevelConfig getCurrentLevel() {
@@ -48,35 +57,39 @@ public class LevelManager {
         // 1. Limpa dados da fase anterior
         gp.spawnerData.clear();
         gp.itemM.clearItems(); 
+        gp.itensEntreguesFase.clear(); // Limpa o progresso de tasks
 
-        // 2. Define o objetivo da barra para a nova fase
-        gp.totalItemsNoNivel = config.maxTotalItems; // O 100% da barra
-        gp.itensColetadosTotal = 0;                  // Reseta o preenchimento
+        // 2. Define o objetivo baseado na soma dos requisitos individuais
+        gp.totalItemsNoNivel = config.getTotalRequiredItems(); 
+        gp.itensColetadosTotal = 0; // Total geral para a barra de progresso
+        
+        // Inicializa o mapa de entregas com 0 para cada item exigido na fase
+        for (String tipo : config.itemsRequired.keySet()) {
+            gp.itensEntreguesFase.put(tipo, 0);
+        }
         
         // 3. Carrega o mapa e spawns
         gp.tileM.loadMap(config.mapPath, config.maxCols, config.maxRows);
         gp.itemM.preSpawnItems();
-        
 
-        // 4. Reposiciona o Player
+        // 4. Reposiciona o Player (Seu código original)
         gp.player.worldX = gp.tileSize * 5;
         gp.player.worldY = gp.tileSize * 10;
-        
         gp.player.velocityY = 0;
         gp.player.jumping = false;
         gp.player.onLadder = false;
         gp.player.inWater = false;
         
+        // Sons e Música
         if(gp.gameState == gp.playState) {
-	        gp.stopMusic();
-	        gp.playFundo(config.musicID);
+            gp.stopMusic();
+            gp.playFundo(config.musicID);
         }
         gp.player.currentFootstepSound = -1;
         gp.player.waterSoundPlaying = false;
         gp.player.waterToxicSoundPlaying = false;
         gp.player.elevatorSoundPlaying = false;
         
-        
-        System.out.println("Nível carregado: " + config.levelNumber + " | Objetivo: " + config.maxTotalItems);
+        System.out.println("Nível: " + config.levelNumber + " | Tasks: " + config.itemsRequired);
     }
 }
