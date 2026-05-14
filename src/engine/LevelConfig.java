@@ -15,6 +15,7 @@ public class LevelConfig {
     public int maxRows;
     public int bueiroDestino;
     public int musicID;
+    public boolean unlocked = false;
 
     public LevelConfig(int level, String path, List<String> items, int max, int rate, int cols, int rows, int bueiroDestino, int musicID) {
         this.levelNumber = level;
@@ -26,6 +27,7 @@ public class LevelConfig {
         this.maxRows = rows;
         this.bueiroDestino = bueiroDestino;
         this.musicID = musicID;
+        this.unlocked = false;
     }
     
     

@@ -14,15 +14,55 @@ public class KeyHandler implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {
+        if (gp.gameState == gp.dataInputState) {
+            char c = e.getKeyChar();
+            if (Character.isLetterOrDigit(c) || c == ' ') {
+                if (gp.ui.subState == 0 && gp.ui.playerName.length() < 15) gp.ui.playerName += c;
+                if (gp.ui.subState == 1 && gp.ui.playerRA.length() < 10) gp.ui.playerRA += c;
+            }
+        }
+    }
 
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         
+        // --- LÓGICA DA TELA DE CADASTRO (DATA INPUT) ---
+        if (gp.gameState == gp.dataInputState) {
+        	if (code == KeyEvent.VK_ESCAPE) {
+        		gp.gameState = gp.titleState;
+        	}
+            if (code == KeyEvent.VK_UP) {
+                gp.ui.subState--;
+                if (gp.ui.subState < 0) gp.ui.subState = 2; 
+            }
+            if (code == KeyEvent.VK_DOWN) {
+                gp.ui.subState++;
+                if (gp.ui.subState > 2) gp.ui.subState = 0;
+            }
+
+            if (code == KeyEvent.VK_BACK_SPACE) {
+                if (gp.ui.subState == 0 && gp.ui.playerName.length() > 0) {
+                    gp.ui.playerName = gp.ui.playerName.substring(0, gp.ui.playerName.length() - 1);
+                } else if (gp.ui.subState == 1 && gp.ui.playerRA.length() > 0) {
+                    gp.ui.playerRA = gp.ui.playerRA.substring(0, gp.ui.playerRA.length() - 1);
+                }
+            }
+
+            if (code == KeyEvent.VK_ENTER) {
+                if (gp.ui.subState == 2) {
+                    if (!gp.ui.playerName.trim().isEmpty() && !gp.ui.playerRA.trim().isEmpty()) {
+                        iniciarJogo(); // Método que reseta leveis e inicia
+                    }
+                } else {
+                    gp.ui.subState++; 
+                }
+            }
+        }
+        
         // --- LÓGICA DO MENU (TITLE STATE) ---
-        if (gp.gameState == gp.titleState) {
-            
+        else if (gp.gameState == gp.titleState) { // Usei else if para evitar conflitos
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
                 gp.ui.commandNum--;
                 if (gp.ui.commandNum < 0) gp.ui.commandNum = 2;
@@ -35,10 +75,11 @@ public class KeyHandler implements KeyListener {
         
             if (code == KeyEvent.VK_ENTER) {
                 if (gp.ui.commandNum == 0) {
-                    gp.gameState = gp.playState; 
+                    // CORREÇÃO: Leva para o cadastro em vez de ir direto pro jogo
+                    gp.gameState = gp.dataInputState; 
                 }
                 if (gp.ui.commandNum == 1) {
-                    System.out.print("Tutorial Selecionado!");
+                    gp.gameState = gp.scoreState;
                 }
                 if (gp.ui.commandNum == 2) {
                     System.exit(0); 
@@ -46,35 +87,36 @@ public class KeyHandler implements KeyListener {
             }
         } 
         
+        // --- LÓGICA DO SCORE (SCORE STATE) ---
+        else if (gp.gameState == gp.scoreState) {
+            if (code == KeyEvent.VK_ESCAPE) {
+                gp.gameState = gp.titleState;
+            }
+        } 
+        
         // --- LÓGICA DO JOGO (PLAY STATE) ---
-        // Usamos o ELSE IF para que os comandos de jogo só funcionem fora do menu
         else if (gp.gameState == gp.playState) {
-            
-            if(code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
-                left = true;
-            }
-            if(code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
-                right = true;
-            }
-            if(code == KeyEvent.VK_SPACE || code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
-                up = true;
-            }
-            if(code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) {
-                down = true;
-            }
-            if(code == KeyEvent.VK_CONTROL) {
-                ctrl = true;
-            }
-            if (code == KeyEvent.VK_N) {
-                nextLevelRequested = true;
-            }
-            if(code == KeyEvent.VK_E) {
-                descarte = true;
-            }
-            if(code == KeyEvent.VK_G) {
-                interact = true;
-            }
+            if(code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) left = true;
+            if(code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) right = true;
+            if(code == KeyEvent.VK_SPACE || code == KeyEvent.VK_W || code == KeyEvent.VK_UP) up = true;
+            if(code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) down = true;
+            if(code == KeyEvent.VK_CONTROL) ctrl = true;
+            if (code == KeyEvent.VK_N) nextLevelRequested = true;
+            if(code == KeyEvent.VK_E) descarte = true;
+            if(code == KeyEvent.VK_G) interact = true;
         }
+    }
+
+    // MODO DE INICIAR O JOGO (Adicione este método no final do KeyHandler ou chame da GP)
+    private void iniciarJogo() {
+        // 1. Garante que apenas o Level 1 está desbloqueado para o novo jogador
+        for (int i = 0; i < gp.levelM.levels.size(); i++) {
+            gp.levelM.levels.get(i).unlocked = (i == 0); 
+        }
+        // 2. Carrega a fase 1
+        gp.levelM.loadCurrentLevel();
+        // 3. Entra no jogo
+        gp.gameState = gp.playState;
     }
 
     @Override

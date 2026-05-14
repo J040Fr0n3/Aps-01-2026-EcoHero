@@ -3,15 +3,12 @@ package engine;
 
 
 import javax.swing.JPanel;
-import java.util.ArrayList;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 
-import entities.Item;
+
 import entities.Player;
 import tile.CloudManager;
 import tile.TileManager;
@@ -44,7 +41,8 @@ public class GamePanel extends JPanel implements Runnable {
     public int gameState;
     public final int titleState = 0;
     public final int playState = 1;
-    public final int tutorialState = 2;
+    public final int scoreState = 2;
+    public final int dataInputState = 3;
     
     public UI ui = new UI(this);
     
@@ -145,25 +143,35 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         
-        // TELA DE MENU
+        // 1. ESTADO DE MENU (TITLE)
         if (gameState == titleState) {
-            ui.draw(g2); // Se estiver no menu, desenha SÓ o menu
+            ui.draw(g2); 
         } 
-        // TELA DO JOGO
-        else {
-            // Se não for menu, desenha o jogo normal
-            if(tileM != null) tileM.draw(g);
-            if(itemM != null) itemM.draw(g);
-            if(player != null) player.draw(g);
+        
+        // 2. ESTADO DE CADASTRO (NOME E RA)
+        else if (gameState == dataInputState) {
+            ui.draw(g2); // Aqui a UI desenha o fundo preto e os inputs
+        }
+        
+        // 3. ESTADO DE SCORE (TOP 10)
+        else if (gameState == scoreState) {
+            ui.draw(g2);
+        }
+        
+        // 4. ESTADO DE JOGO (PLAY)
+        else if (gameState == playState) {
+            // Desenha o cenário e entidades
+            if(tileM != null) tileM.draw(g2);
+            if(itemM != null) itemM.draw(g2);
+            if(player != null) player.draw(g2);
             
-            desenharSlotDeItem(g);
-            desenharVida(g);
-            desenharAr(g);
+            // Desenha a HUD (Vida, Ar, Itens)
+            desenharSlotDeItem(g2);
+            desenharVida(g2);
+            desenharAr(g2);
             
-            // Se você quiser um menu de tutorial que aparece "por cima" do mapa:
-            if (gameState == tutorialState) {
-                ui.draw(g2);
-            }
+            // Desenha mensagens da UI por cima do jogo (se houver)
+            ui.draw(g2);
         }
         
         g2.dispose();
