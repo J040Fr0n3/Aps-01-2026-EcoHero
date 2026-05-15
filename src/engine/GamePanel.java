@@ -51,6 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int quitConfirmationState = 6;
     public final int levelSelectState = 7;
     public final int finishState = 8;
+    public double playTime;
     
     public UI ui = new UI(this);
     
@@ -135,6 +136,8 @@ public class GamePanel extends JPanel implements Runnable {
         
         // O jogo só processa movimentos e lógica se estiver no estado PLAY
         if (gameState == playState) {
+        	
+        	playTime += (double)1/60;
             
             player.update();
             
@@ -182,6 +185,7 @@ public class GamePanel extends JPanel implements Runnable {
             desenharSlotDeItem(g2);
             desenharVida(g2);
             desenharAr(g2);
+            desenharRelogio(g2);
             
             // 3. Desenha a UI (Janela de Pausa ou Aviso de Saída vai por cima de tudo)
             ui.draw(g2);
@@ -308,9 +312,28 @@ public class GamePanel extends JPanel implements Runnable {
         // --- 4. MULTIPLICADOR DE COMBO ---
         if (comboMultiplier > 1) {
             g.setColor(Color.ORANGE);
-            g.setFont(Fonts.getPixelFont(14f));
-            g.drawString("X" + comboMultiplier, barX, barY + barHeight + 20);
+            g.setFont(Fonts.getPixelFont(20f)); // Aumentei um pouco para dar destaque
+            
+            String comboText = "X" + comboMultiplier;
+            // Pega a posição final da barra (barX + barMaxWidth) e subtrai a largura do texto
+            int comboX = (barX + barMaxWidth) - g.getFontMetrics().stringWidth(comboText);
+            
+            g.drawString(comboText, comboX, barY + barHeight + 25);
         }
+    }
+    
+    private void desenharRelogio(Graphics2D g2) {
+        g2.setFont(Fonts.getPixelFont(18f));
+        g2.setColor(Color.WHITE);
+
+        // Converte os segundos para Minutos:Segundos
+        int minutos = (int)(playTime / 60);
+        int segundos = (int)(playTime % 60);
+        
+        String timeText = String.format("TEMPO: %02d:%02d", minutos, segundos);
+        
+        // Desenha no canto superior esquerdo ou próximo ao score
+        g2.drawString(timeText, 20, 90); 
     }
 
     private Color getCorDoItem(String tipo) {

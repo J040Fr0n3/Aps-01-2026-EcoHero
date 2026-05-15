@@ -32,10 +32,10 @@ public class LevelManager {
 
         // Fase 3: Diversos
         Map<String, Integer> f3Req = new HashMap<>();
-        f3Req.put("papel", 4);
-        f3Req.put("plastico", 4);
-        f3Req.put("metal", 4);
-        f3Req.put("organico", 4);
+        f3Req.put("papel", 1);
+        f3Req.put("plastico", 1);
+        f3Req.put("metal", 1);
+        f3Req.put("organico", 1);
         levels.add(new LevelConfig(3, "/maps/map03.txt", f3Req, 7, 50, 14, 0, 13));
         
         Map<String, Integer> f4Req = new HashMap<>();

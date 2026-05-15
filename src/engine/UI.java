@@ -4,7 +4,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.List;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
 
 public class UI {
     
@@ -15,6 +17,7 @@ public class UI {
     public int subState = 0;
     public String playerName = "";
     public String playerRA = "";
+    private List<String[]> rankingData = new ArrayList<>();
     
     Color laranjaEco = new Color(245, 120, 30);
     Color amareloMenu = new Color(255, 215, 0);
@@ -23,6 +26,11 @@ public class UI {
         this.gp = gp;
        
 
+    }
+    
+    public void updateRanking() {
+        DataBase db = new DataBase();
+        this.rankingData = db.consultarRanking();
     }
 
     public void draw(Graphics2D g2) {
@@ -154,36 +162,48 @@ public class UI {
         // Linha divisória respeitando as margens
         g2.drawLine(margin, y + 10, gp.screenWidth - margin, y + 10);
 
-        // 5. LISTAGEM (Top 10)
-        // Calculamos o espaçamento dinâmico para caber na altura da tela
+     // 5. LISTAGEM REAL DO BANCO
         int lineSpacing = (gp.screenHeight - y - gp.tileSize * 2) / 11; 
         g2.setFont(Fonts.getPixelFont(26f));
         y += lineSpacing;
 
-        for (int i = 1; i <= 10; i++) {
-            if (i == 1) {
-                g2.setColor(amareloMenu);
-                g2.drawString(i + " >", colRankX, y);
-                g2.drawString("PLAYER UM", colNomeX, y);
-                g2.drawString("2024001", colRAX, y);
-                g2.drawString("9999", colScoreX, y);
-                g2.drawString("01:45", colTempoX, y);
+        for (int i = 0; i < 10; i++) {
+            // Verifica se existe um registro no banco para esta posição
+            if (i < rankingData.size()) {
+                String[] data = rankingData.get(i);
+                
+                // Destaque para o primeiro lugar
+                if (i == 0) g2.setColor(amareloMenu);
+                else g2.setColor(Color.white);
+
+                // data[0] = ra, data[1] = nome, data[2] = score, data[3] = tempo, data[4] = desempenho
+                g2.drawString((i + 1) + (i == 0 ? " >" : "."), colRankX, y);
+                g2.drawString(data[1].toUpperCase(), colNomeX, y); // NOME
+                g2.drawString(data[0], colRAX, y);                // RA
+                g2.drawString(data[2], colScoreX, y);             // SCORE
+                
+                // Formatar o tempo que vem em segundos do DB (data[3])
+                int tSegundos = Integer.parseInt(data[3]);
+                String tempoFormatado = String.format("%02d:%02d", tSegundos / 60, tSegundos % 60);
+                g2.drawString(tempoFormatado, colTempoX, y);
+
             } else {
-                g2.setColor(Color.white);
-                g2.drawString(i + ".", colRankX, y);
-                g2.drawString("---", colNomeX, y);
+                // Se não houver jogadores suficientes no banco, preenche com vazio
+                g2.setColor(new Color(100, 100, 100)); // Cinza para indicar vazio
+                g2.drawString((i + 1) + ".", colRankX, y);
+                g2.drawString("VAGO", colNomeX, y);
                 g2.drawString("---", colRAX, y);
                 g2.drawString("---", colScoreX, y);
-                g2.drawString("---", colTempoX, y);
+                g2.drawString("--:--", colTempoX, y);
             }
             y += lineSpacing;
         }
 
-        // 6. RODAPÉ
-        g2.setFont(Fonts.getPixelFont(25f));
+        // 6. DICA PARA SAIR
+        g2.setFont(Fonts.getPixelFont(20f));
         g2.setColor(Color.white);
-        String backText = "ESC PARA VOLTAR";
-        g2.drawString(backText, getXforCenteredText(backText), gp.screenHeight - 30);
+        String backMsg = "Pressione ESC para Voltar";
+        g2.drawString(backMsg, getXforCenteredText(backMsg), gp.screenHeight - 40);
     }
     
     public void drawDataInputScreen() {
@@ -388,25 +408,36 @@ public class UI {
         String title = eUltimaFase ? "PARABÉNS!" : "CONCLUÍDO!";
         g2.drawString(title, getXforCenteredText(title), gp.tileSize * 3);
 
-        // 2. INFO
-        g2.setFont(Fonts.getPixelFont(30f));
+        // 2. PONTUAÇÃO
+        g2.setFont(Fonts.getPixelFont(35f));
         g2.setColor(Color.white);
+        String scoreText = "PONTUAÇÃO: " + gp.score; 
+        g2.drawString(scoreText, getXforCenteredText(scoreText), gp.tileSize * 4 + 20);
+
+        // 3. TEMPO (Abaixo do Score)
+        int minutos = (int)(gp.playTime / 60);
+        int segundos = (int)(gp.playTime % 60);
+        String timeText = String.format("TEMPO TOTAL: %02d:%02d", minutos, segundos);
+        g2.setFont(Fonts.getPixelFont(30f)); // Fonte um pouco menor para o tempo
+        g2.drawString(timeText, getXforCenteredText(timeText), gp.tileSize * 5 + 10);
+
+        // 4. INFO DO PLAYER (Abaixo do Tempo - Apenas na última fase)
         if(eUltimaFase) {
-            g2.setFont(Fonts.getPixelFont(20f));
-            String playerInfo = "Herói: " + gp.ui.playerName + " / " + " RA: " + gp.ui.playerRA;
+            g2.setFont(Fonts.getPixelFont(25f));
+            g2.setColor(Color.gray); // Cor mais suave para os dados de registro
+            String playerInfo = "HERÓI: " + gp.ui.playerName + " | RA: " + gp.ui.playerRA;
             g2.drawString(playerInfo, getXforCenteredText(playerInfo), gp.tileSize * 6);
         }
         
-        String scoreText = "Pontuação: " + gp.score; 
-        g2.drawString(scoreText, getXforCenteredText(scoreText), gp.tileSize * 5);
-
-        // 3. BOTÃO
-        String btnText = eUltimaFase ? "Gravar Score" : "Continuar";
-        int btnX = getXforCenteredText(btnText);
-        int btnY = gp.tileSize * 7;
-
-        // Destaque do botão
+        // 5. BOTÃO
+        g2.setFont(Fonts.getPixelFont(35f));
         g2.setColor(amareloMenu);
+        String btnText = eUltimaFase ? "GRAVAR SCORE" : "CONTINUAR";
+        int btnX = getXforCenteredText(btnText);
+        int btnY = gp.tileSize * 8; // Baixei para o nível 8 para não amontoar
+
+        // Retângulo do botão
+        g2.setStroke(new BasicStroke(3));
         g2.drawRect(btnX - 20, btnY - 40, (int)g2.getFontMetrics().getStringBounds(btnText, g2).getWidth() + 40, 60);
         g2.drawString(btnText, btnX, btnY);
     }
