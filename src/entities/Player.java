@@ -417,7 +417,18 @@ public class Player {
 
             // Remove o item do inventário após a tentativa (sucesso, meta batida ou erro)
             inventory.remove(0);
+            
+            checkLevelCompletion();
         }
+    }
+    
+    private void checkLevelCompletion () {
+    	if (gp.itensColetadosTotal >= gp.totalItemsNoNivel) {
+    		gp.gameState = gp.finishState;
+    		inventory.clear();
+    		gp.stopFundo();
+    		System.out.println("Fase concluída! Itens totais: " + gp.itensColetadosTotal);
+    	}
     }
 
     private boolean checkWallCollision(int targetX, int targetY) {

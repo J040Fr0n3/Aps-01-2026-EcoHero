@@ -51,6 +51,9 @@ public class UI {
         else if (gp.gameState == gp.playState) {         // 1
             // Aqui você desenha o HUD (tempo, moedas, etc) se tiver
         }
+        else if (gp.gameState == gp.finishState) {
+            drawFinishScreen();
+        }
         
     }
 
@@ -370,6 +373,42 @@ public class UI {
         g2.setColor(Color.gray);
         String footer = "ENTER para selecionar - ESC para voltar";
         g2.drawString(footer, getXforCenteredText(footer), gp.screenHeight - 40);
+    }
+    
+    public void drawFinishScreen() {
+        // Fundo escurecido
+        g2.setColor(new Color(0, 0, 0, 200));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        boolean eUltimaFase = (gp.levelM.currentLevelIndex == gp.levelM.levels.size() - 1);
+        
+        // 1. TÍTULO
+        g2.setFont(Fonts.getPixelFont(60f));
+        g2.setColor(Color.yellow);
+        String title = eUltimaFase ? "PARABÉNS!" : "CONCLUÍDO!";
+        g2.drawString(title, getXforCenteredText(title), gp.tileSize * 3);
+
+        // 2. INFO
+        g2.setFont(Fonts.getPixelFont(30f));
+        g2.setColor(Color.white);
+        if(eUltimaFase) {
+            g2.setFont(Fonts.getPixelFont(20f));
+            String playerInfo = "Herói: " + gp.ui.playerName + " / " + " RA: " + gp.ui.playerRA;
+            g2.drawString(playerInfo, getXforCenteredText(playerInfo), gp.tileSize * 6);
+        }
+        
+        String scoreText = "Pontuação: " + gp.score; 
+        g2.drawString(scoreText, getXforCenteredText(scoreText), gp.tileSize * 5);
+
+        // 3. BOTÃO
+        String btnText = eUltimaFase ? "Gravar Score" : "Continuar";
+        int btnX = getXforCenteredText(btnText);
+        int btnY = gp.tileSize * 7;
+
+        // Destaque do botão
+        g2.setColor(amareloMenu);
+        g2.drawRect(btnX - 20, btnY - 40, (int)g2.getFontMetrics().getStringBounds(btnText, g2).getWidth() + 40, 60);
+        g2.drawString(btnText, btnX, btnY);
     }
 
     // Método auxiliar para criar o fundo da janelinha

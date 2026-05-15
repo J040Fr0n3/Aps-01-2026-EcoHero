@@ -50,6 +50,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int pauseState = 5;
     public final int quitConfirmationState = 6;
     public final int levelSelectState = 7;
+    public final int finishState = 8;
     
     public UI ui = new UI(this);
     
@@ -98,7 +99,6 @@ public class GamePanel extends JPanel implements Runnable {
         this.tileM = new TileManager(this);
         this.cChecker = new CollisionChecker(this);
         this.player = new Player(this, keyH);
-        this.levelM.loadCurrentLevel();
         this.cloudM = new CloudManager(this);
         
         gameState = titleState;
@@ -166,7 +166,7 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
         
         // ESTADOS QUE SÃO APENAS INTERFACE (Fundo Preto)
-        if (gameState == titleState || gameState == dataInputState || gameState == scoreState || gameState == levelSelectState) {
+        if (gameState == titleState || gameState == dataInputState || gameState == scoreState || gameState == levelSelectState || gameState == finishState) {
             ui.draw(g2); 
         } 
         

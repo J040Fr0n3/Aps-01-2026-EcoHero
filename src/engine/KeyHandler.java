@@ -59,6 +59,7 @@ public class KeyHandler implements KeyListener {
                 if (gp.ui.subState == 0) { // SAIR REALMENTE
                     gp.gameState = gp.titleState;
                     // Resetar dados aqui se necessário
+                    gp.player.inventory.clear();
                     gp.ui.playerName = ""; 
                     gp.ui.playerRA = "";
                 } else { // CONTINUAR
@@ -105,11 +106,11 @@ public class KeyHandler implements KeyListener {
         
      // --- LÓGICA DE SELEÇÃO DE FASES ---
         else if (gp.gameState == gp.levelSelectState) {
-            if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
+            if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
                 gp.ui.commandNum--;
                 if (gp.ui.commandNum < 0) gp.ui.commandNum = gp.levelM.levels.size() - 1;
             }
-            if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+            if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
                 gp.ui.commandNum++;
                 if (gp.ui.commandNum >= gp.levelM.levels.size()) gp.ui.commandNum = 0;
             }
@@ -122,6 +123,52 @@ public class KeyHandler implements KeyListener {
                     gp.levelM.currentLevelIndex = gp.ui.commandNum;
                     gp.levelM.loadCurrentLevel();
                     gp.gameState = gp.playState;
+                }
+            }
+        }
+        
+        else if (gp.gameState == gp.finishState) {
+            if (code == KeyEvent.VK_ENTER) {
+                boolean eUltimaFase = (gp.levelM.currentLevelIndex == gp.levelM.levels.size() - 1);
+
+                if (eUltimaFase) {
+                    // --- AQUI ENTRA O SEU INSERT NO BANCO ---
+                    System.out.println("Gravando no Banco: " + gp.ui.playerRA + ", " + gp.ui.playerName + ", " + gp.score);
+                    // db.insertScore(gp.ui.playerRA, gp.ui.playerName, gp.player.score, gp.playTime);
+                    
+                    gp.gameState = gp.titleState; // Volta ao início após gravar
+                } else {
+                    // Libera a próxima e volta para seleção
+                    gp.levelM.unlockNextLevel(); 
+                    gp.gameState = gp.levelSelectState;
+                }
+            }
+        }
+        
+        else if (gp.gameState == gp.finishState) {
+            if (code == KeyEvent.VK_ENTER) {
+                // Verifica se é a última fase da lista
+                boolean eUltimaFase = (gp.levelM.currentLevelIndex == gp.levelM.levels.size() - 1);
+
+                if (eUltimaFase) {
+                    // --- ESPAÇO PARA O INSERT NO BANCO DE DADOS ---
+                    /*
+                       Exemplo de como será:
+                       String query = "INSERT INTO ranking (ra, nome, score, tempo) VALUES (?, ?, ?, ?)";
+                       db.executar(query, gp.ui.playerRA, gp.ui.playerName, gp.score, gp.formatTime(gp.playTime));
+                    */
+                    System.out.println("Dados Salvos: " + gp.ui.playerName + " | Score: " + gp.score);
+                    
+                    // Volta para o menu principal após salvar
+                    gp.gameState = gp.titleState;
+                    // Opcional: Resetar variáveis globais de jogo aqui
+                } else {
+                    // Libera a próxima fase no LevelManager
+                    gp.levelM.unlockNextLevel();
+                    
+                    // Volta para a tela de seleção (agora com a próxima fase aberta)
+                    gp.gameState = gp.levelSelectState;
+                    gp.ui.commandNum = gp.levelM.currentLevelIndex + 1; // Foca na nova fase liberada
                 }
             }
         }
