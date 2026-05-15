@@ -1,5 +1,6 @@
 package engine;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -26,30 +27,31 @@ public class UI {
 
     public void draw(Graphics2D g2) {
         this.g2 = g2;
-        // Desativar antialiasing para manter o estilo Pixel Art das fontes
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-        // 1. TELA DE MENU PRINCIPAL
-        if (gp.gameState == gp.titleState) {
+        // Usar else if evita que o Java tente desenhar duas telas ao mesmo tempo
+        if (gp.gameState == gp.titleState) {            // 0
             drawTitleScreen();
         }
-        // 2. TELA DE CADASTRO (NOME E RA)
-        if (gp.gameState == gp.dataInputState) {
+        else if (gp.gameState == gp.dataInputState) {    // 3
             drawDataInputScreen();
         }
-        // 3. TELA DE RECORDES (SCORE)
-        if (gp.gameState == gp.scoreState) {
+        else if (gp.gameState == gp.levelSelectState) {  // 7
+            drawLevelSelectScreen();
+        }
+        else if (gp.gameState == gp.scoreState) {        // 2
             drawScoreScreen();
         }
-        // 4. INTERFACE DURANTE O JOGO (HUD)
-        if (gp.gameState == gp.playState) { 
-        }
-        if (gp.gameState == gp.pauseState) {
+        else if (gp.gameState == gp.pauseState) {        // 5
             drawPauseScreen();
         }
-        if (gp.gameState == gp.quitConfirmationState) {
+        else if (gp.gameState == gp.quitConfirmationState) { // 6
             drawQuitConfirmationScreen();
         }
+        else if (gp.gameState == gp.playState) {         // 1
+            // Aqui você desenha o HUD (tempo, moedas, etc) se tiver
+        }
+        
     }
 
     public void drawTitleScreen() {
@@ -291,6 +293,83 @@ public class UI {
         text = "CONTINUAR";
         if(subState == 1) g2.setColor(amareloMenu); else g2.setColor(Color.white);
         g2.drawString(text, x + width - gp.tileSize * 4, y + height - gp.tileSize);
+    }
+    
+    public void drawLevelSelectScreen() {
+        // 1. FUNDO PRETO GERAL
+        g2.setColor(Color.black);
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        // 2. TÍTULO "FASES" NO TOPO (TEXTO MENOR)
+        g2.setFont(Fonts.getPixelFont(40f)); 
+        g2.setColor(laranjaEco);
+        String title = "FASES";
+        int titleX = getXforCenteredText(title);
+        g2.drawString(title, titleX, gp.tileSize * 2);
+
+        // 3. CONFIGURAÇÕES DA LISTA (UM EMBAIXO DO OUTRO)
+        int iconSize = gp.tileSize + 10; // Tamanho do quadrado da imagem
+        int slotWidth = gp.tileSize * 12; // Largura total da linha
+        int slotHeight = iconSize + 10;   // Altura total da linha
+        int startX = (gp.screenWidth / 2) - (slotWidth / 2);
+        int startY = gp.tileSize * 3;
+        int spacing = 15; // Espaço entre as fases
+
+        for (int i = 0; i < gp.levelM.levels.size(); i++) {
+            var level = gp.levelM.levels.get(i);
+            int currentY = startY + (i * (slotHeight + spacing));
+
+            // --- DESTAQUE DE SELEÇÃO (Fundo sutil quando focado) ---
+            if (i == commandNum) {
+                g2.setColor(new Color(255, 255, 255, 30)); // Branco transparente
+                g2.fillRoundRect(startX - 10, currentY - 5, slotWidth + 20, slotHeight, 10, 10);
+                
+                g2.setColor(amareloMenu);
+                g2.drawString(">", startX - 30, currentY + (slotHeight / 2) + 8);
+            }
+
+            // --- 1. QUADRADO DA IMAGEM ---
+            int imgX = startX;
+            int imgY = currentY;
+
+            if (level.backgroundImage != null) {
+                g2.drawImage(level.backgroundImage, imgX, imgY, iconSize, iconSize, null);
+            } else {
+                // Placeholder: Quadrado com X
+                g2.setColor(Color.darkGray);
+                g2.fillRect(imgX, imgY, iconSize, iconSize);
+                g2.setColor(Color.gray);
+                g2.setStroke(new BasicStroke(1));
+                g2.drawLine(imgX, imgY, imgX + iconSize, imgY + iconSize);
+                g2.drawLine(imgX + iconSize, imgY, imgX, imgY + iconSize);
+            }
+            
+            // Borda do quadrado da imagem
+            g2.setColor(i == commandNum ? amareloMenu : Color.white);
+            g2.drawRect(imgX, imgY, iconSize, iconSize);
+
+            // --- 2. TEXTO DA FASE ---
+            g2.setFont(Fonts.getPixelFont(28f)); // Fonte menor como pedido
+            g2.setColor(Color.white);
+            String nameText = "Fase " + level.levelNumber;
+            int nameX = imgX + iconSize + 20; // Espaço após a imagem
+            g2.drawString(nameText, nameX, currentY + (slotHeight / 2) + 8);
+
+            // --- 3. STATUS [BLOQUEADA/DESBLOQUEADA] ---
+            g2.setFont(Fonts.getPixelFont(22f)); // Fonte ainda menor para o status
+            String statusText = level.unlocked ? "[DESBLOQUEADA]" : "[BLOQUEADA]";
+            g2.setColor(level.unlocked ? Color.green : Color.red);
+            
+            // Posiciona o status logo após o nome da fase ou alinhado à direita
+            int statusX = startX + slotWidth - (int)g2.getFontMetrics().getStringBounds(statusText, g2).getWidth();
+            g2.drawString(statusText, statusX, currentY + (slotHeight / 2) + 8);
+        }
+        
+        // RODAPÉ
+        g2.setFont(Fonts.getPixelFont(20f));
+        g2.setColor(Color.gray);
+        String footer = "ENTER para selecionar - ESC para voltar";
+        g2.drawString(footer, getXforCenteredText(footer), gp.screenHeight - 40);
     }
 
     // Método auxiliar para criar o fundo da janelinha

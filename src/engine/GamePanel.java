@@ -49,6 +49,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int dataInputState = 3;
     public final int pauseState = 5;
     public final int quitConfirmationState = 6;
+    public final int levelSelectState = 7;
     
     public UI ui = new UI(this);
     
@@ -165,7 +166,7 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
         
         // ESTADOS QUE SÃO APENAS INTERFACE (Fundo Preto)
-        if (gameState == titleState || gameState == dataInputState || gameState == scoreState) {
+        if (gameState == titleState || gameState == dataInputState || gameState == scoreState || gameState == levelSelectState) {
             ui.draw(g2); 
         } 
         

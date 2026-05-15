@@ -93,10 +93,35 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ENTER) {
                 if (gp.ui.subState == 2) {
                     if (!gp.ui.playerName.trim().isEmpty() && !gp.ui.playerRA.trim().isEmpty()) {
-                        iniciarJogo(); // Método que reseta leveis e inicia
+                    	System.out.println("DEBUG: Mudando para Level Select State (7)");
+                        gp.gameState = gp.levelSelectState;
+                        gp.ui.commandNum = 0;
                     }
                 } else {
                     gp.ui.subState++; 
+                }
+            }
+        }
+        
+     // --- LÓGICA DE SELEÇÃO DE FASES ---
+        else if (gp.gameState == gp.levelSelectState) {
+            if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
+                gp.ui.commandNum--;
+                if (gp.ui.commandNum < 0) gp.ui.commandNum = gp.levelM.levels.size() - 1;
+            }
+            if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+                gp.ui.commandNum++;
+                if (gp.ui.commandNum >= gp.levelM.levels.size()) gp.ui.commandNum = 0;
+            }
+            if (code == KeyEvent.VK_ESCAPE) {
+                gp.gameState = gp.dataInputState;
+            }
+            if (code == KeyEvent.VK_ENTER) {
+                // Só entra na fase se estiver unlocked
+                if (gp.levelM.levels.get(gp.ui.commandNum).unlocked) {
+                    gp.levelM.currentLevelIndex = gp.ui.commandNum;
+                    gp.levelM.loadCurrentLevel();
+                    gp.gameState = gp.playState;
                 }
             }
         }

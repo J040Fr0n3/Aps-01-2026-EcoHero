@@ -37,6 +37,16 @@ public class LevelManager {
         f3Req.put("metal", 4);
         f3Req.put("organico", 4);
         levels.add(new LevelConfig(3, "/maps/map03.txt", f3Req, 7, 50, 14, 0, 13));
+        
+        if(!levels.isEmpty()) {
+        	levels.get(0).unlocked = true;
+        }
+    }
+    
+    public void unlockNextLevel() {
+    	if (currentLevelIndex + 1 < levels.size()) {
+    		levels.get(currentLevelIndex + 1).unlocked = true;
+    	}
     }
 
     public LevelConfig getCurrentLevel() {

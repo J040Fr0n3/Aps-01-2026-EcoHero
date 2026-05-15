@@ -495,4 +495,16 @@ public class Player {
         }
         // g.drawRect(x, y, 40, currentHeight);
     }
+    
+    public void concluirFase() {
+    	gp.levelM.unlockNextLevel();
+    	
+    	if(gp.levelM.currentLevelIndex == gp.levelM.levels.size() -1) {
+    		// Função para registrar tudo no banco
+    		gp.gameState = gp.scoreState;
+    	} else {
+    		gp.gameState = gp.scoreState;
+    	}
+    }
+    
 }

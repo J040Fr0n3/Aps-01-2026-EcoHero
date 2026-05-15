@@ -15,6 +15,7 @@ public class LevelConfig {
     public int bueiroDestino;
     public int musicID;
     public boolean unlocked = false;
+    public java.awt.image.BufferedImage backgroundImage;
 
     public LevelConfig(int level, String path, Map<String, Integer> requirements, int rate, int cols, int rows, int bueiroDestino, int musicID) {
         this.levelNumber = level;
@@ -25,6 +26,14 @@ public class LevelConfig {
         this.maxRows = rows;
         this.bueiroDestino = bueiroDestino;
         this.musicID = musicID;
+        
+        try {
+            // Tenta carregar: /textures/fase1.png
+            backgroundImage = javax.imageio.ImageIO.read(getClass().getResourceAsStream("/textures/fase" + level + ".png"));
+        } catch (Exception e) {
+            backgroundImage = null; // Se não achar, o UI desenha o quadrado com X
+        }
+        
     }
     
     public int getTotalRequiredItems() {
