@@ -61,6 +61,15 @@ public class UI {
         }
         else if (gp.gameState == gp.finishState) {
             drawFinishScreen();
+        } 
+        else if (gp.gameState == gp.gameOverState) {
+        	drawGameOverScreen();
+        }
+        else if (gp.gameState == gp.creditsState) {
+        	drawCreditsScreen();
+        }
+        else if (gp.gameState == gp.adminDeleteState) {
+        	drawAdminDeleteScreen();
         }
         
     }
@@ -206,6 +215,21 @@ public class UI {
         g2.drawString(backMsg, getXforCenteredText(backMsg), gp.screenHeight - 40);
     }
     
+    public void drawGameOverScreen() {
+        // Fundo vermelho bem escuro e semi-transparente
+        g2.setColor(new Color(100, 0, 0, 150));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        g2.setFont(Fonts.getPixelFont(50f));
+        g2.setColor(Color.WHITE);
+        String text = "VOCÊ MORREU!";
+        g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2 - 20);
+
+        g2.setFont(Fonts.getPixelFont(25f));
+        String subText = "Pressione ENTER para tentar novamente";
+        g2.drawString(subText, getXforCenteredText(subText), gp.screenHeight / 2 + 40);
+    }
+    
     public void drawDataInputScreen() {
         g2.setColor(Color.black);
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
@@ -225,7 +249,8 @@ public class UI {
         // Campo RA
         y += gp.tileSize * 2;
         g2.setColor(subState == 1 ? amareloMenu : Color.white);
-        g2.drawString("RA: " + playerRA + (subState == 1 ? "_" : ""), gp.tileSize * 3, y);
+        String raExibicao = playerRA.toUpperCase();
+        g2.drawString("RA: " + raExibicao + (subState == 1 ? "_" : ""), gp.tileSize * 3, y);
 
         // Botão Confirmar
         y += gp.tileSize * 2;
@@ -440,6 +465,56 @@ public class UI {
         g2.setStroke(new BasicStroke(3));
         g2.drawRect(btnX - 20, btnY - 40, (int)g2.getFontMetrics().getStringBounds(btnText, g2).getWidth() + 40, 60);
         g2.drawString(btnText, btnX, btnY);
+    }
+    
+    public void drawCreditsScreen() {
+        g2.setColor(Color.black);
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        g2.setFont(Fonts.getPixelFont(50f));
+        g2.setColor(Color.YELLOW);
+        String title = "OBRIGADO POR JOGAR!";
+        g2.drawString(title, getXforCenteredText(title), gp.tileSize * 2);
+
+        g2.setFont(Fonts.getPixelFont(25f));
+        g2.setColor(Color.WHITE);
+        int y = gp.tileSize * 4;
+        
+        g2.drawString("DESENVOLVIDO POR:", gp.tileSize * 2, y);
+        g2.setColor(laranjaEco);
+        g2.drawString("- João Frone(R6591B2) - Código - Textura - Áudio - Documentação", gp.tileSize * 2, y + 40);
+        g2.drawString("- Gabriel Medeiros (R8391J4) - Código - Textura - Áudio", gp.tileSize * 2, y + 80);
+        g2.drawString("- Hiago Müller (R857BH5) - Documentação - Textura", gp.tileSize * 2, y + 120);
+        g2.drawString("- Marcelo Agante (F364313) - Textura - Documentação", gp.tileSize * 2, y + 160);
+
+        g2.setFont(Fonts.getPixelFont(20f));
+        g2.setColor(Color.GRAY);
+        String msg = "Pressione ESC para voltar ao menu";
+        g2.drawString(msg, getXforCenteredText(msg), gp.screenHeight - 50);
+    }
+    
+    public void drawAdminDeleteScreen() {
+        // Desenha o ranking normalmente no fundo para o admin ver quem quer deletar
+        drawScoreScreen(); 
+        
+        // Desenha uma tarja preta na parte inferior para o painel de deleção
+        g2.setColor(new Color(20, 20, 20, 240));
+        g2.fillRect(0, gp.screenHeight - 160, gp.screenWidth, 160);
+        g2.setColor(Color.RED);
+        g2.drawRect(5, gp.screenHeight - 155, gp.screenWidth - 10, 150);
+
+        g2.setFont(Fonts.getPixelFont(24f));
+        g2.setColor(Color.RED);
+        g2.drawString("MODO ADMIN: EXCLUIR REGISTRO", gp.tileSize * 1, gp.screenHeight - 120);
+
+        g2.setFont(Fonts.getPixelFont(22f));
+        g2.setColor(Color.WHITE);
+        // Exibe o que o admin está digitando
+        g2.drawString("DIGITE O RA PARA DELETAR: " + gp.keyH.raParaDeletar + "_", gp.tileSize * 1, gp.screenHeight - 80);
+
+        g2.setFont(Fonts.getPixelFont(16f));
+        g2.setColor(Color.GRAY);
+        g2.drawString("[ENTER] Confirmar Exclusão  |  [ESC] Cancelar e Voltar", gp.tileSize * 1, gp.screenHeight - 30);
     }
 
     // Método auxiliar para criar o fundo da janelinha

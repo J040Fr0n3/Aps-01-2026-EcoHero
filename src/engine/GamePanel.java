@@ -51,6 +51,9 @@ public class GamePanel extends JPanel implements Runnable {
     public final int quitConfirmationState = 6;
     public final int levelSelectState = 7;
     public final int finishState = 8;
+    public final int gameOverState = 9;
+    public final int creditsState = 10;
+    public final int adminDeleteState = 11;
     public double playTime;
     
     public UI ui = new UI(this);
@@ -136,27 +139,19 @@ public class GamePanel extends JPanel implements Runnable {
         
         // O jogo só processa movimentos e lógica se estiver no estado PLAY
         if (gameState == playState) {
-        	
         	playTime += (double)1/60;
-            
             player.update();
+            if (itemM != null) itemM.update();
+            if(cloudM != null) cloudM.update();
             
-            if (itemM != null) {
-                itemM.update();
-            }
+           if(player.life <= 0) gameState = gameOverState;
             
             // Verifica se o player pediu para pular de nível (atalho 'N')
             if (keyH.nextLevelRequested) {
                 levelM.nextLevel();
                 keyH.nextLevelRequested = false;
             }
-            
-            if (cloudM != null) {
-                cloudM.update();
-            }
-            
-            // AQUI: Incremente seu cronômetro de tempo e pontuação
-            // Ex: scoreManager.update();
+           
         }
         
         // Se o gameState for pauseState ou quitConfirmationState, 
@@ -169,7 +164,14 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
         
         // ESTADOS QUE SÃO APENAS INTERFACE (Fundo Preto)
-        if (gameState == titleState || gameState == dataInputState || gameState == scoreState || gameState == levelSelectState || gameState == finishState) {
+        if (gameState == titleState ||
+        		gameState == dataInputState ||
+        		gameState == scoreState ||
+        		gameState == levelSelectState ||
+        		gameState == finishState ||
+        		gameState == gameOverState ||
+        		gameState == creditsState ||
+        		gameState == adminDeleteState) {
             ui.draw(g2); 
         } 
         
@@ -221,6 +223,15 @@ public class GamePanel extends JPanel implements Runnable {
     
     public void stopSE(int i) {
     	se.stop();
+    }
+    
+    public void resetarFaseAtual() {
+    	this.score = 0;
+    	player.life = player.maxLife;
+    	player.airRecoveryCounter = 0;
+    	levelM.loadCurrentLevel();
+    	gameState = playState;
+    	System.out.println("Jogaodr morreu. Score resetado e fase recarregada!");
     }
     
     private void desenharSlotDeItem(Graphics g) {

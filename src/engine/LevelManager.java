@@ -55,6 +55,18 @@ public class LevelManager {
     		levels.get(currentLevelIndex + 1).unlocked = true;
     	}
     }
+    
+    public void resetLevelProgress() {
+    	for(int i = 0; i< levels.size(); i++) {
+    		if (i ==0) {
+    			levels.get(i).unlocked = true;
+    		} else {
+    			levels.get(i).unlocked = false;
+    		}
+    	}
+    	this.currentLevelIndex = 0;
+    	System.out.println("Progresso de fases resetado para o próximo jogador");
+    }
 
     public LevelConfig getCurrentLevel() {
         return levels.get(currentLevelIndex);

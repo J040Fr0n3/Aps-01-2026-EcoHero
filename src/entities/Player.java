@@ -387,12 +387,33 @@ public class Player {
                 int jaEntregues = gp.itensEntreguesFase.getOrDefault(itemParaDescartar, 0);
 
                 if (jaEntregues < objetivo) {
-                    // REGRA DE ACERTO: Só entra aqui se ainda faltarem itens para a meta
-                    gp.score += (10 * gp.comboMultiplier);
-                    gp.itensColetadosTotal++; // Aumenta a barra de progresso do nível
+                	
+                	int pontosBase = 10;
+                	
+                	switch (itemParaDescartar.toLowerCase()) {
+                	case "papel":
+                		pontosBase = 13;
+                		break;
+                	case "plastico":
+                		pontosBase = 23;
+                		break;
+                	case "metal":
+                		pontosBase = 33;
+                		break;
+                	case "vidro":
+                		pontosBase = 43;
+                		break;
+                	case "organico":
+                		pontosBase = 86;
+                		break;
+                	}
+                	
+                    gp.score += (pontosBase * 1.25 * gp.comboMultiplier);
+                    
+                    
+                    gp.itensColetadosTotal++; 
                     gp.correctSequence++;
                     
-                    // Incrementa o contador individual da task no GamePanel
                     gp.itensEntreguesFase.put(itemParaDescartar, jaEntregues + 1);
 
                     if (gp.comboMultiplier < 5) {

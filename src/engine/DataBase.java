@@ -37,10 +37,41 @@ public class DataBase {
             pstmt.setInt(4, tempo);
             pstmt.setFloat(5, desempenho);
             pstmt.executeUpdate();
-            System.out.println("Score gravado com sucesso!");
+            System.out.println("Primeiro Record do jogador Gravado com sucesso");
         } catch (SQLException e) {
-            // Se o RA já existir, tentamos editar em vez de gravar novo
-            editar(ra, nome, score, tempo);
+            // O código 19 no SQLite significa que o RA já existe (Constraint Violation)
+            if (e.getErrorCode() == 19) {
+                // Tentamos editar, mas o método só vai salvar se for um recorde!
+                editarApenasSeForRecorde(ra, nome, score, tempo, desempenho);
+            } else {
+                System.err.println("Erro ao gravar: " + e.getMessage());
+            }
+        }
+    }
+    
+    private void editarApenasSeForRecorde(String ra, String nome, int score, int tempo, float novoDesempenho) {
+        String sql = "UPDATE Score SET nome = ?, score = ?, tempo = ?, desempenho = ? WHERE ra = ? AND ? > desempenho";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, nome);
+            pstmt.setInt(2, score);
+            pstmt.setInt(3, tempo);
+            pstmt.setFloat(4, novoDesempenho);
+            pstmt.setString(5, ra);
+            pstmt.setFloat(6, novoDesempenho); 
+            
+            int linhasAfetadas = pstmt.executeUpdate();
+            
+            if (linhasAfetadas > 0) {
+                System.out.println("Parabéns! Novo recorde pessoal gravado para o RA: " + ra);
+            } else {
+                System.out.println("Partida concluída, mas você não superou seu recorde anterior. Pontuação descartada.");
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Erro ao tentar atualizar recorde: " + e.getMessage());
         }
     }
 

@@ -8,6 +8,16 @@ public class KeyHandler implements KeyListener {
     GamePanel gp;
     public boolean up, left, right, ctrl, down, descarte, interact;
     public boolean nextLevelRequested = false;
+    
+    private final int[] konamiCode = {
+    	    KeyEvent.VK_UP, KeyEvent.VK_UP, 
+    	    KeyEvent.VK_DOWN, KeyEvent.VK_DOWN, 
+    	    KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, 
+    	    KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, 
+    	    KeyEvent.VK_B, KeyEvent.VK_A
+    	};
+    	private int konamiIndex = 0;
+    	public String raParaDeletar = "";
 
     public KeyHandler(GamePanel gp) {
         this.gp = gp;
@@ -15,11 +25,16 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
+    	char c = e.getKeyChar();
         if (gp.gameState == gp.dataInputState) {
-            char c = e.getKeyChar();
             if (Character.isLetterOrDigit(c) || c == ' ') {
                 if (gp.ui.subState == 0 && gp.ui.playerName.length() < 15) gp.ui.playerName += c;
-                if (gp.ui.subState == 1 && gp.ui.playerRA.length() < 10) gp.ui.playerRA += c;
+                if (gp.ui.subState == 1 && gp.ui.playerRA.length() < 10) gp.ui.playerRA += Character.toUpperCase(c);
+            }
+        }
+        else if (gp.gameState == gp.adminDeleteState) {
+            if (Character.isLetterOrDigit(c) && raParaDeletar.length() < 10) {
+                raParaDeletar += c;
             }
         }
     }
@@ -27,6 +42,64 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
+        
+        if (gp.gameState == gp.titleState || gp.gameState == gp.scoreState) {
+            if (code == konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex == konamiCode.length) {
+                    konamiIndex = 0; // Reseta o índice para uma próxima vez
+                    
+                    // INTERAÇÃO 1: Na Tela de Título
+                    if (gp.gameState == gp.titleState) {
+                        gp.gameState = gp.creditsState; // Vamos criar esse estado (ex: id 10)
+                        System.out.println("Easter Egg ativado: Tela de Créditos!");
+                    } 
+                    // INTERAÇÃO 2: Na Tela de Scores
+                    else if (gp.gameState == gp.scoreState) {
+                        gp.gameState = gp.adminDeleteState; // Vamos criar esse estado (ex: id 11)
+                        gp.ui.subState = 0; // Foco no campo de digitação
+                        raParaDeletar = ""; // Limpa digitações anteriores
+                        System.out.println("Easter Egg ativado: Modo Admin (Deletar Registro)!");
+                    }
+                    return; // Corta a execução para não disparar outros comandos do menu
+                }
+            } else {
+                // Se errou a sequência, reseta o progresso (mas checa se a tecla digitada era o primeiro UP)
+                konamiIndex = (code == konamiCode[0]) ? 1 : 0;
+            }
+        }
+        
+     // --- LÓGICA DO ESTADO DE CRÉDITOS ---
+        else if (gp.gameState == gp.creditsState) {
+            if (code == KeyEvent.VK_ESCAPE) {
+                gp.gameState = gp.titleState;
+            }
+        }
+
+        // --- LÓGICA DO ESTADO ADMIN DELETE ---
+        else if (gp.gameState == gp.adminDeleteState) {
+            if (code == KeyEvent.VK_ESCAPE) {
+                gp.gameState = gp.scoreState; // Volta para os scores normais
+            }
+            
+            if (code == KeyEvent.VK_BACK_SPACE) {
+                if (raParaDeletar.length() > 0) {
+                    raParaDeletar = raParaDeletar.substring(0, raParaDeletar.length() - 1);
+                }
+            }
+            
+            if (code == KeyEvent.VK_ENTER) {
+                if (!raParaDeletar.trim().isEmpty()) {
+                    // Chama o banco para deletar
+                    DataBase db = new DataBase();
+                    db.apagar(raParaDeletar);
+                    
+                    // Limpa o campo e força a UI a atualizar o ranking na tela instantaneamente
+                    raParaDeletar = "";
+                    gp.ui.updateRanking(); 
+                }
+            }
+        }
         
      // Dentro do keyPressed
         if (code == KeyEvent.VK_ESCAPE) {
@@ -67,6 +140,11 @@ public class KeyHandler implements KeyListener {
                 }
                 return;
             }
+        }
+        else if (gp.gameState == gp.gameOverState) {
+        	if(code == KeyEvent.VK_ENTER) {
+        		gp.resetarFaseAtual();
+        	}
         }
         
         // --- LÓGICA DA TELA DE CADASTRO (DATA INPUT) ---
@@ -170,12 +248,15 @@ public class KeyHandler implements KeyListener {
                     
                     db.gravar(ra, nome, scoreFinal, tempoFinal);
                     
+                    gp.levelM.resetLevelProgress();
+                    
                     // RESET PÓS-JOGO: Limpa tudo para o próximo herói
                     gp.score = 0;
                     gp.playTime = 0;
                     gp.player.inventory.clear();
                     gp.ui.playerName = "";
                     gp.ui.playerRA = "";
+                    
                     
                     gp.gameState = gp.titleState;
                 } else {
