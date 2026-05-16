@@ -57,6 +57,13 @@ public class GamePanel extends JPanel implements Runnable {
     public double playTime;
     private long musicTimePosition = 0;
     
+    public int screenWidth2 = screenWidth;  
+    public int screenHeight2 = screenHeight; 
+    public boolean fullScreenOn = false;
+    
+    private java.awt.image.BufferedImage fullScreenImage;
+    private Graphics2D g2;
+    
     public UI ui = new UI(this);
     
     public ItemManager itemM = new ItemManager(this);
@@ -162,39 +169,69 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
+        
+     // --- ADAPTATIVO: Corrigido para não recriar o buffer infinitamente ---
+        if (fullScreenImage == null || fullScreenImage.getWidth() != this.getWidth() || fullScreenImage.getHeight() != this.getHeight()) {
+            
+            // Pega o tamanho REAL atual da janela/painel
+            screenWidth2 = this.getWidth();
+            screenHeight2 = this.getHeight();
+            
+            // Instancia o buffer com o tamanho REAL da janela para estabilizar a condicional
+            fullScreenImage = new java.awt.image.BufferedImage(screenWidth2, screenHeight2, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+            g2 = (Graphics2D) fullScreenImage.getGraphics();
+            
+            // Aplica um Scale no g2 para que tudo que você desenhar em (screenWidth x screenHeight)
+            // seja automaticamente escalado de forma interna para o tamanho real da janela.
+            double scaleX = (double) screenWidth2 / screenWidth;
+            double scaleY = (double) screenHeight2 / screenHeight;
+            g2.scale(scaleX, scaleY);
+        }
+
+        // ----------------------------------------------------------------------
+        // 2. TODO O DESENHO DO JOGO ACONTECE AQUI DENTRO DO BUFFER (USANDO g2)
+        // ----------------------------------------------------------------------
         
         // ESTADOS QUE SÃO APENAS INTERFACE (Fundo Preto)
         if (gameState == titleState ||
-        		gameState == dataInputState ||
-        		gameState == scoreState ||
-        		gameState == levelSelectState ||
-        		gameState == finishState ||
-        		gameState == gameOverState ||
-        		gameState == creditsState ||
-        		gameState == adminDeleteState) {
+            gameState == dataInputState ||
+            gameState == scoreState ||
+            gameState == levelSelectState ||
+            gameState == finishState ||
+            gameState == gameOverState ||
+            gameState == creditsState ||
+            gameState == adminDeleteState) {
+            
             ui.draw(g2); 
         } 
         
         // ESTADOS QUE ENVOLVEM O MUNDO DO JOGO (Mapa visível)
         else if (gameState == playState || gameState == pauseState || gameState == quitConfirmationState) {
             
-            // 1. Desenha o mundo (Mapa, Itens, Player)
+            // Desenha o mundo (Mapa, Itens, Player)
             if(tileM != null) tileM.draw(g2);
             if(itemM != null) itemM.draw(g2);
             if(player != null) player.draw(g2);
             
-            // 2. Desenha a HUD básica (Vida, Ar)
+            // Desenha a HUD básica (Vida, Ar)
             desenharSlotDeItem(g2);
             desenharVida(g2);
             desenharAr(g2);
             desenharRelogio(g2);
             
-            // 3. Desenha a UI (Janela de Pausa ou Aviso de Saída vai por cima de tudo)
+            // Desenha a UI (Janela de Pausa ou Aviso de Saída vai por cima de tudo)
             ui.draw(g2);
         }
         
-        g2.dispose();
+        // ----------------------------------------------------------------------
+        // 3. PROJEÇÃO: JOGA O BUFFER PRONTO NA TELA REAL DO COMPUTADOR
+        // ----------------------------------------------------------------------
+        Graphics2D gScreen = (Graphics2D) g;
+        
+        // Projeta o buffer esticando-o dinamicamente para preencher 100% do painel visível
+        gScreen.drawImage(fullScreenImage, 0, 0, screenWidth2, screenHeight2, null);
+        
+        gScreen.dispose();
     }
     
     public void playFundo(int i) {
@@ -250,6 +287,16 @@ public class GamePanel extends JPanel implements Runnable {
     	levelM.loadCurrentLevel();
     	gameState = playState;
     	System.out.println("Jogaodr morreu. Score resetado e fase recarregada!");
+    }
+    
+    public void setFullScreen() {
+        java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+        java.awt.GraphicsDevice gd = ge.getDefaultScreenDevice();
+        
+        screenWidth2 = gd.getDisplayMode().getWidth();
+        screenHeight2 = gd.getDisplayMode().getHeight();
+        
+        fullScreenOn = true;
     }
     
     private void desenharSlotDeItem(Graphics g) {

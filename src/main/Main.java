@@ -15,13 +15,18 @@ public class Main {
         window = new JFrame();
         
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(true);
         window.setTitle("EcoHero");
-        GamePanel gamePanel = new GamePanel();
-        window.add(gamePanel);
+        GamePanel gp = new GamePanel();
+        
+        window.add(gp);
+
+		window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        
+        
         window.pack();
+        
         window.setLocationRelativeTo(null);
         window.setVisible(true);
-        gamePanel.startGameThread();
+        gp.startGameThread();
     }
 }
