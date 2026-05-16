@@ -57,7 +57,6 @@ public class UI {
             drawQuitConfirmationScreen();
         }
         else if (gp.gameState == gp.playState) {         // 1
-            // Aqui você desenha o HUD (tempo, moedas, etc) se tiver
         }
         else if (gp.gameState == gp.finishState) {
             drawFinishScreen();

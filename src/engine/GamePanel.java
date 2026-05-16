@@ -55,6 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int creditsState = 10;
     public final int adminDeleteState = 11;
     public double playTime;
+    private long musicTimePosition = 0;
     
     public UI ui = new UI(this);
     
@@ -223,6 +224,23 @@ public class GamePanel extends JPanel implements Runnable {
     
     public void stopSE(int i) {
     	se.stop();
+    }
+    
+    public void pausarSomDoJogo() {
+        if (fundo != null && fundo.clip != null && fundo.clip.isRunning()) {
+            musicTimePosition = fundo.clip.getMicrosecondPosition(); 
+            fundo.clip.stop();
+            System.out.println("Música de fundo pausada.");
+        }
+    }
+
+    public void retomarSomDoJogo() {
+        if (fundo != null && fundo.clip != null && !fundo.clip.isRunning()) {
+        	fundo.clip.setMicrosecondPosition(musicTimePosition); // Define de onde continuar
+        	fundo.clip.start(); // Dá o play
+        	fundo.clip.loop(javax.sound.sampled.Clip.LOOP_CONTINUOUSLY); // Mantém o loop da fase
+            System.out.println("Música de fundo retomada.");
+        }
     }
     
     public void resetarFaseAtual() {

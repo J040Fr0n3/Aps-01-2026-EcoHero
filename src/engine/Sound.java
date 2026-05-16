@@ -88,4 +88,9 @@ public class Sound {
 			clip.stop();
 		}
 	}
+	
+	public void pause() {
+		if (clip != null) {
+		}
+	}
 }

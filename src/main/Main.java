@@ -15,7 +15,7 @@ public class Main {
         window = new JFrame();
         
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
+        window.setResizable(true);
         window.setTitle("EcoHero");
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
