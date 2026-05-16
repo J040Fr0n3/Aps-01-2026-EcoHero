@@ -67,6 +67,8 @@ public class Player {
     public final int visualWidth = 80;  
     public final int visualHeight = 80;
     
+    public boolean pertoDaLixeira = false;
+    
     public Image walkGif;
     public BufferedImage idle, jump;
     private String direction = "right";

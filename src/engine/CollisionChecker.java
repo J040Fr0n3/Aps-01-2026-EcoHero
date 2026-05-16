@@ -35,7 +35,6 @@ public class CollisionChecker {
                 }
         	}
         }
-        // -- Checagem de chão
         int nextBottomWorldY = (int) (p.worldY + p.currentHeight + p.velocityY);
         int nextBottomRow = nextBottomWorldY / gp.tileSize;
         
@@ -44,6 +43,26 @@ public class CollisionChecker {
             int t2 = gp.tileM.mapTileNum[pRightCol][nextBottomRow];
             
             if(gp.tileM.tile[t1] == null || gp.tileM.tile[t2] == null) return;
+            
+            int linhaDoPe = (p.worldY + p.currentHeight - 5) / gp.tileSize; 
+            if (linhaDoPe >= 0 && linhaDoPe < gp.maxWorldRow) {
+                int tilePeEsquerdo = gp.tileM.mapTileNum[pLeftCol][linhaDoPe];
+                int tilePeDireito = gp.tileM.mapTileNum[pRightCol][linhaDoPe];
+                
+                // Se qualquer um dos pés estiver na lixeira (10 a 14)
+                if ((tilePeEsquerdo >= 10 && tilePeEsquerdo <= 14) || (tilePeDireito >= 10 && tilePeDireito <= 14)) {
+                    
+                    // Validação segura do inventário (verifica se não é nulo antes)
+                    if (p.inventory != null && p.inventory.size() > 0) {
+                        p.pertoDaLixeira = true;
+                    } else {
+                        p.pertoDaLixeira = false; 
+                    }
+                    
+                } else {
+                    p.pertoDaLixeira = false;
+                }
+            }
             
             
             if(t1 == 6 || t2 == 6) {

@@ -61,6 +61,16 @@ public class GamePanel extends JPanel implements Runnable {
     public int screenHeight2 = screenHeight; 
     public boolean fullScreenOn = false;
     
+    public int tutorialPasso = 1; 
+    public boolean tutorialConcluido = false;
+    
+    public boolean apertouA = false;
+    public boolean apertouD = false;
+    public boolean apertouPulo = false;
+    public boolean apertouCorrida = false;
+    
+    public int tutorialTimer = 0;
+    
     private java.awt.image.BufferedImage fullScreenImage;
     private Graphics2D g2;
     
@@ -160,6 +170,49 @@ public class GamePanel extends JPanel implements Runnable {
                 keyH.nextLevelRequested = false;
             }
            
+         // --- LÓGICA DO TUTORIAL ATIVO APENAS NA FASE 1 ---
+            if (levelM != null && levelM.currentLevelIndex == 0 && !tutorialConcluido) {
+                
+                // PASSO 1: ANDAR (Precisa apertar A e D)
+                if (tutorialPasso == 1) {
+                    if (keyH.left) apertouA = true;
+                    if (keyH.right) apertouD = true;
+                    
+                    if (apertouA && apertouD) {
+                        tutorialTimer++;
+                        if (tutorialTimer >= 60) { // Espera 1 segundo com o texto verde antes de mudar
+                            tutorialPasso = 2;
+                            tutorialTimer = 0;
+                        }
+                    }
+                }
+                // PASSO 2: PULAR (Precisa apertar W ou ESPAÇO)
+                else if (tutorialPasso == 2) {
+                    if (keyH.up) apertouPulo = true; // Ajuste se a sua tecla de pulo for keyH.space
+                    
+                    if (apertouPulo) {
+                        tutorialTimer++;
+                        if (tutorialTimer >= 60) {
+                            tutorialPasso = 3;
+                            tutorialTimer = 0;
+                        }
+                    }
+                }
+                // PASSO 3: CORRER (Precisa segurar CTRL + A ou D)
+                else if (tutorialPasso == 3) {
+                    if (keyH.ctrl && (keyH.left || keyH.right)) apertouCorrida = true;
+                    
+                    if (apertouCorrida) {
+                        tutorialTimer++;
+                        if (tutorialTimer >= 90) { // Deixa um pouco mais de tempo no último
+                            tutorialPasso = 4;
+                            tutorialConcluido = true;
+                            tutorialTimer = 0;
+                        }
+                    }
+                }
+            }
+            
         }
         
         // Se o gameState for pauseState ou quitConfirmationState, 
@@ -219,8 +272,11 @@ public class GamePanel extends JPanel implements Runnable {
             desenharAr(g2);
             desenharRelogio(g2);
             
+            
             // Desenha a UI (Janela de Pausa ou Aviso de Saída vai por cima de tudo)
             ui.draw(g2);
+            
+            desenharTutorialFase1(g2);
         }
         
         // ----------------------------------------------------------------------
@@ -232,6 +288,167 @@ public class GamePanel extends JPanel implements Runnable {
         gScreen.drawImage(fullScreenImage, 0, 0, screenWidth2, screenHeight2, null);
         
         gScreen.dispose();
+    }
+    
+    public void resetarTutorial() {
+        tutorialPasso = 1;
+        tutorialConcluido = false;
+        apertouA = false;
+        apertouD = false;
+        apertouPulo = false;
+        apertouCorrida = false;
+        tutorialTimer = 0;
+    }
+    
+    private void desenharTutorialFase1(Graphics2D g2) {
+        if (levelM != null && levelM.getCurrentLevel() != null && levelM.currentLevelIndex == 0 && !tutorialConcluido) {
+            
+            g2.setFont(Fonts.getPixelFont(20f)); 
+            
+            int boxSize = 60;
+            int inventoryY = 20;
+            // Mantém a posição fixa abaixo do inventário
+            int textoY = inventoryY + boxSize + 75; 
+            
+            // --- PASSO 1: ANDAR ---
+            if (tutorialPasso == 1) {
+                String txtAndar = "APERTE [A] E [D] PARA ANDAR NA HORIZONTAL";
+                int andarX = (screenWidth / 2) - (g2.getFontMetrics().stringWidth(txtAndar) / 2);
+                
+                // Sombra
+                g2.setColor(Color.BLACK);
+                g2.drawString(txtAndar, andarX + 1, textoY + 1);
+                
+                // Muda para verde no pequeno delay antes de sumir
+                g2.setColor(apertouA && apertouD ? Color.GREEN : Color.RED);
+                g2.drawString(txtAndar, andarX, textoY);
+            }
+
+            // --- PASSO 2: PULAR ---
+            else if (tutorialPasso == 2) {
+                String txtPular = "[W] OU [ESPAÇO] PARA PULAR";
+                int pularX = (screenWidth / 2) - (g2.getFontMetrics().stringWidth(txtPular) / 2);
+                
+                g2.setColor(Color.BLACK);
+                g2.drawString(txtPular, pularX + 1, textoY + 1);
+                
+                g2.setColor(apertouPulo ? Color.GREEN : Color.RED);
+                g2.drawString(txtPular, pularX, textoY);
+            }
+
+            // --- PASSO 3: CORRER ---
+            else if (tutorialPasso == 3) {
+                String txtCorrer = "[CTRL + A ou D] PARA CORRER REPETIDAMENTE";
+                int correrX = (screenWidth / 2) - (g2.getFontMetrics().stringWidth(txtCorrer) / 2);
+                int correrY = textoY + 44;
+                
+                g2.setColor(Color.BLACK);
+                g2.drawString(txtCorrer, correrX + 1, correrY + 1);
+                
+                g2.setColor(apertouCorrida ? Color.GREEN : Color.RED);
+                g2.drawString(txtCorrer, correrX, textoY);
+            }
+        }
+    }
+    
+    public String getProgressoLixeira(int tileNum) {
+        // 1. Descobre qual é a string correspondente ao ID da lixeira
+        String tipoLixo = "";
+        switch (tileNum) {
+            case 10: tipoLixo = "papel"; break;
+            case 11: tipoLixo = "vidro"; break;
+            case 12: tipoLixo = "metal"; break;
+            case 13: tipoLixo = "plastico"; break;
+            case 14: tipoLixo = "organico"; break;
+            default: return ""; // Se não for lixeira, não desenha nada
+        }
+
+        // 2. Pega a configuração da fase atual através do seu LevelManager
+        if (levelM != null && levelM.getCurrentLevel() != null) {
+            LevelConfig faseAtual = levelM.getCurrentLevel();
+
+            // Verifica se ESSA fase específica exige esse tipo de lixo
+            if (faseAtual.itemsRequired.containsKey(tipoLixo)) {
+                int meta = faseAtual.itemsRequired.get(tipoLixo); // Ex: 5
+                
+                // Pega o quanto já foi entregue guardado no GamePanel
+                int atual = itensEntreguesFase.getOrDefault(tipoLixo, 0); // Ex: 2
+                
+                return atual + "/" + meta; // Retorna "2/5"
+            } else {
+                // Se a fase não pede esse lixo (ex: Vidro na Fase 1), mostra que a meta é 0
+                int atual = itensEntreguesFase.getOrDefault(tipoLixo, 0);
+                return atual + "/0";
+            }
+        }
+        return "";
+    }
+    
+    public void desenharTile(Graphics g, int tileNum, int screenX, int screenY) {
+        if (screenX + tileSize > 0 && screenX < screenWidth && 
+            screenY + tileSize > 0 && screenY < screenHeight) {
+            
+            int drawX = screenX;
+            int drawY = screenY;
+            int width = tileSize;
+            int height = tileSize;
+
+            // --- LÓGICA DE ALTURA ESPECIAL ---
+            if (tileNum == 3) {
+                // Plataforma (Metade da altura)
+                height = tileSize / 2;
+            } 
+            else if (tileNum >= 10 && tileNum <= 14) {
+                // Lixeiras (1.5 de altura)
+                height = (int)(tileSize * 1.5);
+                // Subtraímos a diferença da altura do Y para ela crescer para CIMA
+                drawY -= (tileSize * 0.5); 
+            }
+
+            // Desenha o gráfico do bloco
+            if (tileM.tile[tileNum].image != null) {
+                g.drawImage(tileM.tile[tileNum].image, drawX, drawY, width, height, null);
+            } else {
+                // FALLBACK PARA CORES (Caso não tenha imagem)
+                g.setColor(tileM.tile[tileNum].color);
+                g.fillRect(screenX, drawY, tileSize, height);
+            }
+
+            // --- ADICIONADO: CONTADOR DE TASKS EM CIMA DAS LIXEIRAS ---
+            if (tileNum >= 10 && tileNum <= 14) {
+                Graphics2D g2 = (Graphics2D) g;
+                
+                // Configura a fonte pixel do jogo
+                g2.setFont(Fonts.getPixelFont(20f)); // Fonte um pouco menor para ficar delicado
+                
+                // Pega a String de progresso (ex: "0/5") vinda do GamePanel
+                String textoTask = getProgressoLixeira(tileNum);
+                
+                if (!textoTask.equals("")) {
+                    int textoLargura = g2.getFontMetrics().stringWidth(textoTask);
+                    
+                    // Centraliza o texto horizontalmente em relação à lixeira
+                    int textoX = drawX + (tileSize / 2) - (textoLargura / 2);
+                    
+                    // Posiciona um pouco acima do topo da lixeira (drawY é o topo dela)
+                    int textoY = drawY - 8; 
+                    
+                    // 1. Desenha a sombra preta (essencial para leitura em qualquer mapa)
+                    g2.setColor(Color.BLACK);
+                    g2.drawString(textoTask, textoX + 1, textoY + 1);
+                    
+                    // 2. Desenha o texto principal branco ou colorido
+                    // Dica: Se quiser dar um feedback visual, pode colocar VERDE se a task já foi concluída!
+                    if (textoTask.startsWith(textoTask.substring(textoTask.indexOf("/") + 1))) {
+                        g2.setColor(Color.GREEN); // Task feita!
+                    } else {
+                        g2.setColor(Color.WHITE); // Pendente
+                    }
+                    
+                    g2.drawString(textoTask, textoX, textoY);
+                }
+            }
+        }
     }
     
     public void playFundo(int i) {
@@ -396,6 +613,26 @@ public class GamePanel extends JPanel implements Runnable {
             
             g.drawString(comboText, comboX, barY + barHeight + 25);
         }
+        
+        if (player != null && player.pertoDaLixeira) {
+            g2.setFont(Fonts.getPixelFont(20f)); 
+            String aviso = "APERTE [E] PARA DESCARTAR";
+            
+            int textoLargura = g2.getFontMetrics().stringWidth(aviso);
+            int avisoX = inventoryX + (boxSize / 2) - (textoLargura / 2);
+            
+            // Posiciona logo abaixo das bolinhas (dotY + 25 pixels para dar respiro)
+            int avisoY = (inventoryY + boxSize + 12) + 100; 
+            
+            // Sombra preta para dar contraste
+            g2.setColor(Color.BLACK);
+            g2.drawString(aviso, avisoX + 1, avisoY + 1);
+            
+            // Texto principal amarelo vibrante
+            g2.setColor(Color.YELLOW);
+            g2.drawString(aviso, avisoX, avisoY);
+        }
+        
     }
     
     private void desenharRelogio(Graphics2D g2) {

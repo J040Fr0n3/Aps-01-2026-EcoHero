@@ -21,7 +21,7 @@ public class LevelManager {
     private void setupLevels() {
     	// Fase 1: Tutorial - Precisa de 10 papéis
         Map<String, Integer> f1Req = new HashMap<>();
-        f1Req.put("papel", 1);
+        f1Req.put("papel", 5);
         levels.add(new LevelConfig(1, "/maps/map01.txt", f1Req, 5, 50, 14, 1, 13));
 
         // Fase 2: Papel e Vidro

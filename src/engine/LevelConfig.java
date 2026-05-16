@@ -14,7 +14,7 @@ public class LevelConfig {
     public int maxRows;
     public int bueiroDestino;
     public int musicID;
-    public boolean unlocked = false;
+    public boolean unlocked = true;
     public java.awt.image.BufferedImage backgroundImage;
 
     public LevelConfig(int level, String path, Map<String, Integer> requirements, int rate, int cols, int rows, int bueiroDestino, int musicID) {
