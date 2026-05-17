@@ -21,19 +21,19 @@ public class CollisionChecker {
         
         // -- Checagem de Teto
         if(p.velocityY < 0) {
-        	int nextTopWordY = (int) (p.worldY + p.velocityY);
-        	int nextTopRow = nextTopWordY / gp.tileSize;
-        	if (nextTopRow >= 0) {
-        		int t1 = gp.tileM.mapTileNum[pLeftCol][nextTopRow];
+            int nextTopWordY = (int) (p.worldY + p.velocityY);
+            int nextTopRow = nextTopWordY / gp.tileSize;
+            if (nextTopRow >= 0) {
+                int t1 = gp.tileM.mapTileNum[pLeftCol][nextTopRow];
                 int t2 = gp.tileM.mapTileNum[pRightCol][nextTopRow];
 
-                // Se o bloco de cima for sólido e NÃO for um elevador (G/16)
+                // Se o bloco de cima for sólido e NÃO for um elevador/plataforma/escada
                 if ((gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision)
-                	&& t1 != 16 && t2 != 16 && t1 != 8 && t2 != 8 && t1 != 3 && t2 != 3) {
+                    && t1 != 16 && t2 != 16 && t1 != 8 && t2 != 8 && t1 != 3 && t2 != 3 && t1 != 4 && t2 != 4) {
                     p.velocityY = 0; // Para o pulo imediatamente
                     p.worldY = (nextTopRow + 1) * gp.tileSize + 1; // Empurra o player para baixo do bloco
                 }
-        	}
+            }
         }
         int nextBottomWorldY = (int) (p.worldY + p.currentHeight + p.velocityY);
         int nextBottomRow = nextBottomWorldY / gp.tileSize;
@@ -49,56 +49,75 @@ public class CollisionChecker {
                 int tilePeEsquerdo = gp.tileM.mapTileNum[pLeftCol][linhaDoPe];
                 int tilePeDireito = gp.tileM.mapTileNum[pRightCol][linhaDoPe];
                 
-                // Se qualquer um dos pés estiver na lixeira (10 a 14)
                 if ((tilePeEsquerdo >= 10 && tilePeEsquerdo <= 14) || (tilePeDireito >= 10 && tilePeDireito <= 14)) {
-                    
-                    // Validação segura do inventário (verifica se não é nulo antes)
                     if (p.inventory != null && p.inventory.size() > 0) {
                         p.pertoDaLixeira = true;
                     } else {
                         p.pertoDaLixeira = false; 
                     }
-                    
                 } else {
                     p.pertoDaLixeira = false;
                 }
             }
             
-            
+            // --- MECÂNICA DO TRAMPOLIM (ID 6) ---
             if(t1 == 6 || t2 == 6) {
-            	if (p.velocityY > 0) {
-            		
-            		if(p.trampoSoundTimer <= 0) {
-            			gp.playSE(0);
-            			p.trampoSoundTimer = 15;
-            		}
-            		
-            		if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
-            			p.trampoLineJumpCount++;
-            		}
-            		double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
-            		p.velocityY = -10 * boost;
-            		
-            		p.jumping = true;
-            		p.collisionOn = false;
-            		return;
-            	}
+                if (p.velocityY > 0) {
+                    if(p.trampoSoundTimer <= 0) {
+                        gp.playSE(0);
+                        p.trampoSoundTimer = 15;
+                    }
+                    if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
+                        p.trampoLineJumpCount++;
+                    }
+                    double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
+                    p.velocityY = -10 * boost;
+                    p.jumping = true;
+                    p.collisionOn = false;
+                    return;
+                }
             }
 
-            // 1. Elevador
+            // --- MECÂNICA DO ELEVADOR (ID 16) ---
             if (t1 == 16 || t2 == 16) {
                 p.velocityY = 0;
                 p.jumping = false; 
                 p.collisionOn = true; 
                 p.onElevator = true;
             } else {
-            	p.onElevator = false;
+                p.onElevator = false;
             }
-         // 2. Sólidos
-            if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision) {
+
+            // --- 2. GESTÃO DE SÓLIDOS (INCLUINDO TOPO DA ESCADA) ---
+            // Entra aqui se o bloco for naturalmente sólido OU se for uma escada (ID 4)
+            if (gp.tileM.tile[t1].collision || gp.tileM.tile[t2].collision || t1 == 4 || t2 == 4) {
+                
+                // --- NOVIDADE: LÓGICA DO TOPO DA ESCADA (ID 4) ---
+                if (t1 == 4 || t2 == 4) {
+                    int topoDaEscada = (nextBottomRow * gp.tileSize);
+                    
+                    // Condição 1: Player está descendo/caindo (velocityY >= 0)
+                    // Condição 2: A base do player está acima ou exatamente no topo da escada
+                    if (p.velocityY >= 0 && (p.worldY + p.currentHeight) <= topoDaEscada + Math.abs(p.velocityY) + 1) {
+                        
+                        // Se ele segurar para baixo, ele quer descer, então ignoramos a colisão sólida
+                        if (gp.keyH.down) {
+                            p.collisionOn = false;
+                        } else {
+                            // Caso contrário, o topo se torna um chão firme!
+                            p.collisionOn = true;
+                            p.velocityY = 0;
+                            p.jumping = false;
+                            p.worldY = topoDaEscada - p.currentHeight;
+                        }
+                    } else {
+                        // Se estiver subindo por dentro dela, ela continua transpassável
+                        p.collisionOn = false;
+                    }
+                }
                 
                 // --- PLATAFORMA MEIO BLOCO (ID 3) ---
-                if (t1 == 3 || t2 == 3) {
+                else if (t1 == 3 || t2 == 3) {
                     int topoDaPlataforma = (nextBottomRow * gp.tileSize);
                     if (p.velocityY >= 0 && (p.worldY + p.currentHeight) <= topoDaPlataforma + Math.abs(p.velocityY) + 1) {
                         p.collisionOn = true;
@@ -106,11 +125,10 @@ public class CollisionChecker {
                         p.jumping = false;
                         p.worldY = topoDaPlataforma - p.currentHeight;
                     } else {
-                        // Se ele estiver pulando (velocityY < 0) ou tentando andar pelos lados
-                        // a colisão DEVE ser false, senão ele trava "congelado" no lugar
                         p.collisionOn = false;
                     }
                 }
+                
                 // --- LÓGICA DA NUVEM (ID 8) ---
                 else if (t1 == 8 || t2 == 8) {
                     boolean acimaDaNuvem = (p.worldY + p.currentHeight) <= (nextBottomRow * gp.tileSize) + 10;
@@ -125,10 +143,12 @@ public class CollisionChecker {
                         p.collisionOn = false; 
                     }
                 }
-                // --- OUTROS (ÁGUA, ESCADA) ---
-                else if (t1 == 5 || t2 == 5 || t1 == 4 || t2 == 4) {
+                
+                // --- OUTROS (ÁGUA E FLUIDOS) ---
+                else if (t1 == 5 || t2 == 5) {
                     p.collisionOn = false;
                 } 
+                
                 // --- BLOCOS INTEIROS (CHÃO NORMAL, PAREDE) ---
                 else {
                     p.collisionOn = true;
@@ -142,13 +162,36 @@ public class CollisionChecker {
                 p.jumping = true; 
             }
         }
-        int centerX = (p.worldX + 20) / gp.tileSize; // Checa pelo centro do player
+        
+        // --- CHECAGEM CENTRAL (ONLADDER / INWATER) ---
+        int centerX = (p.worldX + 20) / gp.tileSize; 
         int centerY = (p.worldY + p.currentHeight / 2) / gp.tileSize;
+
         if (centerX >= 0 && centerX < gp.maxWorldCol && centerY >= 0 && centerY < gp.maxWorldRow) {
-        	int tileIdCenter = gp.tileM.mapTileNum[centerX][centerY];
-        	p.onLadder = (tileIdCenter == 4);// Escada
-        	p.inWater = (tileIdCenter == 5); //água
-        	p.inToxicWater = (tileIdCenter == 15); // água toxica
+            int tileIdCenter = gp.tileM.mapTileNum[centerX][centerY];
+            
+            int feetRow = (p.worldY + p.currentHeight + 1) / gp.tileSize;
+            boolean pisandoEmChaoSolido = false;
+            
+            if (feetRow >= 0 && feetRow < gp.maxWorldRow) {
+                int tileSolidoEsquerdo = gp.tileM.mapTileNum[pLeftCol][feetRow];
+                int tileSolidoDireito = gp.tileM.mapTileNum[pRightCol][feetRow];
+                
+                if ((gp.tileM.tile[tileSolidoEsquerdo].collision || gp.tileM.tile[tileSolidoDireito].collision) 
+                    && tileSolidoEsquerdo != 4 && tileSolidoDireito != 4) {
+                    pisandoEmChaoSolido = true;
+                }
+            }
+
+            // Se o centro está na escada e ele ainda não pisou no chão firme (ou no topo sólido da escada)
+            if (tileIdCenter == 4 && !pisandoEmChaoSolido) {
+                p.onLadder = true;
+            } else {
+                p.onLadder = false;
+            }
+
+            p.inWater = (tileIdCenter == 5); 
+            p.inToxicWater = (tileIdCenter == 15); 
         }
     }
     public int checkItem(Player p) {

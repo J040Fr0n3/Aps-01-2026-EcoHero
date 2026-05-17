@@ -196,27 +196,61 @@ public class Player {
             
             int ladderSpeed = 3;
             
+            if (keyH.up) {
+                // --- CHECAGEM DE TOPO: O jogador quer subir na plataforma? ---
+                int pLeftCol = worldX / gp.tileSize;
+                int pRightCol = (worldX + 39) / gp.tileSize;
+                
+                // Verificamos a linha exatamente onde estão os pés do jogador
+                int currentFeetRow = (worldY + currentHeight) / gp.tileSize;
+                
+                // Verificamos o bloco que está exatamente NA LINHA DOS PÉS dele
+                int tileIdPeEsquerdo = gp.tileM.mapTileNum[pLeftCol][currentFeetRow];
+                int tileIdPeDireito = gp.tileM.mapTileNum[pRightCol][currentFeetRow];
+                
+                // SE OS PÉS do jogador chegaram no último bloco de escada (ou seja, o bloco de baixo NÃO é escada)
+                // Significa que a cintura/cabeça dele já passou do chão!
+                if (tileIdPeEsquerdo != 4 && tileIdPeDireito != 4) {
+                    
+                    // 1. Desliga o estado de escada imediatamente
+                    onLadder = false;
+                    
+                    // 2. Dá um "puxão" físico para cima para garantir que ele suba o degrau por completo
+                    worldY -= 12; // Teleporta ele um pouquinho para cima da quina do chão
+                    
+                    // 3. Aplica uma força de pulo vertical decente para ele vencer a gravidade do frame seguinte
+                    velocityY = -7; 
+                    jumping = true;
+                    
+                    System.out.println("Subida finalizada! EcoHero impulsionado para fora da escada.");
+                    return; 
+                }
+                
+                // Se ainda não chegou no topo, apenas continua subindo a escada
+                worldY -= ladderSpeed;
+            }
+            else if (keyH.down) {
+                worldY += ladderSpeed;
+            }
+
+            // --- GERENCIAMENTO DO SOM DA ESCADA ---
             if (keyH.up || keyH.down) {
-                if (keyH.up) worldY -= ladderSpeed;
-                if (keyH.down) worldY += ladderSpeed;
-
-
                 if (currentFootstepSound != 12) { 
                     gp.stopMusic(); 
                     gp.playMusic(12); 
                     currentFootstepSound = 12;
                 }
             } else {
-
                 if (currentFootstepSound == 12) {
                     gp.stopMusic();
                     currentFootstepSound = -1;
                 }
             }
+            
             gp.cChecker.checkTile(this);
             atualizarAr(true);
             return;
-        } 
+        }
         if (inWater || inToxicWater) {
         	
         	
