@@ -49,7 +49,7 @@ public class Player {
     public boolean collisionOn = false;
     
     public int trampoLineJumpCount = 0;
-    public final int maxTrampoLineJumps = 3;
+    public final int maxTrampoLineJumps = 2;
     public int trampoSoundTimer = 0;
     
     public boolean onLadder = false;
@@ -258,11 +258,19 @@ public class Player {
         		gp.stopMusic();
         		currentFootstepSound = -1;
         	}
-        	if(velocityY >= -7) {
-        		velocityY = 1.2; 
-        		if (keyH.up) velocityY = -7;
-        		else if(keyH.down) velocityY = 7;
+        	if(inToxicWater) {
+        		velocityY = 1.5;
+        		if (keyH.down) {
+        			velocityY = -.5;
+        		}
+        	} else {
+        		if(velocityY >= -7) {
+	        		velocityY = 1.2; 
+	        		if (keyH.up) velocityY = -7;
+	        		else if(keyH.down) velocityY = 7;
+	        	}
         	}
+	        	
             worldY += velocityY;
 
             // --- LÓGICA DE ÁGUA TÓXICA ---

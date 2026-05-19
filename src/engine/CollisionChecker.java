@@ -7,6 +7,7 @@ import java.awt.Point;
 
 public class CollisionChecker {
     GamePanel gp;
+    KeyHandler keyH = new KeyHandler(gp);
 
     public CollisionChecker(GamePanel gp) {
         this.gp = gp;
@@ -70,7 +71,7 @@ public class CollisionChecker {
                     if (p.trampoLineJumpCount < p.maxTrampoLineJumps) {
                         p.trampoLineJumpCount++;
                     }
-                    double boost = 1.0 + (p.trampoLineJumpCount -1) * 0.5;
+                    double boost = 1.5 + (p.trampoLineJumpCount -1) * 1.75;
                     p.velocityY = -10 * boost;
                     p.jumping = true;
                     p.collisionOn = false;
@@ -147,7 +148,7 @@ public class CollisionChecker {
                 // --- OUTROS (ÁGUA E FLUIDOS) ---
                 else if (t1 == 5 || t2 == 5) {
                     p.collisionOn = false;
-                } 
+                }
                 
                 // --- BLOCOS INTEIROS (CHÃO NORMAL, PAREDE) ---
                 else {
