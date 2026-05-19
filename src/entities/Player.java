@@ -261,7 +261,7 @@ public class Player {
         	if(inToxicWater) {
         		velocityY = 1.5;
         		if (keyH.down) {
-        			velocityY = -.5;
+        			velocityY = 2 ;
         		}
         	} else {
         		if(velocityY >= -7) {

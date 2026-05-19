@@ -291,8 +291,12 @@ public class UI {
 
         // Mensagem
         g2.setFont(Fonts.getPixelFont(25f));
-        text = "(Score / Tempo pausado)";
+        text = "Score: " + gp.score;
         g2.drawString(text, getXforCenteredText(text), y + gp.tileSize * 2);
+        
+        g2.setFont(Fonts.getPixelFont(25f));
+        text = "Time: " + (int)gp.playTime/60 + ":" + (int)gp.playTime%60;
+        g2.drawString(text, getXforCenteredText(text), y * 2 );
 
         // Botão Continuar
         text = "CONTINUAR";
