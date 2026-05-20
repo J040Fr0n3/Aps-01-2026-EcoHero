@@ -1,12 +1,11 @@
 package engine;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import main.Main;
+
 
 public class LevelManager {
     GamePanel gp;
@@ -36,7 +35,7 @@ public class LevelManager {
         f3Req.put("plastico", 1);
         f3Req.put("metal", 1);
         f3Req.put("vidro", 1);
-        levels.add(new LevelConfig(3, "/maps/map03.txt", f3Req, 7, 50, 14, 0, 13));
+        levels.add(new LevelConfig(3, "/maps/map03.txt", f3Req, 7, 50, 14, 0, 15));
         
         Map<String, Integer> f4Req = new HashMap<>();
         f4Req.put("papel", 1);
@@ -44,7 +43,7 @@ public class LevelManager {
         f4Req.put("metal", 1);
         f4Req.put("vidro", 1);
         f4Req.put("organico", 1);
-        levels.add(new LevelConfig(4, "/maps/map034txt", f4Req, 7, 50, 14, 0, 13));
+        levels.add(new LevelConfig(4, "/maps/map034txt", f4Req, 7, 50, 14, 0, 16));
         
         if(!levels.isEmpty()) {
         	levels.get(0).unlocked = true;

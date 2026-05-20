@@ -2,7 +2,6 @@ package engine;
 
 import entities.Item;
 import entities.Player;
-import tile.Tile;
 import java.awt.Point;
 
 public class CollisionChecker {

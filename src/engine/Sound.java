@@ -29,6 +29,8 @@ public class Sound {
 		soundURL[12] = getClass().getResource("/sounds/escadas_sound.wav");
 		soundURL[13] = getClass().getResource("/sounds/fundo_fase_1_sound.wav");
 		soundURL[14] = getClass().getResource("/sounds/fundo_fase_2_sound.wav");
+		soundURL[15] = getClass().getResource("/sounds/fundo_fase_3_sound.wav");
+		soundURL[16] = getClass().getResource("/sounds/fundo_fase_4_sound.wav");
 		//soundURL[] = getClass().getResource("/sounds/escada_sound.wav");
 		preLoad(0);
 	}
