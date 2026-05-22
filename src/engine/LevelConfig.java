@@ -15,7 +15,15 @@ public class LevelConfig {
     public boolean unlocked = true;
     public java.awt.image.BufferedImage backgroundImage;
 
-    public LevelConfig(int level, String path, Map<String, Integer> requirements, int rate, int cols, int rows, int bueiroDestino, int musicID) {
+    public LevelConfig(
+    		int level,
+    		String path, Map<String,
+    		Integer> requirements,
+    		int rate,
+    		int cols,
+    		int rows,
+    		int bueiroDestino,
+    		int musicID) {
         this.levelNumber = level;
         this.mapPath = path;
         this.itemsRequired = requirements;
@@ -41,6 +49,4 @@ public class LevelConfig {
     	}
     	return total;
     }
-    
-    
 }

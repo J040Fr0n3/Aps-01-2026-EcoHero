@@ -11,67 +11,44 @@ public class Player {
 
     GamePanel gp;
     KeyHandler keyH;
-    //agachamento player
-    
     public int maxLife = 6;
     public int life = 6;
     public int lifeRecoveryCounter = 0;
-    
     public int currentFootstepSound = -1;
     boolean isWalking = false;
-    
     public boolean waterSoundPlaying = false;
     public boolean waterToxicSoundPlaying = false;
     public boolean elevatorSoundPlaying = false;
-    
     public int airRecoveryCounter = 0;
-    
     public boolean isCrouching = false;
     public int currentHeight;
     public final int defaultHeight = 40;
     public final int crouchHeight = 20;
-    
-    // Posição e Atributos
-    public int worldX; // 
+    public int worldX;
     public int worldY;
     public int speed = 5;
-
-    // Física
     public double velocityY = 0;
     public double gravity = 0.5;
     public boolean jumping = false;
-    
-    // Câmera
     public final int screenX;
     public final int screenY;
-    
     public boolean collisionOn = false;
-    
     public int trampoLineJumpCount = 0;
     public final int maxTrampoLineJumps = 2;
     public int trampoSoundTimer = 0;
-    
     public boolean onLadder = false;
-    
     public boolean onElevator = false;
-    
     public boolean inWater = false;
-    public int airTimer = 0; // Contador para o sistema de dano futuro
-    
+    public int airTimer = 0; 
     public java.util.ArrayList<String> inventory = new java.util.ArrayList<>();
     public int maxInventorySize = 3;
-    
     public boolean inToxicWater = false;
-    
     public final int visualWidth = 80;  
     public final int visualHeight = 80;
-    
     public boolean pertoDaLixeira = false;
-    
     public Image walkGif;
     public BufferedImage idle, jump;
     private String direction = "right";
-
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp; 
         this.keyH = keyH;

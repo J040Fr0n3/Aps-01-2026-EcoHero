@@ -15,7 +15,6 @@ public class CollisionChecker {
     public void checkTile(Player p) {
         p.collisionOn = false;
 
-        // Bordas do player (usando 39 para evitar colisão com tiles do lado)
         int pLeftCol = p.worldX / gp.tileSize;
         int pRightCol = (p.worldX + 39) / gp.tileSize;
         

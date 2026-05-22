@@ -37,26 +37,26 @@ public class UI {
         this.g2 = g2;
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-        // Usar else if evita que o Java tente desenhar duas telas ao mesmo tempo
-        if (gp.gameState == gp.titleState) {            // 0
+
+        if (gp.gameState == gp.titleState) {            
             drawTitleScreen();
         }
-        else if (gp.gameState == gp.dataInputState) {    // 3
+        else if (gp.gameState == gp.dataInputState) {    
             drawDataInputScreen();
         }
-        else if (gp.gameState == gp.levelSelectState) {  // 7
+        else if (gp.gameState == gp.levelSelectState) {  
             drawLevelSelectScreen();
         }
-        else if (gp.gameState == gp.scoreState) {        // 2
+        else if (gp.gameState == gp.scoreState) {        
             drawScoreScreen();
         }
-        else if (gp.gameState == gp.pauseState) {        // 5
+        else if (gp.gameState == gp.pauseState) {        
             drawPauseScreen();
         }
-        else if (gp.gameState == gp.quitConfirmationState) { // 6
+        else if (gp.gameState == gp.quitConfirmationState) { 
             drawQuitConfirmationScreen();
         }
-        else if (gp.gameState == gp.playState) {         // 1
+        else if (gp.gameState == gp.playState) {         
         }
         else if (gp.gameState == gp.finishState) {
             drawFinishScreen();
@@ -485,10 +485,12 @@ public class UI {
         
         g2.drawString("DESENVOLVIDO POR:", gp.tileSize * 2, y);
         g2.setColor(laranjaEco);
-        g2.drawString("- João Frone(R6591B2) - Código - Textura - Áudio - Documentação", gp.tileSize * 2, y + 40);
-        g2.drawString("- Gabriel Medeiros (R8391J4) - Código - Textura - Áudio", gp.tileSize * 2, y + 80);
-        g2.drawString("- Hiago Müller (R857BH5) - Documentação - Textura", gp.tileSize * 2, y + 120);
-        g2.drawString("- Marcelo Agante (F364313) - Textura - Documentação", gp.tileSize * 2, y + 160);
+        g2.drawString("- João Frone(R6591B2) - Código", gp.tileSize * 2, y + 40);
+        g2.drawString("- Gabriel Medeiros (R8391J4) - Código", gp.tileSize * 2, y + 80);
+        g2.drawString("- Hiago Müller (R857BH5) - Documentação", gp.tileSize * 2, y + 120);
+        g2.drawString("- Marcelo Agante (F364313) - Textura", gp.tileSize * 2, y + 160);
+        g2.drawString("- Marcelo Agante (F364313) - Textura", gp.tileSize * 2, y + 200);
+        g2.drawString("- Marcelo Agante (F364313) - Textura", gp.tileSize * 2, y + 240);
 
         g2.setFont(Fonts.getPixelFont(20f));
         g2.setColor(Color.GRAY);

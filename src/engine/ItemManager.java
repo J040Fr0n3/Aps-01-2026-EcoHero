@@ -18,7 +18,11 @@ public class ItemManager {
     private Random random = new Random();
     private double floatingCounter = 0;
     
-    public BufferedImage papelImage, plasticoImage, metalImage, vidroImage, organicImage;
+    public BufferedImage papelImage,
+    plasticoImage,
+    metalImage,
+    vidroImage,
+    organicImage;
 
     public ItemManager(GamePanel gp) {
         this.gp = gp;
@@ -26,9 +30,7 @@ public class ItemManager {
     }
 
     public void update() {
-        // Lógica de Spawn baseada no FPS (60 FPS)
         spawnCounter++;
-        // Tenta spawnar a cada 2 segundos (120 frames) se houver espaço
         if (spawnCounter >= 120) {
             spawnAttempt();
             spawnCounter = 0;
@@ -43,8 +45,6 @@ public class ItemManager {
     private void spawnAttempt() {
         LevelConfig config = gp.levelM.getCurrentLevel();
 
-        // TRAVA PRINCIPAL: Só entra se não houver NENHUM item no chão (activeItems vazio)
-        // E se o jogador ainda não completou o objetivo total da fase
         if (activeItems.isEmpty() && gp.itensColetadosTotal < gp.totalItemsNoNivel) {
             
             // 1. Filtra o que ainda falta (Tasks)

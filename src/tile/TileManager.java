@@ -39,45 +39,34 @@ public class TileManager {
     public void getTileImage() {
         // 0 - Vazio
         setup(0, "vazio", false, Color.BLACK); 
-        
         // 1 - Chão
-        setup(1, "chao", true, new Color(100, 100, 100)); // com fisica
-        
+        setup(1, "chao", true, new Color(100, 100, 100));
         // 2 - Parede
-        setup(2, "parede", true, Color.BLACK); // com fisica
+        setup(2, "parede", true, Color.BLACK);
         // 3 - Plataforma
-        setup(3, "plataforma", true, new Color(150, 75, 0)); // com fisica; sem configutação
-        
+        setup(3, "plataforma", true, new Color(150, 75, 0));
         // 4 - Escada
-        setup(4, "escada", false, new Color(200, 150, 50)); // com fisica
-        
+        setup(4, "escada", false, new Color(200, 150, 50));
         // 5 - Àgua
-        setup(5, "agua", false, new Color(0, 100, 255)); // com fisica
-        
+        setup(5, "agua", false, new Color(0, 100, 255));
         // 6 - Trampolim
-        setup(6, "trampolim", true, Color.PINK); // com fisica
-        
+        setup(6, "trampolim", true, Color.PINK); 
         // 7 - Bueiro
-        setup(7, "bueiro", false, new Color(30, 30, 30)); // sem fisica e sem configuração
-        
+        setup(7, "bueiro", false, new Color(30, 30, 30)); 
         // 8 - Nuvem
-        setup(8, "nuvem", true, Color.WHITE); // sem fisica e sem configuração
-        
+        setup(8, "nuvem", true, Color.WHITE); 
         // 9 - Gerador Lixo
-        setup(9, "gerador_lixo", false, Color.MAGENTA); //sem configuração
-
+        setup(9, "gerador_lixo", false, Color.MAGENTA);
         // A-E Lixeiras (Cores da coleta seletiva)
-        setup(10, "lixeira_papel", false, Color.BLUE);      // sem fisica e sem configuração
-        setup(11, "lixeira_vidro", false, Color.GREEN);     // sem fisica e sem configuração
-        setup(12, "lixeira_metal", false, Color.YELLOW);    // sem fisica e sem configuração
-        setup(13, "lixeira_plastico", false, Color.RED);     // sem fisica e sem configuração
-        setup(14, "lixeira_organico", false, new Color(139, 69, 19)); // sem fisica e sem configuração
-
+        setup(10, "lixeira_papel", false, Color.BLUE); 
+        setup(11, "lixeira_vidro", false, Color.GREEN); 
+        setup(12, "lixeira_metal", false, Color.YELLOW); 
+        setup(13, "lixeira_plastico", false, Color.RED);
+        setup(14, "lixeira_organico", false, new Color(139, 69, 19)); 
         // F - Água Tóxica
-        setup(15, "agua_toxica", false, new Color(50, 200, 50)); // sem fisica e sem configuração
-        
+        setup(15, "agua_toxica", false, new Color(50, 200, 50)); 
         // G - Elevador
-        setup(16, "elevador", false, Color.CYAN); // com fisica
+        setup(16, "elevador", false, Color.CYAN);
     }
     
     public void setup(int index, String imageName, boolean collision, Color color) {

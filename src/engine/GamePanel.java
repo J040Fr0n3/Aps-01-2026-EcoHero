@@ -20,28 +20,22 @@ import java.awt.BasicStroke;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    // Configurações de Tela
     public final int tileSize = 48;
     public final int maxScreenCol = 16;
     public final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
-    
     BufferedImage heartImage;
-    
     public int maxWorldCol; 
     public int maxWorldRow; 
     public int worldWidth;
     public int worldHeight;
-    
     public int score = 0;
     public int comboMultiplier = 1;
     public int correctSequence = 0;
     public int totalItemsNoNivel = 0;
     public int itensColetadosTotal = 0;
     public Map<String, Integer> itensEntreguesFase = new HashMap<>();
-    
-    
     public int gameState;
     public final int titleState = 0;
     public final int playState = 1;
@@ -56,14 +50,11 @@ public class GamePanel extends JPanel implements Runnable {
     public final int adminDeleteState = 11;
     public double playTime;
     private long musicTimePosition = 0;
-    
     public int screenWidth2 = screenWidth;  
     public int screenHeight2 = screenHeight; 
     public boolean fullScreenOn = false;
-    
     public int tutorialPasso = 1; 
     public boolean tutorialConcluido = false;
-    
     public boolean apertouA = false;
     public boolean apertouD = false;
     public boolean apertouPulo = false;
