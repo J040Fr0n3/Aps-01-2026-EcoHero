@@ -489,8 +489,8 @@ public class UI {
         g2.drawString("- Gabriel Medeiros (R8391J4) - Código", gp.tileSize * 2, y + 80);
         g2.drawString("- Hiago Müller (R857BH5) - Documentação", gp.tileSize * 2, y + 120);
         g2.drawString("- Marcelo Agante (F364313) - Textura", gp.tileSize * 2, y + 160);
-        g2.drawString("- Marcelo Agante (F364313) - Textura", gp.tileSize * 2, y + 200);
-        g2.drawString("- Marcelo Agante (F364313) - Textura", gp.tileSize * 2, y + 240);
+        g2.drawString("- Eduardo Leite (R660CC3) - Documentação", gp.tileSize * 2, y + 200);
+        g2.drawString("- Henrique Lucca (H77JCB3) - Documentação", gp.tileSize * 2, y + 240);
 
         g2.setFont(Fonts.getPixelFont(20f));
         g2.setColor(Color.GRAY);
