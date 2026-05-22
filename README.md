@@ -63,3 +63,16 @@ O motor do jogo foi construído utilizando os conceitos de Programação Orienta
 1. Clone o repositório em sua máquina local:
    ```bash
    git clone [https://github.com/J040Fr0n3/Aps-01-2026-EcoHero.git] (https://github.com/J040Fr0n3/Aps-01-2026-EcoHero)
+
+👥 Desenvolvedores (Equipe UNIP)
+João Frone (R6591B2) — Desenvolvimento & Código
+
+Gabriel Medeiros (R8391J4) — Desenvolvimento & Código
+
+Hiago Müller (R857BH5) — Arquitetura de Documentação Técnica
+
+Marcelo Agante (F364313) — Design Visual & Texturas
+
+Eduardo Leite (R660CC3) - Arquitetura de Documentação Técnica
+
+Henrique Lucca (H77JCB3) - Arquitetura de Documentação Técnica
