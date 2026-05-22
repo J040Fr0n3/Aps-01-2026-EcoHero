@@ -23,22 +23,22 @@ public class LevelManager {
         levels.add(new LevelConfig(1, "/maps/map01.txt", f1Req, 2, 50, 14, 1, 13));
         // Fase 2: Papel e Vidro
         Map<String, Integer> f2Req = new HashMap<>();
-        f2Req.put("papel", 1);
-        f2Req.put("vidro", 1);
+        f2Req.put("papel", 5);
+        f2Req.put("vidro", 5);
         levels.add(new LevelConfig(2, "/maps/map02.txt", f2Req, 7, 50, 14, 2, 14));
         // Fase 3: Diversos
         Map<String, Integer> f3Req = new HashMap<>();
-        f3Req.put("papel", 1);
-        f3Req.put("plastico", 1);
-        f3Req.put("metal", 1);
-        f3Req.put("vidro", 1);
+        f3Req.put("papel", 3);
+        f3Req.put("plastico", 7);
+        f3Req.put("metal", 4);
+        f3Req.put("vidro", 6);
         levels.add(new LevelConfig(3, "/maps/map03.txt", f3Req, 7, 50, 14, 0, 15));
         Map<String, Integer> f4Req = new HashMap<>();
-        f4Req.put("papel", 1);
-        f4Req.put("plastico", 1);
-        f4Req.put("metal", 1);
-        f4Req.put("vidro", 1);
-        f4Req.put("organico", 1);
+        f4Req.put("papel", 5);
+        f4Req.put("plastico", 5);
+        f4Req.put("metal", 5);
+        f4Req.put("vidro", 5);
+        f4Req.put("organico", 5);
         levels.add(new LevelConfig(4, "/maps/map04.txt", f4Req, 7, 75, 28, 0, 16));
         if(!levels.isEmpty()) {
         	levels.get(0).unlocked = true;
