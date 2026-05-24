@@ -12,7 +12,7 @@ public class LevelConfig {
     public int maxRows;
     public int bueiroDestino;
     public int musicID;
-    public boolean unlocked = true;
+    public boolean unlocked = false;
     public java.awt.image.BufferedImage backgroundImage;
 
     public LevelConfig(

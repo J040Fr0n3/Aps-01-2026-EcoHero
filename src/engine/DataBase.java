@@ -9,7 +9,6 @@ public class DataBase {
     private final String url = "jdbc:sqlite:data/EcoHero.db";
 
     public DataBase() {
-        // Cria a tabela automaticamente se não existir
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS Score (" +

@@ -34,11 +34,11 @@ public class LevelManager {
         f3Req.put("vidro", 6);
         levels.add(new LevelConfig(3, "/maps/map03.txt", f3Req, 7, 50, 14, 0, 15));
         Map<String, Integer> f4Req = new HashMap<>();
-        f4Req.put("papel", 5);
-        f4Req.put("plastico", 5);
-        f4Req.put("metal", 5);
-        f4Req.put("vidro", 5);
-        f4Req.put("organico", 5);
+        f4Req.put("papel", 1);
+        f4Req.put("plastico", 1);
+        f4Req.put("metal", 1);
+        f4Req.put("vidro", 1);
+        f4Req.put("organico", 1);
         levels.add(new LevelConfig(4, "/maps/map04.txt", f4Req, 7, 75, 28, 0, 16));
         if(!levels.isEmpty()) {
         	levels.get(0).unlocked = true;
